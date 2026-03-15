@@ -83,7 +83,13 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | FFmpeg Pipeline | Phase 1 MVP | 2026-03-15 | Piped stdin, audio mixing, backpressure |
 | Scene Manifest Parser | Phase 1 MVP | 2026-03-15 | Zod schemas, defaults, file + object input |
 | `__frameforge` Page API | Phase 1 MVP | 2026-03-15 | Readiness signaling, metadata, progress |
-| Core test suite | Phase 1 MVP | 2026-03-15 | 101 tests across 5 files |
+| Core test suite | Phase 1 MVP | 2026-03-15 | 106 tests across 5 files |
+| Media time patching | Phase 1 MVP | 2026-03-15 | HTMLMediaElement.play intercepted, seek on advanceFrame |
+| Animation events | Phase 1 MVP | 2026-03-15 | animationstart/animationend at virtual time |
+| Per-frame timeout | Phase 1 MVP | 2026-03-15 | Configurable timeout with descriptive errors |
+| CSS animation example | Phase 1 MVP | 2026-03-15 | Pure CSS @keyframes rendered deterministically |
+| GSAP example | Phase 1 MVP | 2026-03-15 | GSAP 3.12 timeline with stagger from CDN |
+| SDK-TS integration | Phase 1 MVP | 2026-03-15 | Scene → codegen → render → MP4 end-to-end |
 
 ---
 

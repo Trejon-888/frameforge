@@ -51,6 +51,14 @@
 
 - **CSS animations via Web Animations API:** `document.getAnimations()` returns all running CSS animations and transitions. Setting `.currentTime` on each one syncs them to virtual time.
 - **eval() in setTimeout:** The spec allows `setTimeout("string", delay)` — the time virtualization must handle this (rare edge case).
+- **GSAP works automatically:** GSAP uses rAF internally. Our virtualized rAF feeds it virtual timestamps, making GSAP animations deterministic with zero integration code.
+- **Media elements need seek, not play:** Patching HTMLMediaElement.play to no-op and seeking `.currentTime` on each advanceFrame is the correct pattern for video/audio sync.
+- **Animation events don't fire on manual currentTime set:** Setting `anim.currentTime` doesn't trigger animationstart/animationend events. We manually dispatch them by tracking boundary crossings.
+
+### SDK / Codegen
+
+- **tsx required for TS examples:** The monorepo needs `tsx` as a workspace dev dependency to run TypeScript example files with workspace package resolution.
+- **Scene.render() uses dynamic import:** The SDK dynamically imports `@frameforge/core` to avoid circular deps at build time. This means the core package must be built before SDK render works.
 
 ---
 

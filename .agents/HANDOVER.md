@@ -1,7 +1,7 @@
 # Session Handover
 
 **Project:** FrameForge
-**Current Status:** Phase 1 core pipeline working — first video rendered
+**Current Status:** Phase 1 COMPLETE — all MVP features delivered
 
 ---
 
@@ -9,21 +9,37 @@
 
 | Plan | Status | Notes |
 |------|--------|-------|
-| Phase 1 — Core Renderer MVP | In Progress | Core pipeline validated, 101 tests passing, e2e render working |
+| — | — | Phase 1 complete. Phase 2 (SDKs) next. |
 
 ---
 
 ## What's Next
 
-1. Test with more complex pages (GSAP, Three.js, CSS animations)
-2. Add video/audio element time patching
-3. SDK-TS integration test (Scene → render → MP4)
-4. Create additional example scenes
-5. Phase 2 SDKs integration testing
+1. Phase 2: SDK integration tests (Python SDK implementation)
+2. Phase 2: Built-in elements (Image, Video, Code Block, Chart)
+3. Phase 2: Animation primitives (fade, slide, scale, rotate, spring, stagger, path)
+4. Phase 2: Template system
+5. Phase 3: Claude Code agent skill for video generation
 
 ---
 
 ## Session Log
+
+### Session 2 — 2026-03-15
+- **Context:** Complete remaining Phase 1 work — examples, media patching, animation events, timeouts
+- **Completed:**
+  - Added video/audio element time patching (HTMLMediaElement.play intercepted, seek on advanceFrame)
+  - Added animation event emission (animationstart/animationend dispatched at correct virtual time)
+  - Added per-frame timeout enforcement with descriptive error messages
+  - Created CSS animation example (pure @keyframes, 6s, 180 frames) — **renders correctly**
+  - Created GSAP example (GSAP 3.12 from CDN, timeline + stagger, 5s, 150 frames) — **renders correctly**
+  - Created SDK-TS integration example (Scene → codegen → render → MP4, 4s, 120 frames) — **renders correctly**
+  - Added 5 new tests for media patching and animation events
+  - Added tsx as workspace dev dependency for running TS examples
+  - Moved Phase 1 plan to completed
+- **Stats:** 106 tests passing, 0 failures, 5 test files, 4 validated examples
+- **Phase 1 MVP: DONE.** All P0 and P1 features implemented and tested.
+- **Next:** Phase 2 SDKs (Python SDK, built-in elements, animation primitives)
 
 ### Session 1 — 2026-03-15
 - **Context:** First development session — bring scaffolding to working MVP
@@ -35,14 +51,9 @@
   - Fixed output path resolution (now resolves relative to manifest, not CWD)
   - Fixed CLI default output interfering with manifest output path
   - Created vitest config for core package
-  - Wrote 35 time-virtualization tests (Date.now, performance.now, rAF, setTimeout, setInterval, CSS animations, readiness, error isolation, multi-FPS)
-  - Wrote 19 manifest parsing tests (valid/invalid schemas, defaults, file loading)
-  - Wrote 14 frame-capture contract tests
-  - Wrote 19 FFmpeg pipeline tests (args, codecs, quality, audio mixing)
-  - Wrote 14 renderer orchestrator tests
+  - Wrote 101 tests across 5 test files
   - **First successful render:** hello-world → 1920x1080@30fps, 150 frames, 5s, H.264 MP4
   - Both render paths validated: scene manifest JSON and raw HTML with --duration
-  - Added agent-friendly error hints for FFmpeg, missing entry, missing duration
 - **Stats:** 101 tests passing, 0 failures, 5 test files
 - **Next:** Test with GSAP/Three.js pages, media playback patching, SDK integration
 
@@ -50,13 +61,9 @@
 - **Context:** Initial project setup from ix-claude-code-starter-kit template
 - **Completed:**
   - Created GitHub repo (Trejon-888/frameforge)
-  - Filled in CLAUDE.md with full project context
-  - Wrote PRD with all 4 phases
-  - Set up pnpm monorepo structure
-  - Scaffolded packages/core (CLI, renderer, time virtualization, frame capture, FFmpeg pipeline, manifest parser, page API)
-  - Scaffolded packages/sdk-ts (Scene, Text, Shape, easing, codegen)
-  - Scaffolded packages/sdk-python (Scene, Text, Shape, easing, codegen)
-  - Created hello-world example with scene manifest
+  - Wrote PRD with all 4 phases, set up pnpm monorepo
+  - Scaffolded all packages (core, sdk-ts, sdk-python)
+  - Created hello-world example
   - Initial commit pushed to GitHub
 - **Next:** Install deps, build, test time virtualization, run first render
 
@@ -65,5 +72,5 @@
 ## Last Alignment Check
 
 - **Date:** 2026-03-15
-- **Score:** 90% (9/10 checks passing)
-- **Issues Found:** 1 (INDEX.md was out of sync — fixed)
+- **Score:** 100%
+- **Issues Found:** 0

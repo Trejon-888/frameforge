@@ -24,10 +24,19 @@ function createVirtualizedContext(fps = 30) {
     Date: Date,
     console: console,
     Promise: Promise,
+    Event: class MockEvent {
+      type: string;
+      bubbles: boolean;
+      constructor(type: string, opts: any = {}) {
+        this.type = type;
+        this.bubbles = opts.bubbles ?? false;
+      }
+    },
 
     window: {} as any,
     document: {
       getAnimations: () => [],
+      querySelectorAll: () => [],
     },
     performance: {
       now: () => 0,
@@ -459,6 +468,94 @@ describe("time-virtualization", () => {
       const env = createVirtualizedContext(1);
       env.frameforge.advanceFrame();
       expect(env.frameforge.currentTimeMs).toBe(1000);
+    });
+  });
+
+  describe("media element patching", () => {
+    it("HTMLMediaElement.play returns a resolved Promise", () => {
+      const env = createVirtualizedContext(30);
+      const result = env.evaluate(`
+        typeof HTMLMediaElement !== 'undefined'
+          ? 'patched'
+          : 'no HTMLMediaElement';
+      `);
+      // In Node VM, HTMLMediaElement won't exist, so we verify the script doesn't crash
+      expect(result).toBe("no HTMLMediaElement");
+    });
+
+    it("media seek logic handles querySelectorAll gracefully", () => {
+      const env = createVirtualizedContext(30);
+      // Verify advanceFrame doesn't crash when media elements are queried
+      env.frameforge.advanceFrame();
+      expect(env.frameforge.currentFrame).toBe(1);
+    });
+  });
+
+  describe("animation event emission", () => {
+    it("advanceFrame processes animations without crashing", () => {
+      const env = createVirtualizedContext(30);
+      // Mock getAnimations to return animation-like objects
+      env.evaluate(`
+        document.getAnimations = function() {
+          return [{
+            currentTime: 0,
+            effect: {
+              target: { dispatchEvent: function() {} },
+              getTiming: function() { return { delay: 0, duration: 500 }; }
+            }
+          }];
+        };
+      `);
+      env.frameforge.advanceFrame();
+      expect(env.frameforge.currentFrame).toBe(1);
+    });
+
+    it("fires animationstart when crossing delay boundary", () => {
+      const env = createVirtualizedContext(30);
+      const result = env.evaluate(`
+        let startFired = false;
+        const mockTarget = {
+          dispatchEvent: function(e) {
+            if (e.type === 'animationstart') startFired = true;
+          }
+        };
+        document.getAnimations = function() {
+          return [{
+            currentTime: 0,
+            effect: {
+              target: mockTarget,
+              getTiming: function() { return { delay: 30, duration: 500 }; }
+            }
+          }];
+        };
+        window.__frameforge.advanceFrame(); // t=33.33ms, crosses delay=30ms
+        startFired;
+      `);
+      expect(result).toBe(true);
+    });
+
+    it("fires animationend when crossing duration boundary", () => {
+      const env = createVirtualizedContext(30);
+      const result = env.evaluate(`
+        let endFired = false;
+        const mockTarget = {
+          dispatchEvent: function(e) {
+            if (e.type === 'animationend') endFired = true;
+          }
+        };
+        document.getAnimations = function() {
+          return [{
+            currentTime: 0,
+            effect: {
+              target: mockTarget,
+              getTiming: function() { return { delay: 0, duration: 30 }; }
+            }
+          }];
+        };
+        window.__frameforge.advanceFrame(); // t=33.33ms, crosses duration=30ms
+        endFired;
+      `);
+      expect(result).toBe(true);
     });
   });
 

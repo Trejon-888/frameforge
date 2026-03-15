@@ -91,41 +91,81 @@ export async function captureFrames(
       );
     }
 
+    // Per-frame timeout helper
+    const withTimeout = <T>(promise: Promise<T>, ms: number, label: string): Promise<T> => {
+      let timer: ReturnType<typeof setTimeout>;
+      return Promise.race([
+        promise,
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error(`Frame timeout (${ms}ms): ${label}`)),
+            ms
+          );
+        }),
+      ]).finally(() => clearTimeout(timer));
+    };
+
     // Capture frames one by one
     for (let frame = 0; frame < totalFrames; frame++) {
-      // Reset async readiness state before advancing
-      await page.evaluate(() => {
-        (window as any).__frameforge.resetReady();
-      });
+      try {
+        // Reset async readiness state before advancing
+        await withTimeout(
+          page.evaluate(() => {
+            (window as any).__frameforge.resetReady();
+          }),
+          frameTimeout,
+          `resetReady at frame ${frame}`
+        );
 
-      // Advance virtual time (fires timers, rAF callbacks, syncs CSS animations)
-      await page.evaluate(() => {
-        (window as any).__frameforge.advanceFrame();
-      });
+        // Advance virtual time (fires timers, rAF callbacks, syncs CSS animations)
+        await withTimeout(
+          page.evaluate(() => {
+            (window as any).__frameforge.advanceFrame();
+          }),
+          frameTimeout,
+          `advanceFrame at frame ${frame}`
+        );
 
-      // Yield to the browser's real rAF to allow repaint
-      await page.evaluate(
-        () =>
-          new Promise<void>((r) => {
-            const raf = (window as any).__originalRAF;
-            if (raf) {
-              raf(r);
-            } else {
-              // Fallback: small microtask yield
-              Promise.resolve().then(r);
-            }
-          })
-      );
+        // Yield to the browser's real rAF to allow repaint
+        await withTimeout(
+          page.evaluate(
+            () =>
+              new Promise<void>((r) => {
+                const raf = (window as any).__originalRAF;
+                if (raf) {
+                  raf(r);
+                } else {
+                  Promise.resolve().then(r);
+                }
+              })
+          ),
+          frameTimeout,
+          `repaint yield at frame ${frame}`
+        );
 
-      // Capture screenshot as raw PNG buffer
-      const screenshot = await page.screenshot({
-        type: "png",
-        omitBackground: false,
-        encoding: "binary",
-      });
+        // Capture screenshot as raw PNG buffer
+        const screenshot = await withTimeout(
+          page.screenshot({
+            type: "png",
+            omitBackground: false,
+            encoding: "binary",
+          }),
+          frameTimeout,
+          `screenshot at frame ${frame}`
+        );
 
-      if (onFrame) {
-        await onFrame(screenshot as Buffer, frame);
+        if (onFrame) {
+          await onFrame(screenshot as Buffer, frame);
+        }
+      } catch (err: any) {
+        throw new Error(
+          `Failed at frame ${frame + 1}/${totalFrames} (${((frame / fps) * 1000 / 1000).toFixed(2)}s):\n` +
+            `${err.message}\n` +
+            (pageErrors.length > 0
+              ? `Page errors:\n${pageErrors.slice(-3).map((e) => `  - ${e}`).join("\n")}\n`
+              : "") +
+            `Hint: If the page hangs, check for infinite loops or heavy async operations.`
+        );
       }
 
       if (onProgress) {

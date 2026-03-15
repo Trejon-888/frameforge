@@ -1,0 +1,29 @@
+{
+  "$schema": "https://frameforge.dev/schema/v1/scene.json",
+  "version": "1.0",
+  "name": "css-animations",
+
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration": 6.0,
+    "background": "#0f172a"
+  },
+
+  "entry": "./index.html",
+  "audio": [],
+
+  "render": {
+    "codec": "h264",
+    "quality": "high",
+    "pixelFormat": "yuv420p",
+    "output": "./output/css-animations.mp4"
+  },
+
+  "metadata": {
+    "title": "CSS Animations — FrameForge Example",
+    "description": "Pure CSS @keyframes animations captured deterministically by FrameForge time virtualization.",
+    "tags": ["example", "css", "animations"]
+  }
+}

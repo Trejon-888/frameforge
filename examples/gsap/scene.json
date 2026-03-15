@@ -1,0 +1,29 @@
+{
+  "$schema": "https://frameforge.dev/schema/v1/scene.json",
+  "version": "1.0",
+  "name": "gsap-timeline",
+
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration": 5.0,
+    "background": "#0a0a0a"
+  },
+
+  "entry": "./index.html",
+  "audio": [],
+
+  "render": {
+    "codec": "h264",
+    "quality": "high",
+    "pixelFormat": "yuv420p",
+    "output": "./output/gsap-timeline.mp4"
+  },
+
+  "metadata": {
+    "title": "GSAP Timeline — FrameForge Example",
+    "description": "GSAP animation library running under FrameForge time virtualization for deterministic capture.",
+    "tags": ["example", "gsap", "timeline", "stagger"]
+  }
+}

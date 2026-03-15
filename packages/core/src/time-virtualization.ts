@@ -11,7 +11,9 @@
  * - requestAnimationFrame() / cancelAnimationFrame()
  * - setTimeout() / clearTimeout()
  * - setInterval() / clearInterval()
- * - document.timeline (Web Animations API)
+ * - document.getAnimations() (Web Animations API / CSS Animations)
+ * - HTMLMediaElement.play() (<video> / <audio> seek control)
+ * - Animation events (animationstart, animationend)
  */
 export const TIME_VIRTUALIZATION_SCRIPT = `
 (function() {
@@ -117,6 +119,16 @@ export const TIME_VIRTUALIZATION_SCRIPT = `
     pendingTimers = pendingTimers.filter(t => t.id !== id);
   };
 
+  // --- Media element patching (<video>, <audio>) ---
+  // Prevent real playback — we control time by seeking in advanceFrame
+  if (typeof HTMLMediaElement !== 'undefined') {
+    var _originalPlay = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function() {
+      // Don't actually play — FrameForge controls media time via seeking
+      return Promise.resolve();
+    };
+  }
+
   // --- Core: advance one frame ---
   function advanceFrame() {
     frameNumber++;
@@ -172,8 +184,50 @@ export const TIME_VIRTUALIZATION_SCRIPT = `
     if (document.getAnimations) {
       const animations = document.getAnimations();
       for (const anim of animations) {
+        var prevTime = anim.currentTime || 0;
         anim.currentTime = virtualTimeMs;
+
+        // Emit animation events when crossing boundaries
+        try {
+          var effect = anim.effect;
+          if (effect && effect.getTiming) {
+            var timing = effect.getTiming();
+            var totalDuration = (timing.delay || 0) + (timing.duration || 0);
+            var startTime = timing.delay || 0;
+
+            // animationstart: crossed the delay boundary
+            if (prevTime < startTime && virtualTimeMs >= startTime && anim.effect.target) {
+              anim.effect.target.dispatchEvent(new Event('animationstart', { bubbles: true }));
+            }
+            // animationend: crossed the total duration boundary
+            if (prevTime < totalDuration && virtualTimeMs >= totalDuration && anim.effect.target) {
+              anim.effect.target.dispatchEvent(new Event('animationend', { bubbles: true }));
+            }
+          }
+        } catch (e) {
+          // Ignore event dispatch errors — non-critical
+        }
       }
+    }
+
+    // Seek media elements (<video>, <audio>) to virtual time
+    try {
+      var mediaElements = document.querySelectorAll('video, audio');
+      for (var i = 0; i < mediaElements.length; i++) {
+        var media = mediaElements[i];
+        if (media.duration && !isNaN(media.duration)) {
+          var targetTime = Math.min(virtualTimeMs / 1000, media.duration);
+          if (Math.abs(media.currentTime - targetTime) > 0.01) {
+            media.currentTime = targetTime;
+          }
+        }
+        // Keep media paused — we control time
+        if (!media.paused) {
+          media.pause();
+        }
+      }
+    } catch (e) {
+      // Ignore media seek errors — element may not be loaded yet
     }
 
     return {
