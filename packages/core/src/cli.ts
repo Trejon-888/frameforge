@@ -33,7 +33,7 @@ program
   .command("render")
   .description("Render an HTML page or scene manifest to MP4 video")
   .argument("<input>", "Path to HTML file or scene manifest JSON")
-  .option("-o, --output <path>", "Output file path", "./output.mp4")
+  .option("-o, --output <path>", "Output file path (default: manifest output or ./output.mp4)")
   .option("-d, --duration <seconds>", "Duration in seconds (required for HTML input)", parseFloat)
   .option("--fps <number>", "Frames per second", parseInt)
   .option("--width <pixels>", "Video width in pixels", parseInt)
@@ -77,7 +77,7 @@ program
       console.error(chalk.red(`\n  ${err.message}\n`));
 
       // Agent-friendly error hints
-      if (err.message.includes("FFmpeg")) {
+      if (err.message.includes("FFmpeg") || err.message.includes("ffmpeg")) {
         console.error(
           chalk.yellow("  Hint: Install FFmpeg — https://ffmpeg.org/download.html\n")
         );
@@ -87,6 +87,21 @@ program
           chalk.yellow(
             "  Hint: Use --duration <seconds> when rendering raw HTML files.\n" +
               "  Example: frameforge render page.html --duration 10\n"
+          )
+        );
+      }
+      if (err.message.includes("Entry file not found")) {
+        console.error(
+          chalk.yellow(
+            '  Hint: Check that the HTML file path is correct.\n' +
+              '  For manifests, the "entry" path is relative to the manifest file.\n'
+          )
+        );
+      }
+      if (err.message.includes("ENOENT") || err.message.includes("no such file")) {
+        console.error(
+          chalk.yellow(
+            "  Hint: The input file was not found. Check the file path.\n"
           )
         );
       }

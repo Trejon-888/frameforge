@@ -223,6 +223,9 @@ export const TIME_VIRTUALIZATION_SCRIPT = `
     },
   };
 
+  // Expose original rAF for the renderer to yield to the browser repaint
+  window.__originalRAF = _originalRAF;
+
   console.log('[FrameForge] Time virtualization initialized @ ' + fps + ' fps');
 })();
 `;

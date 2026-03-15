@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
 import { parseManifest, resolveEntry, type SceneManifest } from "./manifest.js";
 import { captureFrames } from "./frame-capture.js";
 import { encodeVideo, type FFmpegPipeline } from "./ffmpeg.js";
@@ -35,6 +35,13 @@ export async function render(options: RenderOptions): Promise<string> {
     // Scene manifest
     manifest = await parseManifest(inputPath);
     entryPath = resolveEntry(inputPath, manifest.entry);
+    // Resolve output path relative to manifest location (if not overridden by CLI)
+    if (!options.output) {
+      manifest.render.output = resolve(
+        dirname(inputPath),
+        manifest.render.output
+      );
+    }
   } else {
     // Raw HTML file — build a minimal manifest
     if (!options.duration) {

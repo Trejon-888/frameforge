@@ -1,6 +1,7 @@
 import puppeteer, { type Browser, type Page } from "puppeteer";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { existsSync } from "node:fs";
 import { TIME_VIRTUALIZATION_SCRIPT } from "./time-virtualization.js";
 import { PAGE_API_SCRIPT } from "./page-api.js";
 import type { SceneManifest } from "./manifest.js";
@@ -10,6 +11,8 @@ export interface FrameCaptureOptions {
   entryPath: string;
   onFrame?: (frameData: Buffer, frameNumber: number) => void | Promise<void>;
   onProgress?: (current: number, total: number) => void;
+  /** Per-frame timeout in ms. Default: 10000 (10s) */
+  frameTimeout?: number;
 }
 
 /**
@@ -20,9 +23,19 @@ export interface FrameCaptureOptions {
 export async function captureFrames(
   options: FrameCaptureOptions
 ): Promise<void> {
-  const { manifest, entryPath, onFrame, onProgress } = options;
+  const { manifest, entryPath, onFrame, onProgress, frameTimeout = 10000 } = options;
   const { width, height, fps, duration } = manifest.canvas;
   const totalFrames = Math.ceil(fps * duration);
+
+  // Validate entry file exists
+  const resolvedEntry = resolve(entryPath);
+  if (!existsSync(resolvedEntry)) {
+    throw new Error(
+      `Entry file not found: ${resolvedEntry}\n` +
+        `Make sure the HTML file exists at this path.\n` +
+        `If using a scene manifest, check that the "entry" path is correct relative to the manifest.`
+    );
+  }
 
   let browser: Browser | undefined;
 
@@ -40,6 +53,17 @@ export async function captureFrames(
 
     const page = await browser.newPage();
     await page.setViewport({ width, height, deviceScaleFactor: 1 });
+
+    // Capture page errors for debugging
+    const pageErrors: string[] = [];
+    page.on("pageerror", (err) => {
+      pageErrors.push(err.message);
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        pageErrors.push(`[console.error] ${msg.text()}`);
+      }
+    });
 
     // Inject time virtualization BEFORE the page loads
     await page.evaluateOnNewDocument(`
@@ -69,14 +93,28 @@ export async function captureFrames(
 
     // Capture frames one by one
     for (let frame = 0; frame < totalFrames; frame++) {
-      // Advance virtual time
+      // Reset async readiness state before advancing
+      await page.evaluate(() => {
+        (window as any).__frameforge.resetReady();
+      });
+
+      // Advance virtual time (fires timers, rAF callbacks, syncs CSS animations)
       await page.evaluate(() => {
         (window as any).__frameforge.advanceFrame();
       });
 
-      // Small yield to let the browser re-render
+      // Yield to the browser's real rAF to allow repaint
       await page.evaluate(
-        () => new Promise<void>((r) => (window as any).__originalRAF?.(r) || r())
+        () =>
+          new Promise<void>((r) => {
+            const raf = (window as any).__originalRAF;
+            if (raf) {
+              raf(r);
+            } else {
+              // Fallback: small microtask yield
+              Promise.resolve().then(r);
+            }
+          })
       );
 
       // Capture screenshot as raw PNG buffer
@@ -93,6 +131,16 @@ export async function captureFrames(
       if (onProgress) {
         onProgress(frame + 1, totalFrames);
       }
+    }
+
+    // Warn about page errors (non-fatal, but useful for debugging)
+    if (pageErrors.length > 0) {
+      const uniqueErrors = [...new Set(pageErrors)];
+      console.warn(
+        `[FrameForge] ${uniqueErrors.length} page error(s) during render:\n` +
+          uniqueErrors.slice(0, 5).map((e) => `  - ${e}`).join("\n") +
+          (uniqueErrors.length > 5 ? `\n  ... and ${uniqueErrors.length - 5} more` : "")
+      );
     }
   } finally {
     if (browser) {

@@ -29,14 +29,14 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 
 | Feature | Description | Priority | Status |
 |---------|-------------|----------|--------|
-| `frameforge render` CLI | Takes HTML file + options → MP4 | P0 | Planned |
-| Time Virtualization Script | Patches Date.now, rAF, setTimeout, CSS animations | P0 | Planned |
-| Puppeteer Frame Capture | Headless Chrome screenshot loop with CDP | P0 | Planned |
-| FFmpeg Pipeline | Frame → pipe → encode → MP4 (no intermediate files) | P0 | Planned |
-| Scene Manifest Parser | Read & validate scene.json via Zod | P0 | Planned |
-| `__frameforge` Page API | Global API for signaling frame readiness | P0 | Planned |
-| Audio mixing | Overlay audio tracks onto final video | P1 | Planned |
-| Error handling | Timeouts, crash recovery, agent-friendly messages | P1 | Planned |
+| `frameforge render` CLI | Takes HTML file + options → MP4 | P0 | Implemented |
+| Time Virtualization Script | Patches Date.now, rAF, setTimeout, CSS animations | P0 | Implemented |
+| Puppeteer Frame Capture | Headless Chrome screenshot loop with CDP | P0 | Implemented |
+| FFmpeg Pipeline | Frame → pipe → encode → MP4 (no intermediate files) | P0 | Implemented |
+| Scene Manifest Parser | Read & validate scene.json via Zod | P0 | Implemented |
+| `__frameforge` Page API | Global API for signaling frame readiness | P0 | Implemented |
+| Audio mixing | Overlay audio tracks onto final video | P1 | Scaffolded |
+| Error handling | Timeouts, crash recovery, agent-friendly messages | P1 | Implemented |
 
 ### Phase 2 — SDKs (Python + TypeScript)
 
@@ -77,6 +77,13 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Feature | Plan | Date Completed | Notes |
 |---------|------|---------------|-------|
 | Project scaffolding | — | 2026-03-15 | Initial repo setup |
+| `frameforge render` CLI | Phase 1 MVP | 2026-03-15 | Commander.js CLI with progress + error hints |
+| Time Virtualization Script | Phase 1 MVP | 2026-03-15 | Patches Date.now, rAF, setTimeout, CSS animations |
+| Puppeteer Frame Capture | Phase 1 MVP | 2026-03-15 | CDP screenshots, error capture, rAF yield |
+| FFmpeg Pipeline | Phase 1 MVP | 2026-03-15 | Piped stdin, audio mixing, backpressure |
+| Scene Manifest Parser | Phase 1 MVP | 2026-03-15 | Zod schemas, defaults, file + object input |
+| `__frameforge` Page API | Phase 1 MVP | 2026-03-15 | Readiness signaling, metadata, progress |
+| Core test suite | Phase 1 MVP | 2026-03-15 | 101 tests across 5 files |
 
 ---
 

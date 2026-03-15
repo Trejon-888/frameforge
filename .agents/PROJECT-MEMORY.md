@@ -22,7 +22,8 @@
 
 | Problem | Root Cause | Solution | Session |
 |---------|-----------|----------|---------|
-| — | — | — | — |
+| `__originalRAF` undefined in frame-capture | Variable scoped inside time-virtualization IIFE, not exposed on window | Added `window.__originalRAF = _originalRAF` at end of IIFE | Session 1 |
+| Output path resolves to CWD not manifest dir | `resolve(options.output)` uses CWD; CLI always set default `-o` value | Remove CLI default for `-o`; resolve output relative to `dirname(manifestPath)` in renderer | Session 1 |
 
 ---
 
