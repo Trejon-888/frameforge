@@ -8,7 +8,7 @@
 
 | Status | Count |
 |--------|-------|
-| Active | 0 |
+| Active | 1 |
 | Pending | 0 |
 | Completed | 4 |
 
@@ -18,7 +18,7 @@
 
 | Plan | Started | Status | Notes |
 |------|---------|--------|-------|
-| — | — | — | — |
+| [FrameForge Studio](active/frameforge-studio-prd.md) | 2026-03-15 | Planning | Local preview UI with timeline — GTM critical |
 
 ---
 
