@@ -53,10 +53,10 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 
 | Feature | Description | Priority | Status |
 |---------|-------------|----------|--------|
-| Claude Code Agent Skill | Skill file teaching Claude how to use FrameForge | P0 | Planned |
-| MCP Server | Model Context Protocol server for FrameForge | P1 | Planned |
-| Example prompts library | Curated prompts for good video output | P1 | Planned |
-| Agent-friendly errors | Errors an LLM can parse and fix | P0 | Planned |
+| Claude Code Agent Skill | Skill file teaching Claude how to use FrameForge | P0 | Implemented |
+| MCP Server | Model Context Protocol server for FrameForge | P1 | Implemented |
+| Example prompts library | Curated prompts for good video output | P1 | Implemented |
+| Agent-friendly errors | Errors an LLM can parse and fix | P0 | Implemented |
 | Render preview server | Hot-reload preview before final render | P2 | Planned |
 
 ### Phase 4 — Advanced Features (Nice to Have)
@@ -94,6 +94,10 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Image element | Phase 2 SDKs | 2026-03-15 | TS + Python SDKs, codegen support |
 | Python SDK codegen | Phase 2 SDKs | 2026-03-15 | Scene, Text, Shape, Image, Animate, easing — generates HTML |
 | SDK-TS test suite | Phase 2 SDKs | 2026-03-15 | 35 tests (elements, animations, codegen) |
+| Claude Code Agent Skill | Phase 3 Agent | 2026-03-15 | skill.md — comprehensive video generation guide |
+| MCP Server | Phase 3 Agent | 2026-03-15 | @frameforge/mcp-server — render + validate tools |
+| Example prompts library | Phase 3 Agent | 2026-03-15 | 8 curated prompts with expected outputs |
+| Preview CLI command | Phase 3 Agent | 2026-03-15 | frameforge preview — single frame PNG capture |
 
 ---
 

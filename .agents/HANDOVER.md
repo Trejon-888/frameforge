@@ -1,7 +1,7 @@
 # Session Handover
 
 **Project:** FrameForge
-**Current Status:** Phase 1 + Phase 2 core COMPLETE — SDKs with animation primitives
+**Current Status:** Phases 1–3 COMPLETE — Core renderer, SDKs, agent integration
 
 ---
 
@@ -9,20 +9,33 @@
 
 | Plan | Status | Notes |
 |------|--------|-------|
-| — | — | Phase 1 + Phase 2 core complete. Phase 3 next. |
+| — | — | Phases 1–3 complete. Phase 4 (advanced features) is next. |
 
 ---
 
 ## What's Next
 
-1. Phase 3: Claude Code agent skill for video generation
-2. Phase 3: MCP server for FrameForge
-3. Phase 2 remaining: Video, Code Block, Chart elements
-4. Phase 2 remaining: Template system
+1. Phase 4: Multi-scene composition
+2. Phase 4: Transition library
+3. Remaining: Video, Code Block, Chart elements
+4. Remaining: Template system, render preview server
 
 ---
 
 ## Session Log
+
+### Session 4 — 2026-03-15
+- **Context:** Phase 3 Agent Skills — skill file, MCP server, preview command, example prompts
+- **Completed:**
+  - Created comprehensive Agent Skill (skill.md) with 3 authoring paths, API reference, patterns
+  - Built MCP Server (@frameforge/mcp-server) with render + validate tools
+  - Added `frameforge preview` CLI command for single-frame PNG capture
+  - Created example prompts library (8 curated prompts with expected outputs)
+  - Updated CLAUDE.md architecture (MCP server, preview command)
+  - Updated PRD Phase 3 feature statuses
+- **Stats:** 141 tests passing, 8 test files, 3 packages building, 5 rendered examples
+- **Phases 1–3: DONE.** Core renderer, SDKs, and agent integration all complete.
+- **Next:** Phase 4 advanced features (multi-scene, transitions, cloud rendering)
 
 ### Session 3 — 2026-03-15
 - **Context:** Phase 2 SDKs — animation primitives, Image element, Python SDK, tests

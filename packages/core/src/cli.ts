@@ -110,4 +110,77 @@ program
     }
   });
 
+program
+  .command("preview")
+  .description("Capture a single frame as a PNG image")
+  .argument("<input>", "Path to HTML file or scene manifest JSON")
+  .option("-o, --output <path>", "Output PNG path", "./preview.png")
+  .option("-f, --frame <number>", "Frame number to capture (0-indexed)", parseInt, 0)
+  .option("-d, --duration <seconds>", "Duration in seconds (required for HTML input)", parseFloat)
+  .option("--fps <number>", "Frames per second", parseInt)
+  .option("--width <pixels>", "Video width in pixels", parseInt)
+  .option("--height <pixels>", "Video height in pixels", parseInt)
+  .action(async (input: string, opts) => {
+    const spinner = ora();
+
+    console.log(
+      chalk.bold("\n  FrameForge ") +
+        chalk.dim(`v${getVersion()} — preview`) +
+        "\n"
+    );
+
+    try {
+      spinner.start(chalk.dim(`Capturing frame ${opts.frame}...`));
+
+      const inputPath = resolve(input);
+      let manifest: any;
+      let entryPath: string;
+
+      if (inputPath.endsWith(".json")) {
+        const { parseManifest, resolveEntry } = await import("./manifest.js");
+        manifest = await parseManifest(inputPath);
+        entryPath = resolveEntry(inputPath, manifest.entry);
+      } else {
+        if (!opts.duration) {
+          throw new Error("Duration is required for raw HTML. Use --duration <seconds>.");
+        }
+        manifest = {
+          version: "1.0",
+          canvas: {
+            width: opts.width ?? 1920,
+            height: opts.height ?? 1080,
+            fps: opts.fps ?? 30,
+            duration: opts.duration,
+            background: "#000000",
+          },
+          entry: inputPath,
+          audio: [],
+          render: { codec: "h264", quality: "high", pixelFormat: "yuv420p", output: "./output.mp4" },
+        };
+        entryPath = inputPath;
+      }
+
+      if (opts.fps) manifest.canvas.fps = opts.fps;
+      if (opts.width) manifest.canvas.width = opts.width;
+      if (opts.height) manifest.canvas.height = opts.height;
+
+      const { capturePreview } = await import("./preview.js");
+      const outputPath = await capturePreview({
+        manifest,
+        entryPath,
+        frame: opts.frame,
+        output: opts.output,
+      });
+
+      spinner.succeed(
+        chalk.green(`Preview saved to ${outputPath}`) +
+          chalk.dim(` (frame ${opts.frame})`)
+      );
+    } catch (err: any) {
+      spinner.fail(chalk.red("Preview failed"));
+      console.error(chalk.red(`\n  ${err.message}\n`));
+      process.exit(1);
+    }
+  });
+
 program.parse();

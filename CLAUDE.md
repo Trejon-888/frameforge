@@ -32,7 +32,8 @@ frameforge/
 │   │   │   ├── frame-capture.ts # Puppeteer frame capture
 │   │   │   ├── ffmpeg.ts        # FFmpeg pipeline
 │   │   │   ├── manifest.ts      # Scene manifest parsing (Zod)
-│   │   │   └── page-api.ts      # __frameforge client API
+│   │   │   ├── page-api.ts      # __frameforge client API
+│   │   │   └── preview.ts       # Single frame capture
 │   │   └── package.json
 │   │
 │   ├── sdk-ts/                  # TypeScript SDK (@frameforge/sdk)
@@ -42,6 +43,11 @@ frameforge/
 │   │   │   ├── animations/      # Animation primitives
 │   │   │   ├── easing.ts        # Easing functions
 │   │   │   └── codegen.ts       # Generates HTML from scene graph
+│   │   └── package.json
+│   │
+│   ├── mcp-server/              # MCP Server (@frameforge/mcp-server)
+│   │   ├── src/
+│   │   │   └── index.ts         # MCP protocol server (render + validate tools)
 │   │   └── package.json
 │   │
 │   └── sdk-python/              # Python SDK (frameforge PyPI)
@@ -77,6 +83,9 @@ pnpm --filter @frameforge/core test
 
 # Render a page
 npx frameforge render ./page.html --duration 10 --fps 30 -o video.mp4
+
+# Preview a single frame
+npx frameforge preview ./scene.json --frame 45 -o preview.png
 ```
 
 ---
