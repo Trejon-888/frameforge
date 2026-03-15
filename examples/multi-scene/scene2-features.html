@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1920px; height: 1080px; overflow: hidden; background: #16213e; font-family: system-ui; }
+    .title { position: absolute; top: 120px; width: 100%; text-align: center; font-size: 48px; font-weight: 700; color: #e94560; opacity: 0; }
+    .card { position: absolute; width: 350px; height: 180px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; color: white; opacity: 0; transform: translateY(40px); }
+    .c1 { background: #6366f1; top: 350px; left: 150px; }
+    .c2 { background: #ec4899; top: 350px; left: 550px; }
+    .c3 { background: #f97316; top: 350px; left: 950px; }
+    .c4 { background: #10b981; top: 350px; left: 1350px; }
+    .c5 { background: #3b82f6; top: 600px; left: 550px; }
+    .c6 { background: #8b5cf6; top: 600px; left: 950px; }
+  </style>
+</head>
+<body>
+  <h2 class="title">Core Features</h2>
+  <div class="card c1">Time Virtualization</div>
+  <div class="card c2">Frame Capture</div>
+  <div class="card c3">FFmpeg Pipeline</div>
+  <div class="card c4">Scene Manifests</div>
+  <div class="card c5">TypeScript SDK</div>
+  <div class="card c6">Python SDK</div>
+  <script>
+    const cards = document.querySelectorAll('.card');
+    const title = document.querySelector('.title');
+    function update() {
+      const t = performance.now() / 1000;
+      title.style.opacity = Math.min(1, Math.max(0, (t - 0.2) / 0.5));
+      cards.forEach((card, i) => {
+        const delay = 0.6 + i * 0.2;
+        const progress = Math.min(1, Math.max(0, (t - delay) / 0.5));
+        card.style.opacity = progress;
+        card.style.transform = `translateY(${40 * (1 - progress)}px)`;
+      });
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>

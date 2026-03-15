@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "name": "multi-scene-demo",
+
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+
+  "scenes": [
+    {
+      "entry": "./scene1-intro.html",
+      "duration": 3,
+      "transition": { "type": "fadeblack", "duration": 0.5 }
+    },
+    {
+      "entry": "./scene2-features.html",
+      "duration": 4,
+      "transition": { "type": "wipeleft", "duration": 0.8 }
+    },
+    {
+      "entry": "./scene3-outro.html",
+      "duration": 3
+    }
+  ],
+
+  "render": {
+    "codec": "h264",
+    "quality": "high",
+    "pixelFormat": "yuv420p",
+    "output": "./output/multi-scene-demo.mp4"
+  }
+}

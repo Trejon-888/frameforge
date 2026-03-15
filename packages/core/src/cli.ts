@@ -183,4 +183,44 @@ program
     }
   });
 
+program
+  .command("compose")
+  .description("Compose multiple scenes into a single video with transitions")
+  .argument("<input>", "Path to composition manifest JSON")
+  .option("-o, --output <path>", "Output file path")
+  .action(async (input: string, opts) => {
+    const spinner = ora();
+
+    console.log(
+      chalk.bold("\n  FrameForge ") +
+        chalk.dim(`v${getVersion()} — compose`) +
+        "\n"
+    );
+
+    try {
+      spinner.start(chalk.dim("Starting composition..."));
+
+      const startTime = Date.now();
+
+      const { compose } = await import("./composition.js");
+      const outputPath = await compose({
+        input,
+        output: opts.output,
+        onProgress: (msg) => {
+          spinner.text = chalk.dim(msg);
+        },
+      });
+
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      spinner.succeed(
+        chalk.green(`Composed to ${outputPath}`) +
+          chalk.dim(` in ${elapsed}s`)
+      );
+    } catch (err: any) {
+      spinner.fail(chalk.red("Composition failed"));
+      console.error(chalk.red(`\n  ${err.message}\n`));
+      process.exit(1);
+    }
+  });
+
 program.parse();

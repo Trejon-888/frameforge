@@ -13,6 +13,8 @@ export interface FrameCaptureOptions {
   onProgress?: (current: number, total: number) => void;
   /** Per-frame timeout in ms. Default: 10000 (10s) */
   frameTimeout?: number;
+  /** Enable GPU acceleration for complex 3D scenes. Default: false */
+  gpu?: boolean;
 }
 
 /**
@@ -23,7 +25,7 @@ export interface FrameCaptureOptions {
 export async function captureFrames(
   options: FrameCaptureOptions
 ): Promise<void> {
-  const { manifest, entryPath, onFrame, onProgress, frameTimeout = 10000 } = options;
+  const { manifest, entryPath, onFrame, onProgress, frameTimeout = 10000, gpu = false } = options;
   const { width, height, fps, duration } = manifest.canvas;
   const totalFrames = Math.ceil(fps * duration);
 
@@ -44,7 +46,7 @@ export async function captureFrames(
       headless: true,
       args: [
         `--window-size=${width},${height}`,
-        "--disable-gpu",
+        ...(gpu ? ["--enable-gpu"] : ["--disable-gpu"]),
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",

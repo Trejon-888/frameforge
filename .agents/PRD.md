@@ -63,12 +63,12 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 
 | Feature | Description | Priority | Status |
 |---------|-------------|----------|--------|
-| Multi-scene composition | Stitch multiple HTML pages as scenes | P1 | Planned |
-| Transition library | Built-in transitions (fade, wipe, slide) | P2 | Planned |
-| Live footage overlay | Composite animations over video footage | P2 | Planned |
-| Subtitle/caption engine | SRT/VTT → burned-in captions | P2 | Planned |
+| Multi-scene composition | Stitch multiple HTML pages as scenes | P1 | Implemented |
+| Transition library | 23 FFmpeg xfade transitions (fade, wipe, slide, dissolve, etc.) | P2 | Implemented |
+| Live footage overlay | Composite via `<video>` element + media time patching | P2 | Implemented |
+| Subtitle/caption engine | SRT/VTT parser → HTML overlay synced to virtual time | P2 | Implemented |
 | Remote/cloud rendering | Render on Lambda/Cloud Run | P3 | Planned |
-| GPU acceleration | Chrome GPU for complex 3D scenes | P3 | Planned |
+| GPU acceleration | Chrome GPU flag for complex 3D scenes | P3 | Implemented |
 
 ---
 
@@ -98,6 +98,10 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | MCP Server | Phase 3 Agent | 2026-03-15 | @frameforge/mcp-server — render + validate tools |
 | Example prompts library | Phase 3 Agent | 2026-03-15 | 8 curated prompts with expected outputs |
 | Preview CLI command | Phase 3 Agent | 2026-03-15 | frameforge preview — single frame PNG capture |
+| Multi-scene composition | Phase 4 Advanced | 2026-03-15 | frameforge compose — stitch scenes with transitions |
+| Transition library | Phase 4 Advanced | 2026-03-15 | 23 FFmpeg xfade types (fade, dissolve, wipe, slide, etc.) |
+| Subtitle engine | Phase 4 Advanced | 2026-03-15 | SRT/VTT parser + HTML overlay synced to virtual time |
+| GPU acceleration | Phase 4 Advanced | 2026-03-15 | --gpu flag for Chrome hardware acceleration |
 
 ---
 

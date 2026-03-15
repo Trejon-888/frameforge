@@ -11,3 +11,20 @@ export { captureFrames, type FrameCaptureOptions } from "./frame-capture.js";
 export { encodeVideo, type FFmpegOptions } from "./ffmpeg.js";
 export { PAGE_API_SCRIPT } from "./page-api.js";
 export { capturePreview, type PreviewOptions } from "./preview.js";
+export {
+  compose,
+  parseComposition,
+  TRANSITIONS,
+  type Composition,
+  type CompositionScene,
+  type TransitionType,
+  type ComposeOptions,
+} from "./composition.js";
+export {
+  parseSRT,
+  parseVTT,
+  loadSubtitles,
+  generateSubtitleOverlay,
+  type SubtitleEntry,
+  type SubtitleOverlayOptions,
+} from "./subtitles.js";

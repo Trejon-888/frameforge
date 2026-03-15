@@ -86,6 +86,9 @@ npx frameforge render ./page.html --duration 10 --fps 30 -o video.mp4
 
 # Preview a single frame
 npx frameforge preview ./scene.json --frame 45 -o preview.png
+
+# Compose multiple scenes with transitions
+npx frameforge compose ./composition.json -o output.mp4
 ```
 
 ---
