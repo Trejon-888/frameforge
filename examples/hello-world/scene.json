@@ -1,0 +1,30 @@
+{
+  "$schema": "https://frameforge.dev/schema/v1/scene.json",
+  "version": "1.0",
+  "name": "hello-world",
+
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration": 5.0,
+    "background": "#0a0a0a"
+  },
+
+  "entry": "./index.html",
+
+  "audio": [],
+
+  "render": {
+    "codec": "h264",
+    "quality": "high",
+    "pixelFormat": "yuv420p",
+    "output": "./output/hello-world.mp4"
+  },
+
+  "metadata": {
+    "title": "Hello World — FrameForge Example",
+    "description": "The simplest possible FrameForge video: text fade-in with a decorative bar.",
+    "tags": ["example", "hello-world"]
+  }
+}

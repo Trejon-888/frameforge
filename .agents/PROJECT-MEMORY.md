@@ -2,28 +2,27 @@
 
 **Institutional knowledge that persists across sessions.**
 
-This file captures decisions, solved problems, and lessons learned so you never re-investigate the same issue twice. Claude reads this at every session start.
-
 ---
 
 ## Architecture Decisions
 
 | # | Decision | Date | Rationale | Supersedes |
 |---|----------|------|-----------|------------|
-| <!-- ADR-001 --> | <!-- What was decided --> | <!-- YYYY-MM-DD --> | <!-- Why --> | <!-- Previous approach, if any --> |
+| ADR-001 | pnpm monorepo with packages/core, sdk-ts, sdk-python | 2026-03-15 | Clean separation: core owns rendering, SDKs are pure codegen producing HTML + manifests | — |
+| ADR-002 | Time virtualization via injected script (not CDP time domain) | 2026-03-15 | CDP's Emulation.setVirtualTimePolicy doesn't patch CSS animations or Web Animations API; injection gives full control | — |
+| ADR-003 | Frames piped to FFmpeg stdin (no temp PNGs) | 2026-03-15 | Avoids disk I/O bottleneck, no cleanup needed, works on systems with limited storage | — |
+| ADR-004 | Python SDK calls Node renderer via subprocess | 2026-03-15 | Python generates HTML + manifest, rendering stays in Node/Puppeteer where it's native; avoids maintaining two renderers | — |
+| ADR-005 | tsup for building, vitest for testing | 2026-03-15 | Fast, modern, good ESM support; matches the project's Node 20+ target | — |
 
 ---
 
 ## Problems Solved
 
-<!-- When you fix a non-obvious bug, document the root cause and solution here. -->
-<!-- Next time the same class of problem appears, Claude will find it immediately. -->
-
 ### General
 
 | Problem | Root Cause | Solution | Session |
 |---------|-----------|----------|---------|
-| <!-- Description --> | <!-- Why it happened --> | <!-- How it was fixed --> | <!-- # --> |
+| — | — | — | — |
 
 ---
 
@@ -31,17 +30,26 @@ This file captures decisions, solved problems, and lessons learned so you never 
 
 | Date | Change | What Breaks | Migration Path |
 |------|--------|-------------|----------------|
-| <!-- YYYY-MM-DD --> | <!-- What changed --> | <!-- What it affects --> | <!-- How to update --> |
+| — | — | — | — |
 
 ---
 
 ## Gotchas
 
-<!-- Things that tripped you up. Save someone (including future-you) the time. -->
+### Puppeteer / CDP
 
-### <!-- Domain/Technology -->
+- **evaluateOnNewDocument order matters:** Time virtualization script MUST be injected before the page API script. Both must inject before any page scripts run.
+- **networkidle0 timeout:** Complex pages with many assets may need longer than the default 30s timeout.
 
-- **<!-- Gotcha title -->:** <!-- What happens and how to avoid it -->
+### FFmpeg
+
+- **Even dimensions required:** H.264 requires width/height to be even numbers. The ffmpeg pipeline includes a `scale=trunc(iw/2)*2:trunc(ih/2)*2` filter as a safety net.
+- **PATH availability:** FFmpeg must be installed and in PATH. Error messages should guide the user to install it.
+
+### Time Virtualization
+
+- **CSS animations via Web Animations API:** `document.getAnimations()` returns all running CSS animations and transitions. Setting `.currentTime` on each one syncs them to virtual time.
+- **eval() in setTimeout:** The spec allows `setTimeout("string", delay)` — the time virtualization must handle this (rare edge case).
 
 ---
 
@@ -49,4 +57,4 @@ This file captures decisions, solved problems, and lessons learned so you never 
 
 | Old Pattern | New Pattern | Date | Why Changed |
 |-------------|-------------|------|-------------|
-| <!-- What we used to do --> | <!-- What we do now --> | <!-- YYYY-MM-DD --> | <!-- Why --> |
+| — | — | — | — |

@@ -28,5 +28,20 @@ Thumbs.db
 # Test
 coverage/
 
+# FrameForge
+.frameforge-tmp/
+output/
+*.mp4
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+
 # Claude Code plan artifacts (auto-cleaned by save-plan hook)
 # Plans are saved to .agents/plans/ by the hook

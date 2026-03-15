@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .title {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 72px;
+      font-weight: 700;
+      color: #ffffff;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    .subtitle {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 28px;
+      color: #888888;
+      opacity: 0;
+      margin-top: 16px;
+      transform: translateY(20px);
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    .bar {
+      width: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      margin: 24px auto 0;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title" id="title">Hello, FrameForge</div>
+    <div class="bar" id="bar"></div>
+    <div class="subtitle" id="subtitle">If a browser can render it, FrameForge can record it.</div>
+  </div>
+
+  <script>
+    // This animation is driven by FrameForge's time virtualization.
+    // requestAnimationFrame and performance.now are patched —
+    // no special API needed for basic animations.
+
+    function lerp(a, b, t) {
+      return a + (b - a) * Math.max(0, Math.min(1, t));
+    }
+
+    function easeOut(t) {
+      return t * (2 - t);
+    }
+
+    function update() {
+      // Use performance.now() — it's patched by FrameForge
+      const t = performance.now() / 1000; // time in seconds
+
+      const title = document.getElementById('title');
+      const bar = document.getElementById('bar');
+      const subtitle = document.getElementById('subtitle');
+
+      // Title: fade in + slide up from 0.5s to 1.5s
+      const titleProgress = easeOut(Math.max(0, Math.min(1, (t - 0.5) / 1.0)));
+      title.style.opacity = titleProgress;
+      title.style.transform = `translateY(${lerp(40, 0, titleProgress)}px)`;
+
+      // Bar: expand from 1.5s to 2.5s
+      const barProgress = easeOut(Math.max(0, Math.min(1, (t - 1.5) / 1.0)));
+      bar.style.width = `${lerp(0, 300, barProgress)}px`;
+
+      // Subtitle: fade in + slide up from 2.5s to 3.5s
+      const subProgress = easeOut(Math.max(0, Math.min(1, (t - 2.5) / 1.0)));
+      subtitle.style.opacity = subProgress;
+      subtitle.style.transform = `translateY(${lerp(20, 0, subProgress)}px)`;
+
+      requestAnimationFrame(update);
+    }
+
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>
