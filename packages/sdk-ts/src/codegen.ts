@@ -83,6 +83,17 @@ function generateElement(el: SceneElement, index: number): string {
   "></div>`;
   }
 
+  if (el.type === "image") {
+    const { src, width, height, x, y, opacity, objectFit, borderRadius } = el.props;
+    return `  <img id="${id}" class="ff-element" src="${escapeHTML(src)}" style="
+    left: ${x}px; top: ${y}px;
+    width: ${width}px; height: ${height}px;
+    opacity: ${opacity}; object-fit: ${objectFit};
+    border-radius: ${borderRadius}px;
+    transform: translate(-50%, -50%);
+  " />`;
+  }
+
   return `<!-- Unknown element type: ${el.type} -->`;
 }
 
@@ -122,6 +133,30 @@ function generateKeyframeInterpolation(anim: Animation): string {
 
   if (isNumeric) {
     const pairs = times.map((t, i) => `[${t}, ${values[i]}]`);
+
+    // Scale and rotation need special transform handling
+    if (prop === "scale" || prop === "rotation") {
+      const transformFn = prop === "scale" ? "scale" : "rotate";
+      const unit = prop === "rotation" ? "deg" : "";
+      return `
+    // Animate: ${prop} (transform)
+    {
+      const keyframes = [${pairs.join(", ")}];
+      let value = keyframes[0][1];
+      for (let i = 0; i < keyframes.length - 1; i++) {
+        const [t0, v0] = keyframes[i];
+        const [t1, v1] = keyframes[i + 1];
+        if (t >= t0 && t <= t1) {
+          const progress = (t - t0) / (t1 - t0);
+          value = v0 + (v1 - v0) * progress;
+          break;
+        }
+        if (t > t1) value = v1;
+      }
+      el.style.transform = 'translate(-50%, -50%) ${transformFn}(' + value + '${unit})';
+    }`;
+    }
+
     return `
     // Animate: ${prop}
     {

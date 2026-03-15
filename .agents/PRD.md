@@ -42,11 +42,11 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 
 | Feature | Description | Priority | Status |
 |---------|-------------|----------|--------|
-| TypeScript SDK | `@frameforge/sdk` — Define scenes, elements, animations | P0 | Planned |
-| Python SDK | `frameforge` PyPI — Same API surface in Python | P0 | Planned |
-| Scene Graph Model | Scene → Layer → Element → Animation → Keyframe | P0 | Planned |
-| Built-in Elements | Text, Shape, Image, Video, Code Block, Chart | P1 | Planned |
-| Animation Primitives | fade, slide, scale, rotate, spring, stagger, path | P1 | Planned |
+| TypeScript SDK | `@frameforge/sdk` — Define scenes, elements, animations | P0 | Implemented |
+| Python SDK | `frameforge` PyPI — Same API surface in Python | P0 | Implemented |
+| Scene Graph Model | Scene → Layer → Element → Animation → Keyframe | P0 | Implemented |
+| Built-in Elements | Text, Shape, Image (Video, Code Block, Chart planned) | P1 | Partial |
+| Animation Primitives | fadeIn/Out, slideIn/Out, scaleIn/Out, rotateIn/To, stagger | P1 | Implemented |
 | Template System | Pre-built scene templates | P2 | Planned |
 
 ### Phase 3 — Agent Skills & Integration
@@ -90,6 +90,10 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | CSS animation example | Phase 1 MVP | 2026-03-15 | Pure CSS @keyframes rendered deterministically |
 | GSAP example | Phase 1 MVP | 2026-03-15 | GSAP 3.12 timeline with stagger from CDN |
 | SDK-TS integration | Phase 1 MVP | 2026-03-15 | Scene → codegen → render → MP4 end-to-end |
+| Animation primitives (TS) | Phase 2 SDKs | 2026-03-15 | fadeIn/Out, slideIn/Out, scaleIn/Out, rotateIn/To, stagger |
+| Image element | Phase 2 SDKs | 2026-03-15 | TS + Python SDKs, codegen support |
+| Python SDK codegen | Phase 2 SDKs | 2026-03-15 | Scene, Text, Shape, Image, Animate, easing — generates HTML |
+| SDK-TS test suite | Phase 2 SDKs | 2026-03-15 | 35 tests (elements, animations, codegen) |
 
 ---
 

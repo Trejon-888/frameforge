@@ -9,8 +9,8 @@
 | Status | Count |
 |--------|-------|
 | Active | 0 |
-| Pending | 2 |
-| Completed | 1 |
+| Pending | 1 |
+| Completed | 2 |
 
 ---
 
@@ -26,8 +26,7 @@
 
 | Plan | Priority | Dependencies | Notes |
 |------|----------|-------------|-------|
-| Phase 2 SDKs (TS + Python) | P0 | Phase 1 (done) | SDK integration tests, Python SDK |
-| Phase 3 Agent Skills | P0 | Phase 2 | Claude Code skill, MCP server |
+| Phase 3 Agent Skills | P0 | Phase 2 (done) | Claude Code skill, MCP server |
 
 ---
 
@@ -35,4 +34,5 @@
 
 | Plan | Completed | Execution Report | Notes |
 |------|-----------|-----------------|-------|
-| [Phase 1 Core Renderer MVP](completed/phase1-core-renderer-mvp.md) | 2026-03-15 | [Report](../execution-reports/2026-03-15-phase1-complete.md) | All P0 + P1 features done, 106 tests, 4 examples |
+| [Phase 1 Core Renderer MVP](completed/phase1-core-renderer-mvp.md) | 2026-03-15 | [Report](../execution-reports/2026-03-15-phase1-complete.md) | All P0 + P1 features, 106 tests, 4 examples |
+| [Phase 2 SDKs Core](completed/phase2-sdks-core.md) | 2026-03-15 | [Report](../execution-reports/2026-03-15-phase2-sdks.md) | Animation primitives, Image, Python SDK, 35 SDK tests |

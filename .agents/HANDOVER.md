@@ -1,7 +1,7 @@
 # Session Handover
 
 **Project:** FrameForge
-**Current Status:** Phase 1 COMPLETE — all MVP features delivered
+**Current Status:** Phase 1 + Phase 2 core COMPLETE — SDKs with animation primitives
 
 ---
 
@@ -9,21 +9,34 @@
 
 | Plan | Status | Notes |
 |------|--------|-------|
-| — | — | Phase 1 complete. Phase 2 (SDKs) next. |
+| — | — | Phase 1 + Phase 2 core complete. Phase 3 next. |
 
 ---
 
 ## What's Next
 
-1. Phase 2: SDK integration tests (Python SDK implementation)
-2. Phase 2: Built-in elements (Image, Video, Code Block, Chart)
-3. Phase 2: Animation primitives (fade, slide, scale, rotate, spring, stagger, path)
-4. Phase 2: Template system
-5. Phase 3: Claude Code agent skill for video generation
+1. Phase 3: Claude Code agent skill for video generation
+2. Phase 3: MCP server for FrameForge
+3. Phase 2 remaining: Video, Code Block, Chart elements
+4. Phase 2 remaining: Template system
 
 ---
 
 ## Session Log
+
+### Session 3 — 2026-03-15
+- **Context:** Phase 2 SDKs — animation primitives, Image element, Python SDK, tests
+- **Completed:**
+  - Animation primitives: fadeIn, fadeOut, slideIn, slideOut, scaleIn, scaleOut, rotateIn, rotateTo
+  - stagger() utility for coordinated multi-element animations
+  - Image element for TS + Python SDKs with codegen support
+  - Scale/rotation transform handling in codegen
+  - SDK-TS test suite: 35 tests (animations, elements, codegen)
+  - Animation primitives example: renders 5s, 150 frames MP4
+  - Python SDK Image element + codegen validation
+  - Updated PRD Phase 2 feature statuses
+- **Stats:** 141 tests passing (106 core + 35 SDK), 8 test files, 5 validated examples
+- **Next:** Phase 3 agent skills, remaining Phase 2 elements
 
 ### Session 2 — 2026-03-15
 - **Context:** Complete remaining Phase 1 work — examples, media patching, animation events, timeouts
@@ -72,5 +85,5 @@
 ## Last Alignment Check
 
 - **Date:** 2026-03-15
-- **Score:** 100%
+- **Score:** 100% (Session 3)
 - **Issues Found:** 0

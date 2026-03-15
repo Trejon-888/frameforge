@@ -95,6 +95,18 @@ def _generate_element(el: dict, index: int) -> str:
             f'transform: translate(-50%, -50%);"></div>'
         )
 
+    if el["type"] == "image":
+        src = html.escape(props.get("src", ""))
+        return (
+            f'  <img id="{el_id}" class="ff-element" src="{src}" style="'
+            f"left: {props['x']}px; top: {props['y']}px; "
+            f"width: {props['width']}px; height: {props['height']}px; "
+            f"opacity: {props['opacity']}; "
+            f"object-fit: {props['objectFit']}; "
+            f"border-radius: {props['borderRadius']}px; "
+            f'transform: translate(-50%, -50%);" />'
+        )
+
     return f"<!-- Unknown element type: {el['type']} -->"
 
 

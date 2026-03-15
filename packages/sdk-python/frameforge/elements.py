@@ -99,3 +99,31 @@ class Shape(_BaseElement):
             y=y,
             opacity=opacity,
         )
+
+
+class Image(_BaseElement):
+    """An image element."""
+
+    def __init__(
+        self,
+        src: str,
+        *,
+        width: float = 400,
+        height: float = 300,
+        x: float = 960,
+        y: float = 540,
+        opacity: float = 1.0,
+        object_fit: str = "cover",
+        border_radius: float = 0,
+    ):
+        super().__init__(
+            "image",
+            src=src,
+            width=width,
+            height=height,
+            x=x,
+            y=y,
+            opacity=opacity,
+            objectFit=object_fit,
+            borderRadius=border_radius,
+        )
