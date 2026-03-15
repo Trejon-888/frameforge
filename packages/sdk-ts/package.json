@@ -28,7 +28,20 @@
   "keywords": [
     "video",
     "animation",
-    "scene-builder"
+    "scene-builder",
+    "programmatic-video",
+    "motion-graphics",
+    "frameforge",
+    "typescript-sdk"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Trejon-888/frameforge.git",
+    "directory": "packages/sdk-ts"
+  },
+  "homepage": "https://github.com/Trejon-888/frameforge",
+  "publishConfig": {
+    "access": "public"
+  }
 }

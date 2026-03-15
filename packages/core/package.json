@@ -37,7 +37,24 @@
     "rendering",
     "animation",
     "headless-chrome",
-    "ffmpeg"
+    "ffmpeg",
+    "puppeteer",
+    "programmatic-video",
+    "motion-graphics",
+    "deterministic",
+    "frame-by-frame"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Trejon-888/frameforge.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/Trejon-888/frameforge",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }

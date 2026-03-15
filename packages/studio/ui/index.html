@@ -26,14 +26,35 @@
 
   <!-- Main content -->
   <main class="main">
-    <!-- Preview -->
-    <div class="preview-container">
-      <div class="preview-wrapper" id="preview-wrapper">
-        <img id="preview-img" class="preview-img" alt="Frame preview" />
-        <div class="preview-loading" id="preview-loading">
-          <div class="spinner"></div>
+    <div class="main-layout">
+      <!-- Preview -->
+      <div class="preview-container">
+        <div class="preview-wrapper" id="preview-wrapper">
+          <img id="preview-img" class="preview-img" alt="Frame preview" />
+          <div class="preview-loading" id="preview-loading">
+            <div class="spinner"></div>
+          </div>
         </div>
       </div>
+
+      <!-- Side panel: Layers + Properties -->
+      <aside class="side-panel" id="side-panel">
+        <div class="panel-section">
+          <div class="panel-header">
+            <span>Layers</span>
+            <button class="panel-refresh" id="btn-refresh-layers" title="Refresh layers">↻</button>
+          </div>
+          <div class="layer-list" id="layer-list">
+            <div class="layer-empty">Click a frame to inspect layers</div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-header">Properties</div>
+          <div class="property-list" id="property-list">
+            <div class="prop-empty">Select a layer</div>
+          </div>
+        </div>
+      </aside>
     </div>
 
     <!-- Frame info bar -->

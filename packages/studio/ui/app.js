@@ -12,6 +12,8 @@
   let isPlaying = false;
   let isSeeking = false;
   let isDragging = false;
+  let layers = [];
+  let selectedLayerIdx = -1;
 
   // --- DOM Elements ---
   const previewImg = document.getElementById("preview-img");
@@ -76,6 +78,12 @@
         previewLoading.classList.remove("visible");
         isSeeking = false;
         updateUI();
+        // Auto-fetch layers after seek
+        if (!isPlaying) requestLayers();
+        break;
+
+      case "layers":
+        renderLayers(msg.layers || []);
         break;
 
       case "reload":
@@ -273,6 +281,74 @@
       seekTo(Math.round(pct * (info.totalFrames - 1)));
     }
   });
+
+  // --- Layers Panel ---
+  const layerList = document.getElementById("layer-list");
+  const propertyList = document.getElementById("property-list");
+  const btnRefreshLayers = document.getElementById("btn-refresh-layers");
+
+  function requestLayers() {
+    send({ type: "inspect" });
+  }
+
+  function renderLayers(newLayers) {
+    layers = newLayers;
+    if (!layers.length) {
+      layerList.innerHTML = '<div class="layer-empty">No layers detected</div>';
+      return;
+    }
+
+    layerList.innerHTML = layers.map((layer, i) => {
+      const iconClass = layer.tag;
+      const name = layer.id || layer.className || `<${layer.tag}>`;
+      const dim = `${layer.rect.width}×${layer.rect.height}`;
+      const selected = i === selectedLayerIdx ? " selected" : "";
+      return `<div class="layer-item${selected}" data-idx="${i}">
+        <div class="layer-icon ${iconClass}"></div>
+        <span class="layer-name">${name}</span>
+        <span class="layer-dim">${dim}</span>
+      </div>`;
+    }).join("");
+
+    // Click handlers
+    layerList.querySelectorAll(".layer-item").forEach(el => {
+      el.addEventListener("click", () => {
+        selectedLayerIdx = parseInt(el.dataset.idx);
+        renderLayers(layers); // re-render to update selection
+        renderProperties(layers[selectedLayerIdx]);
+      });
+    });
+  }
+
+  function renderProperties(layer) {
+    if (!layer) {
+      propertyList.innerHTML = '<div class="prop-empty">Select a layer</div>';
+      return;
+    }
+
+    const props = [
+      ["tag", `<${layer.tag}>`],
+      ["id", layer.id || "—"],
+      ["class", layer.className || "—"],
+      ["x", layer.rect.x + "px"],
+      ["y", layer.rect.y + "px"],
+      ["width", layer.rect.width + "px"],
+      ["height", layer.rect.height + "px"],
+      ["visible", layer.visible ? "yes" : "no"],
+    ];
+
+    propertyList.innerHTML = props.map(([key, val]) =>
+      `<div class="prop-row"><span class="prop-key">${key}</span><span class="prop-value">${val}</span></div>`
+    ).join("");
+  }
+
+  btnRefreshLayers.addEventListener("click", requestLayers);
+
+  // Auto-request layers after each seek
+  const originalHandleFrame = handleServerMessage;
+
+  // --- Extend message handler for layers ---
+  const _origHandler = handleServerMessage;
 
   // --- Initialize ---
   connect();

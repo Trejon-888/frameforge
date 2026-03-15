@@ -35,5 +35,22 @@
     "vitest": "^2.0.0",
     "@types/node": "^20.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Trejon-888/frameforge.git",
+    "directory": "packages/studio"
+  },
+  "homepage": "https://github.com/Trejon-888/frameforge",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "frameforge",
+    "studio",
+    "video-editor",
+    "timeline",
+    "preview",
+    "hot-reload"
+  ]
 }
