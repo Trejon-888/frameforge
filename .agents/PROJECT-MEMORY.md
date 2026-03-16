@@ -62,6 +62,16 @@
 
 ---
 
+### Owner / GTM
+
+- **npm user:** enriquemarq, **GitHub:** Trejon-888
+- **Working style:** Says "ULTRATHINK take autonomous action" for full auto mode. Values speed, creative branding, GTM strategy.
+- **Launch plan:** 7-day testing period (March 15–22), then public launch ~March 22 if product feels solid.
+- **Branding decision:** FrameForge name, red/indigo colors, and target audience are ALL open for revision. Don't invest heavily in branding until ideal customer is identified through real usage.
+- **Publish commands:** `cd packages/core && npm publish --access public` (then sdk-ts, studio, mcp-server in order)
+
+---
+
 ## Superseded Patterns
 
 | Old Pattern | New Pattern | Date | Why Changed |

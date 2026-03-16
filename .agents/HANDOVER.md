@@ -113,5 +113,22 @@
 ## Last Alignment Check
 
 - **Date:** 2026-03-15
-- **Score:** 100% (Session 3)
+- **Score:** 100% (Session 5)
 - **Issues Found:** 0
+
+---
+
+## Launch Timeline
+
+- **2026-03-15 (Sunday):** All 4 PRD phases built, npm published, branding drafted
+- **2026-03-15 → 2026-03-22:** Testing week — use the product daily, find rough edges, iterate
+- **~2026-03-22 (target):** Public launch if product feels solid after a week of real usage
+- **Branding:** Name, colors, and target audience are all open for revision based on who the ideal customer turns out to be
+
+## npm Registry
+
+- **Org:** @frameforge (npmjs.com/org/frameforge)
+- **User:** enriquemarq
+- **Auth:** Granular Access Token (name: "Frameforge", expires June 13, 2026, 2FA bypass enabled)
+- **Published packages:** @frameforge/core@0.1.0, @frameforge/sdk@0.1.0, @frameforge/studio@0.1.0, @frameforge/mcp-server@0.1.0
+- **Publish order:** core → sdk-ts → studio → mcp-server (core first, others depend on it)
