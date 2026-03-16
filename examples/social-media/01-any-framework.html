@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: #ffe17c;
+      font-family: 'DM Sans', system-ui, sans-serif;
+    }
+
+    /* Dot pattern overlay */
+    .dots {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background-image: radial-gradient(circle, #000 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.06;
+      pointer-events: none;
+    }
+
+    .badge {
+      position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+      background: #fff; color: #000;
+      border: 2px solid #000; border-radius: 100px;
+      padding: 8px 24px; font-size: 16px; font-weight: 700;
+      box-shadow: 4px 4px 0px 0px #000;
+      text-transform: uppercase; letter-spacing: 2px;
+      opacity: 0;
+    }
+
+    .title {
+      position: absolute; top: 160px; width: 100%; text-align: center;
+      font-size: 72px; font-weight: 800; color: #000;
+      letter-spacing: -2px; line-height: 1.1;
+      opacity: 0;
+    }
+    .title .outline {
+      -webkit-text-stroke: 2.5px #000;
+      color: transparent;
+    }
+
+    .subtitle {
+      position: absolute; top: 320px; width: 100%; text-align: center;
+      font-size: 22px; font-weight: 500; color: #171e19;
+      opacity: 0;
+    }
+
+    .card-stack {
+      position: absolute; top: 440px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; gap: 20px; width: 860px;
+    }
+
+    .card {
+      display: flex; align-items: center; gap: 20px;
+      background: #fff; border: 2px solid #000;
+      border-radius: 12px; padding: 24px 28px;
+      box-shadow: 4px 4px 0px 0px #000;
+      opacity: 0; transform: translateX(-80px);
+    }
+
+    .card-icon {
+      width: 52px; height: 52px; border-radius: 10px;
+      border: 2px solid #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 800; color: #000; flex-shrink: 0;
+    }
+
+    .card-body { flex: 1; }
+    .card-name { font-size: 22px; font-weight: 800; color: #000; }
+    .card-desc { font-size: 14px; color: #555; margin-top: 2px; font-weight: 500; }
+
+    .card-badge {
+      font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700;
+      padding: 6px 14px; border-radius: 8px;
+      border: 2px solid #000; background: #ffe17c; color: #000;
+    }
+
+    .c1 .card-icon { background: #88ce02; }
+    .c2 .card-icon { background: #049ef4; }
+    .c3 .card-icon { background: #b7c6c2; }
+    .c4 .card-icon { background: #ffe17c; }
+    .c5 .card-icon { background: #fff; }
+    .c6 .card-icon { background: #171e19; color: #fff; }
+
+    .footer {
+      position: absolute; bottom: 80px; width: 100%; text-align: center;
+    }
+    .footer .cta-btn {
+      display: inline-block;
+      background: #171e19; color: #ffe17c;
+      border: 2px solid #000; border-radius: 12px;
+      padding: 16px 40px; font-size: 20px; font-weight: 800;
+      box-shadow: 8px 8px 0px 0px #000;
+      font-family: 'Space Mono', monospace;
+      opacity: 0;
+    }
+    .footer .url {
+      font-family: 'Space Mono', monospace;
+      font-size: 16px; color: #171e19; margin-top: 20px; opacity: 0;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="dots"></div>
+
+  <div class="badge">FrameForge</div>
+
+  <h1 class="title">Works With<br><span class="outline">Any</span> Framework</h1>
+
+  <p class="subtitle">No wrappers. No config. Just render.</p>
+
+  <div class="card-stack">
+    <div class="card c1"><div class="card-icon">G</div><div class="card-body"><div class="card-name">GSAP</div><div class="card-desc">Professional-grade animation</div></div><span class="card-badge">Native</span></div>
+    <div class="card c2"><div class="card-icon">3D</div><div class="card-body"><div class="card-name">Three.js</div><div class="card-desc">3D WebGL rendering</div></div><span class="card-badge">Native</span></div>
+    <div class="card c3"><div class="card-icon">CS</div><div class="card-body"><div class="card-name">CSS Animations</div><div class="card-desc">@keyframes & transitions</div></div><span class="card-badge">Native</span></div>
+    <div class="card c4"><div class="card-icon">JS</div><div class="card-body"><div class="card-name">Vanilla JavaScript</div><div class="card-desc">requestAnimationFrame</div></div><span class="card-badge">Native</span></div>
+    <div class="card c5"><div class="card-icon">D3</div><div class="card-body"><div class="card-name">D3.js / p5.js / Lottie</div><div class="card-desc">Data viz & motion design</div></div><span class="card-badge">Native</span></div>
+    <div class="card c6"><div class="card-icon">*</div><div class="card-body"><div class="card-name">Svelte / Vue / React</div><div class="card-desc">Component frameworks too</div></div><span class="card-badge">Native</span></div>
+  </div>
+
+  <div class="footer">
+    <div class="cta-btn">npm install @frameforge/core</div>
+    <p class="url">github.com/Trejon-888/frameforge</p>
+  </div>
+
+  <script>
+    var ease = function(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; };
+    var spring = function(t) {
+      var c4 = (2 * Math.PI) / 3;
+      return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10*t) * Math.sin((t*10-0.75)*c4) + 1;
+    };
+
+    function update() {
+      var t = performance.now() / 1000;
+
+      // Badge
+      var bp = spring(Math.min(1, Math.max(0, (t-0.2)/0.6)));
+      document.querySelector('.badge').style.opacity = bp;
+
+      // Title
+      var tp = ease(Math.min(1, Math.max(0, (t-0.4)/0.6)));
+      document.querySelector('.title').style.opacity = tp;
+
+      // Subtitle
+      document.querySelector('.subtitle').style.opacity = Math.min(1, Math.max(0, (t-0.9)/0.5));
+
+      // Cards stagger from left
+      var cards = document.querySelectorAll('.card');
+      for (var i = 0; i < cards.length; i++) {
+        var delay = 1.2 + i * 0.2;
+        var p = ease(Math.min(1, Math.max(0, (t-delay)/0.5)));
+        cards[i].style.opacity = p;
+        cards[i].style.transform = 'translateX(' + (-80*(1-p)) + 'px)';
+      }
+
+      // Footer
+      var ctaP = spring(Math.min(1, Math.max(0, (t-3.2)/0.6)));
+      document.querySelector('.cta-btn').style.opacity = ctaP;
+      document.querySelector('.url').style.opacity = Math.min(1, Math.max(0, (t-3.8)/0.4));
+
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>
