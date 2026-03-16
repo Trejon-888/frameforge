@@ -1,6 +1,6 @@
 {
   "name": "@frameforge/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "FrameForge TypeScript SDK — programmatic scene authoring",
   "type": "module",
   "main": "./dist/index.js",
@@ -17,7 +17,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@frameforge/core": "workspace:*"
+    "@frameforge/core": "^0.1.0"
   },
   "devDependencies": {
     "tsup": "^8.0.0",

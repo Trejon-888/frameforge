@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import platform
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -84,10 +86,22 @@ class Scene:
             )
 
             # Call frameforge CLI
+            # On Windows, npx must be invoked via shell or as npx.cmd
+            npx_cmd = shutil.which("npx") or "npx"
+            use_shell = platform.system() == "Windows"
+
+            # Use the local project CLI if available, otherwise npx
+            local_cli = Path(__file__).parent.parent.parent / "core" / "dist" / "cli.js"
+            if local_cli.exists():
+                cmd = ["node", str(local_cli), "render", str(manifest_path)]
+            else:
+                cmd = [npx_cmd, "@frameforge/core", "render", str(manifest_path)]
+
             result = subprocess.run(
-                ["npx", "frameforge", "render", str(manifest_path)],
+                cmd,
                 capture_output=True,
                 text=True,
+                shell=use_shell,
             )
 
             if result.returncode != 0:

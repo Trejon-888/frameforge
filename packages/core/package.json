@@ -1,6 +1,6 @@
 {
   "name": "@frameforge/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "FrameForge rendering engine — deterministic browser-to-video pipeline",
   "type": "module",
   "main": "./dist/index.js",
