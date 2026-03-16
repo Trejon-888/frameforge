@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1080px; height: 1920px; overflow: hidden; background: #fafafa; font-family: 'DM Sans', system-ui; }
+    canvas#grain { position: absolute; top: 0; left: 0; z-index: 10; mix-blend-mode: multiply; opacity: 0.06; pointer-events: none; }
+    .content { position: relative; z-index: 1; width: 100%; height: 100%; }
+
+    /* News article style */
+    .article {
+      position: absolute; top: 200px; left: 80px; right: 80px;
+    }
+
+    .source {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 16px; font-weight: 700; color: #666;
+      text-transform: uppercase; letter-spacing: 2px;
+      opacity: 0;
+    }
+    .source-dot { width: 8px; height: 8px; background: #e94560; border-radius: 50%; }
+
+    .date { font-size: 14px; color: #999; margin-top: 8px; opacity: 0; }
+
+    .headline {
+      font-size: 68px; font-weight: 900; color: #000;
+      line-height: 1.15; letter-spacing: -2px;
+      margin-top: 32px;
+    }
+
+    .headline .word {
+      display: inline-block; position: relative;
+      opacity: 0; transform: translateY(20px);
+    }
+
+    /* Marker highlight effect */
+    .headline .highlight {
+      position: relative;
+    }
+    .headline .highlight::after {
+      content: '';
+      position: absolute; left: -4px; right: -4px;
+      bottom: 4px; height: 28px;
+      background: #ffe17c;
+      z-index: -1;
+      transform: scaleX(0); transform-origin: left;
+    }
+    .headline .highlight.active::after {
+      transform: scaleX(1);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .body-text {
+      font-size: 22px; font-weight: 400; color: #444;
+      line-height: 1.7; margin-top: 40px; opacity: 0;
+    }
+
+    /* Pull quote */
+    .quote {
+      position: absolute; top: 980px; left: 80px; right: 80px;
+      border-left: 6px solid #ffe17c;
+      padding: 24px 32px;
+      font-size: 32px; font-weight: 700; color: #000;
+      line-height: 1.4; font-style: italic;
+      opacity: 0; transform: translateX(-30px);
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      position: absolute; top: 1260px; left: 80px; right: 80px;
+      display: flex; gap: 16px;
+    }
+
+    .mini-stat {
+      flex: 1; padding: 20px; text-align: center;
+      background: #fff; border: 2px solid #000; border-radius: 12px;
+      box-shadow: 4px 4px 0 #000;
+      opacity: 0; transform: translateY(20px);
+    }
+    .mini-stat:nth-child(2) { background: #ffe17c; }
+
+    .mini-val { font-family: 'Space Mono'; font-size: 32px; font-weight: 700; }
+    .mini-lbl { font-size: 12px; color: #666; margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Image placeholder */
+    .img-block {
+      position: absolute; top: 1480px; left: 80px; right: 80px;
+      height: 240px;
+      background: linear-gradient(135deg, #171e19, #1a2530);
+      border: 2px solid #000; border-radius: 16px;
+      box-shadow: 8px 8px 0 #000;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.95);
+    }
+
+    .img-label {
+      font-size: 48px; font-weight: 900; color: #ffe17c;
+      letter-spacing: -2px;
+    }
+
+    .footer {
+      position: absolute; bottom: 60px; width: 100%; text-align: center;
+      font-family: 'Space Mono'; font-size: 14px; color: #999; opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="grain" width="1080" height="1920"></canvas>
+
+  <div class="content">
+    <div class="article">
+      <div class="source" id="source"><div class="source-dot"></div> TechCrunch</div>
+      <div class="date" id="date">March 15, 2026</div>
+      <h1 class="headline" id="headline">
+        <span class="word">Open-Source</span>
+        <span class="word">Tool</span>
+        <span class="word highlight">Renders</span>
+        <span class="word highlight">Any</span>
+        <span class="word highlight">Web</span>
+        <span class="word highlight">Animation</span>
+        <span class="word">to</span>
+        <span class="word">Deterministic</span>
+        <span class="word highlight">Video</span>
+      </h1>
+      <p class="body-text" id="body">FrameForge patches every browser time API — Date.now, requestAnimationFrame, setTimeout, CSS animations — making frame capture perfectly deterministic. No dropped frames, no timing bugs.</p>
+    </div>
+
+    <div class="quote" id="quote">"If a browser can render it, FrameForge can record it."</div>
+
+    <div class="stats-bar" id="stats-bar">
+      <div class="mini-stat"><div class="mini-val" id="mv1">0</div><div class="mini-lbl">GitHub Stars</div></div>
+      <div class="mini-stat"><div class="mini-val" id="mv2">0</div><div class="mini-lbl">npm Downloads</div></div>
+      <div class="mini-stat"><div class="mini-val" id="mv3">0</div><div class="mini-lbl">Transitions</div></div>
+    </div>
+
+    <div class="img-block" id="img-block">
+      <span class="img-label">FrameForge</span>
+    </div>
+
+    <div class="footer" id="footer">npm install @frameforge/core · github.com/Trejon-888/frameforge</div>
+  </div>
+
+  <script>
+    var grainC = document.getElementById('grain').getContext('2d');
+    var gf = 0;
+    function renderGrain() {
+      var img = grainC.createImageData(270, 480);
+      var d = img.data;
+      for (var i = 0; i < d.length; i += 4) { var v = Math.random()*255; d[i]=d[i+1]=d[i+2]=v; d[i+3]=255; }
+      grainC.save(); grainC.scale(4,4); grainC.putImageData(img, 0, 0); grainC.restore();
+    }
+
+    function spring(t) {
+      if (t<=0) return 0; if (t>=1) return 1;
+      return Math.pow(2,-10*t)*Math.sin((t*10-0.75)*(2*Math.PI/3))+1;
+    }
+    function ease(t) { t=Math.max(0,Math.min(1,t)); return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
+
+    function update() {
+      var t = performance.now() / 1000;
+      gf++;
+      if (gf % 4 === 0) renderGrain();
+
+      // Source + date
+      document.getElementById('source').style.opacity = ease(Math.min(1, t / 0.3));
+      document.getElementById('date').style.opacity = ease(Math.min(1, (t-0.2) / 0.3));
+
+      // Words reveal with stagger
+      var words = document.querySelectorAll('.word');
+      for (var i = 0; i < words.length; i++) {
+        var wd = 0.4 + i * 0.08;
+        var wp = spring(Math.min(1, Math.max(0, (t - wd) / 0.3)));
+        words[i].style.opacity = wp;
+        words[i].style.transform = 'translateY(' + (20*(1-wp)) + 'px)';
+      }
+
+      // Highlight markers sweep after words appear
+      var highlights = document.querySelectorAll('.highlight');
+      for (var i = 0; i < highlights.length; i++) {
+        var hd = 1.5 + i * 0.15;
+        if (t > hd) highlights[i].classList.add('active');
+      }
+
+      // Body text
+      document.getElementById('body').style.opacity = ease(Math.min(1, Math.max(0, (t-2.2) / 0.5)));
+
+      // Quote slides in
+      var qp = spring(Math.min(1, Math.max(0, (t-3.0) / 0.5)));
+      var quote = document.getElementById('quote');
+      quote.style.opacity = qp;
+      quote.style.transform = 'translateX(' + (-30*(1-qp)) + 'px)';
+
+      // Stat cards
+      var stats = document.querySelectorAll('.mini-stat');
+      var statTargets = [1200, 5400, 23];
+      for (var i = 0; i < stats.length; i++) {
+        var sd = 3.8 + i * 0.15;
+        var sp = spring(Math.min(1, Math.max(0, (t-sd) / 0.4)));
+        stats[i].style.opacity = sp;
+        stats[i].style.transform = 'translateY(' + (20*(1-sp)) + 'px)';
+        // Count
+        var cp = ease(Math.min(1, Math.max(0, (t-sd-0.1) / 0.6)));
+        var v = Math.round(statTargets[i] * cp);
+        document.getElementById('mv' + (i+1)).textContent = i < 2 ? v.toLocaleString() : v;
+      }
+
+      // Image block
+      var ibp = spring(Math.min(1, Math.max(0, (t-4.5) / 0.5)));
+      var ib = document.getElementById('img-block');
+      ib.style.opacity = ibp;
+      ib.style.transform = 'scale(' + (0.95 + 0.05*ibp) + ')';
+
+      // Footer
+      document.getElementById('footer').style.opacity = ease(Math.min(1, Math.max(0, (t-5.5) / 0.4)));
+
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>
