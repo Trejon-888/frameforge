@@ -1,0 +1,35 @@
+1
+00:00:00,000 --> 00:00:08,740
+So you can create your own social media AI agent manager that is going to be able to post for you and manage your content on any platform that you want.
+
+2
+00:00:08,880 --> 00:00:09,380
+What's up, everyone?
+
+3
+00:00:09,800 --> 00:00:12,019
+Hey, if you're new here, my name is Enrique.
+
+4
+00:00:12,400 --> 00:00:14,339
+My background is in business development.
+
+5
+00:00:14,919 --> 00:00:21,100
+And this last year has been spent most of my time has been spent on building agent workflows,
+
+6
+00:00:21,100 --> 00:00:24,059
+agent systems at Infinite X.
+
+7
+00:00:24,980 --> 00:00:35,759
+We built the first AI client acquisition system for agencies and service providers to help them attract more clients.
+
+8
+00:00:36,020 --> 00:00:50,539
+This system has been used by our internal clients, private equity firms, M&A advisories, and over 50 plus partners that have used this exact same system to automate their client acquisition and also grow their businesses.
+
+9
+00:00:50,539 --> 00:00:50,780
+So you're going to be able to create your own social media.
