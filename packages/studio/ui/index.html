@@ -17,10 +17,18 @@
       <span class="header-file" id="file-name">Loading...</span>
     </div>
     <div class="header-right">
+      <select class="export-select" id="export-preset" title="Export preset">
+        <option value="default">Scene default</option>
+        <option value="shorts">YouTube Shorts (1080×1920)</option>
+        <option value="instagram">Instagram (1080×1080)</option>
+        <option value="twitter">Twitter/X (1280×720)</option>
+        <option value="4k">4K (3840×2160)</option>
+      </select>
       <button class="btn btn-render" id="btn-render">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Render MP4
       </button>
+      <button class="btn btn-ghost" id="btn-shortcuts" title="Keyboard shortcuts (?)">?</button>
     </div>
   </header>
 
@@ -92,6 +100,32 @@
     </div>
   </div>
 
+  <!-- Console panel -->
+  <div class="console-section" id="console-panel">
+    <div class="console-header">
+      <span>Console</span>
+    </div>
+    <div class="console-list" id="console-list"></div>
+  </div>
+
+  <!-- Keyboard shortcuts overlay -->
+  <div class="shortcut-overlay" id="shortcut-overlay">
+    <div class="shortcut-dialog">
+      <h3>Keyboard Shortcuts</h3>
+      <div class="shortcut-grid">
+        <div class="shortcut-row"><kbd>Space</kbd><span>Play / Pause</span></div>
+        <div class="shortcut-row"><kbd>←</kbd> <kbd>→</kbd><span>Previous / Next frame</span></div>
+        <div class="shortcut-row"><kbd>Shift + ←</kbd> <kbd>→</kbd><span>Jump 1 second</span></div>
+        <div class="shortcut-row"><kbd>Home</kbd> / <kbd>End</kbd><span>First / Last frame</span></div>
+        <div class="shortcut-row"><kbd>1</kbd> – <kbd>9</kbd><span>Jump to 10%–90%</span></div>
+        <div class="shortcut-row"><kbd>R</kbd><span>Render MP4</span></div>
+        <div class="shortcut-row"><kbd>?</kbd><span>Toggle this overlay</span></div>
+        <div class="shortcut-row"><kbd>Esc</kbd><span>Close overlay</span></div>
+      </div>
+      <p class="shortcut-hint">Press <kbd>?</kbd> or <kbd>Esc</kbd> to close</p>
+    </div>
+  </div>
+
   <!-- Render overlay -->
   <div class="render-overlay" id="render-overlay">
     <div class="render-dialog">
@@ -104,5 +138,10 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    document.getElementById("btn-shortcuts").addEventListener("click", function() {
+      document.getElementById("shortcut-overlay").classList.toggle("visible");
+    });
+  </script>
 </body>
 </html>

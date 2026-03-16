@@ -1,5 +1,6 @@
 /**
- * FrameForge Studio — Client Application
+ * FrameForge Studio — Client Application v2
+ * Phase 2: smooth scrubbing, keyboard overlay, export presets, console panel
  */
 
 (function () {
@@ -14,6 +15,8 @@
   let isDragging = false;
   let layers = [];
   let selectedLayerIdx = -1;
+  let seekDebounceTimer = null;
+  let pendingSeekFrame = null;
 
   // --- DOM Elements ---
   const previewImg = document.getElementById("preview-img");
@@ -37,6 +40,10 @@
   const renderOverlay = document.getElementById("render-overlay");
   const renderProgressFill = document.getElementById("render-progress-fill");
   const renderStatus = document.getElementById("render-status");
+  const shortcutOverlay = document.getElementById("shortcut-overlay");
+  const consolePanel = document.getElementById("console-panel");
+  const consoleList = document.getElementById("console-list");
+  const exportSelect = document.getElementById("export-preset");
 
   // --- WebSocket ---
   function connect() {
@@ -78,7 +85,13 @@
         previewLoading.classList.remove("visible");
         isSeeking = false;
         updateUI();
-        // Auto-fetch layers after seek
+        // Process pending seek if user was scrubbing fast
+        if (pendingSeekFrame !== null && pendingSeekFrame !== currentFrame) {
+          var next = pendingSeekFrame;
+          pendingSeekFrame = null;
+          seekTo(next);
+        }
+        // Auto-fetch layers after seek (not during playback)
         if (!isPlaying) requestLayers();
         break;
 
@@ -88,6 +101,7 @@
 
       case "reload":
         infoStatus.textContent = "Reloading...";
+        logToConsole("info", "File changed — hot-reloading...");
         seekTo(currentFrame);
         setTimeout(() => {
           infoStatus.textContent = "Hot-reloaded";
@@ -106,37 +120,52 @@
         break;
 
       case "render:progress":
-        const pct = Math.round((msg.current / msg.total) * 100);
+        var pct = Math.round((msg.current / msg.total) * 100);
         renderProgressFill.style.width = pct + "%";
-        renderStatus.textContent = `Frame ${msg.current} / ${msg.total} (${pct}%)`;
+        renderStatus.textContent = "Frame " + msg.current + " / " + msg.total + " (" + pct + "%)";
         break;
 
       case "render:complete":
-        renderStatus.textContent = `Done: ${msg.output}`;
-        setTimeout(() => {
-          renderOverlay.classList.remove("visible");
-        }, 2000);
+        renderStatus.textContent = "Done: " + msg.output;
+        logToConsole("success", "Rendered to " + msg.output);
+        setTimeout(() => { renderOverlay.classList.remove("visible"); }, 2000);
         break;
 
       case "render:error":
-        renderStatus.textContent = `Error: ${msg.message}`;
-        setTimeout(() => {
-          renderOverlay.classList.remove("visible");
-        }, 4000);
+        renderStatus.textContent = "Error: " + msg.message;
+        logToConsole("error", "Render failed: " + msg.message);
+        setTimeout(() => { renderOverlay.classList.remove("visible"); }, 4000);
         break;
 
       case "error":
-        console.error("[Studio]", msg.message);
+        logToConsole("error", msg.message);
         break;
     }
   }
 
-  // --- Seek ---
+  // --- Seek with debounce for smooth scrubbing ---
   function seekTo(frame) {
-    if (isSeeking) return;
+    var targetFrame = Math.max(0, Math.min(Math.round(frame), info.totalFrames - 1));
+    if (isSeeking) {
+      // Queue the seek — will fire after current seek completes
+      pendingSeekFrame = targetFrame;
+      return;
+    }
     isSeeking = true;
     previewLoading.classList.add("visible");
-    send({ type: "seek", frame: Math.round(frame) });
+    send({ type: "seek", frame: targetFrame });
+  }
+
+  function seekDebounced(frame) {
+    var targetFrame = Math.max(0, Math.min(Math.round(frame), info.totalFrames - 1));
+    // Update UI immediately
+    currentFrame = targetFrame;
+    updateUI();
+    // Debounce actual seek
+    clearTimeout(seekDebounceTimer);
+    seekDebounceTimer = setTimeout(function() {
+      seekTo(targetFrame);
+    }, 50);
   }
 
   // --- Playback ---
@@ -145,7 +174,6 @@
     isPlaying = true;
     btnPlay.textContent = "⏸";
     btnPlay.classList.add("playing");
-    // Play from current frame, skip every other frame for speed
     send({ type: "play", from: currentFrame, to: info.totalFrames, step: 2 });
   }
 
@@ -164,84 +192,120 @@
   }
 
   function updateUI() {
-    const progress = info.totalFrames > 0 ? currentFrame / (info.totalFrames - 1) : 0;
-    const time = currentFrame / info.fps;
+    var progress = info.totalFrames > 1 ? currentFrame / (info.totalFrames - 1) : 0;
+    var time = currentFrame / info.fps;
 
-    infoFrame.textContent = `Frame ${currentFrame} / ${info.totalFrames}`;
-    infoTime.textContent = `${time.toFixed(2)}s / ${info.duration.toFixed(2)}s`;
+    infoFrame.textContent = "Frame " + currentFrame + " / " + info.totalFrames;
+    infoTime.textContent = time.toFixed(2) + "s / " + info.duration.toFixed(2) + "s";
 
     timelineProgress.style.width = (progress * 100) + "%";
     timelineHandle.style.left = (progress * 100) + "%";
   }
 
   function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
+    var m = Math.floor(seconds / 60);
+    var s = Math.floor(seconds % 60);
     return m + ":" + String(s).padStart(2, "0");
+  }
+
+  // --- Console Panel ---
+  function logToConsole(level, message) {
+    if (!consoleList) return;
+    var time = new Date().toLocaleTimeString();
+    var div = document.createElement("div");
+    div.className = "console-entry console-" + level;
+    div.innerHTML = '<span class="console-time">' + time + '</span> ' + message;
+    consoleList.appendChild(div);
+    consoleList.scrollTop = consoleList.scrollHeight;
+    // Keep max 50 entries
+    while (consoleList.children.length > 50) {
+      consoleList.removeChild(consoleList.firstChild);
+    }
   }
 
   // --- Timeline Interaction ---
   function getFrameFromTimelineX(clientX) {
-    const rect = timeline.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    var rect = timeline.getBoundingClientRect();
+    var ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     return Math.round(ratio * (info.totalFrames - 1));
   }
 
-  timeline.addEventListener("mousedown", (e) => {
+  timeline.addEventListener("mousedown", function(e) {
     isDragging = true;
     if (isPlaying) stopPlayback();
-    const frame = getFrameFromTimelineX(e.clientX);
+    var frame = getFrameFromTimelineX(e.clientX);
     seekTo(frame);
   });
 
-  document.addEventListener("mousemove", (e) => {
+  document.addEventListener("mousemove", function(e) {
     if (!isDragging) return;
-    const frame = getFrameFromTimelineX(e.clientX);
-    // Update UI immediately for responsiveness
-    currentFrame = frame;
-    updateUI();
-    seekTo(frame);
+    var frame = getFrameFromTimelineX(e.clientX);
+    seekDebounced(frame);
   });
 
-  document.addEventListener("mouseup", () => {
+  document.addEventListener("mouseup", function() {
     isDragging = false;
   });
 
   // --- Button Controls ---
-  btnPlay.addEventListener("click", () => {
+  btnPlay.addEventListener("click", function() {
     if (isPlaying) stopPlayback();
     else startPlayback();
   });
 
-  btnPrev.addEventListener("click", () => {
+  btnPrev.addEventListener("click", function() {
     if (isPlaying) stopPlayback();
     seekTo(Math.max(0, currentFrame - 1));
   });
 
-  btnNext.addEventListener("click", () => {
+  btnNext.addEventListener("click", function() {
     if (isPlaying) stopPlayback();
     seekTo(Math.min(info.totalFrames - 1, currentFrame + 1));
   });
 
-  btnStart.addEventListener("click", () => {
+  btnStart.addEventListener("click", function() {
     if (isPlaying) stopPlayback();
     seekTo(0);
   });
 
-  btnEnd.addEventListener("click", () => {
+  btnEnd.addEventListener("click", function() {
     if (isPlaying) stopPlayback();
     seekTo(info.totalFrames - 1);
   });
 
-  btnRender.addEventListener("click", () => {
-    if (isPlaying) stopPlayback();
-    send({ type: "render" });
-  });
+  // --- Export Presets ---
+  if (btnRender) {
+    btnRender.addEventListener("click", function() {
+      if (isPlaying) stopPlayback();
+      var preset = exportSelect ? exportSelect.value : "default";
+      var renderOpts = {};
+
+      switch (preset) {
+        case "shorts":
+          renderOpts = { width: 1080, height: 1920, fps: 30 };
+          break;
+        case "instagram":
+          renderOpts = { width: 1080, height: 1080, fps: 30 };
+          break;
+        case "twitter":
+          renderOpts = { width: 1280, height: 720, fps: 30 };
+          break;
+        case "4k":
+          renderOpts = { width: 3840, height: 2160, fps: 30 };
+          break;
+        default:
+          // Use scene defaults
+          break;
+      }
+
+      logToConsole("info", "Starting render" + (preset !== "default" ? " (" + preset + ")" : "") + "...");
+      send({ type: "render", preset: renderOpts });
+    });
+  }
 
   // --- Keyboard Shortcuts ---
-  document.addEventListener("keydown", (e) => {
-    // Don't capture if user is typing in an input
-    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  document.addEventListener("keydown", function(e) {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
 
     switch (e.key) {
       case " ":
@@ -270,22 +334,36 @@
         seekTo(info.totalFrames - 1);
         break;
       case "r":
-        if (e.ctrlKey || e.metaKey) break; // don't capture Cmd+R
-        send({ type: "render" });
+        if (e.ctrlKey || e.metaKey) break;
+        btnRender.click();
+        break;
+      case "?":
+        e.preventDefault();
+        toggleShortcutOverlay();
+        break;
+      case "Escape":
+        if (shortcutOverlay && shortcutOverlay.classList.contains("visible")) {
+          shortcutOverlay.classList.remove("visible");
+        }
         break;
     }
 
     // Number keys 1-9 → jump to 10%-90%
-    if (e.key >= "1" && e.key <= "9") {
-      const pct = parseInt(e.key) / 10;
+    if (e.key >= "1" && e.key <= "9" && !e.ctrlKey && !e.metaKey) {
+      var pct = parseInt(e.key) / 10;
       seekTo(Math.round(pct * (info.totalFrames - 1)));
     }
   });
 
+  function toggleShortcutOverlay() {
+    if (!shortcutOverlay) return;
+    shortcutOverlay.classList.toggle("visible");
+  }
+
   // --- Layers Panel ---
-  const layerList = document.getElementById("layer-list");
-  const propertyList = document.getElementById("property-list");
-  const btnRefreshLayers = document.getElementById("btn-refresh-layers");
+  var layerList = document.getElementById("layer-list");
+  var propertyList = document.getElementById("property-list");
+  var btnRefreshLayers = document.getElementById("btn-refresh-layers");
 
   function requestLayers() {
     send({ type: "inspect" });
@@ -293,41 +371,41 @@
 
   function renderLayers(newLayers) {
     layers = newLayers;
+    if (!layerList) return;
     if (!layers.length) {
       layerList.innerHTML = '<div class="layer-empty">No layers detected</div>';
       return;
     }
 
-    layerList.innerHTML = layers.map((layer, i) => {
-      const iconClass = layer.tag;
-      const name = layer.id || layer.className || `<${layer.tag}>`;
-      const dim = `${layer.rect.width}×${layer.rect.height}`;
-      const selected = i === selectedLayerIdx ? " selected" : "";
-      return `<div class="layer-item${selected}" data-idx="${i}">
-        <div class="layer-icon ${iconClass}"></div>
-        <span class="layer-name">${name}</span>
-        <span class="layer-dim">${dim}</span>
-      </div>`;
+    layerList.innerHTML = layers.map(function(layer, i) {
+      var name = layer.id || layer.className || "<" + layer.tag + ">";
+      var dim = layer.rect.width + "×" + layer.rect.height;
+      var selected = i === selectedLayerIdx ? " selected" : "";
+      return '<div class="layer-item' + selected + '" data-idx="' + i + '">' +
+        '<div class="layer-icon ' + layer.tag + '"></div>' +
+        '<span class="layer-name">' + name + '</span>' +
+        '<span class="layer-dim">' + dim + '</span>' +
+        '</div>';
     }).join("");
 
-    // Click handlers
-    layerList.querySelectorAll(".layer-item").forEach(el => {
-      el.addEventListener("click", () => {
+    layerList.querySelectorAll(".layer-item").forEach(function(el) {
+      el.addEventListener("click", function() {
         selectedLayerIdx = parseInt(el.dataset.idx);
-        renderLayers(layers); // re-render to update selection
+        renderLayers(layers);
         renderProperties(layers[selectedLayerIdx]);
       });
     });
   }
 
   function renderProperties(layer) {
+    if (!propertyList) return;
     if (!layer) {
       propertyList.innerHTML = '<div class="prop-empty">Select a layer</div>';
       return;
     }
 
-    const props = [
-      ["tag", `<${layer.tag}>`],
+    var props = [
+      ["tag", "<" + layer.tag + ">"],
       ["id", layer.id || "—"],
       ["class", layer.className || "—"],
       ["x", layer.rect.x + "px"],
@@ -337,19 +415,16 @@
       ["visible", layer.visible ? "yes" : "no"],
     ];
 
-    propertyList.innerHTML = props.map(([key, val]) =>
-      `<div class="prop-row"><span class="prop-key">${key}</span><span class="prop-value">${val}</span></div>`
-    ).join("");
+    propertyList.innerHTML = props.map(function(p) {
+      return '<div class="prop-row"><span class="prop-key">' + p[0] + '</span><span class="prop-value">' + p[1] + '</span></div>';
+    }).join("");
   }
 
-  btnRefreshLayers.addEventListener("click", requestLayers);
-
-  // Auto-request layers after each seek
-  const originalHandleFrame = handleServerMessage;
-
-  // --- Extend message handler for layers ---
-  const _origHandler = handleServerMessage;
+  if (btnRefreshLayers) {
+    btnRefreshLayers.addEventListener("click", requestLayers);
+  }
 
   // --- Initialize ---
+  logToConsole("info", "FrameForge Studio starting...");
   connect();
 })();
