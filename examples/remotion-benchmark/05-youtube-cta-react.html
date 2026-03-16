@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background: transparent; font-family: 'Roboto', sans-serif;
+    }
+    #root { width: 100%; height: 100%; }
+  </style>
+  <!-- React from CDN — FrameForge virtualizes time BEFORE React loads -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Spring animation hook — uses virtualized performance.now()
+    function useSpring(target, config = { stiffness: 170, damping: 26 }) {
+      const [value, setValue] = useState(0);
+      const ref = useRef({ value: 0, velocity: 0 });
+
+      useEffect(() => {
+        function step() {
+          const dt = 1/60; // fixed step
+          const { stiffness, damping } = config;
+          const spring = -stiffness * (ref.current.value - target);
+          const damper = -damping * ref.current.velocity;
+          ref.current.velocity += (spring + damper) * dt;
+          ref.current.value += ref.current.velocity * dt;
+          setValue(ref.current.value);
+          requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }, [target]);
+
+      return value;
+    }
+
+    // Subscribe Button Component
+    function SubscribeButton({ isSubscribed, onClick, progress }) {
+      const scale = useSpring(isSubscribed ? 0.95 : 1);
+      const bgProgress = useSpring(isSubscribed ? 1 : 0);
+
+      const bg = isSubscribed ? '#606060' : '#cc0000';
+      const shadowY = isSubscribed ? 0 : 2;
+
+      return (
+        <button
+          onClick={onClick}
+          style={{
+            background: bg,
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            padding: '10px 20px',
+            fontSize: '14px',
+            fontWeight: 500,
+            fontFamily: 'Roboto',
+            cursor: 'pointer',
+            transform: `scale(${Math.max(0.01, scale)})`,
+            boxShadow: `0 ${shadowY}px 4px rgba(0,0,0,0.2)`,
+            letterSpacing: '0.5px',
+            textTransform: 'uppercase',
+            width: '140px',
+            transition: 'background 0.3s',
+          }}
+        >
+          {isSubscribed ? '✓ Subscribed' : 'Subscribe'}
+        </button>
+      );
+    }
+
+    // Lower Third Component
+    function LowerThird() {
+      const [time, setTime] = useState(0);
+      const [subscribed, setSubscribed] = useState(false);
+
+      useEffect(() => {
+        function tick() {
+          setTime(performance.now() / 1000);
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }, []);
+
+      // Timeline
+      const slideIn = Math.min(1, Math.max(0, (time - 0.5) / 0.6));
+      const slideEased = slideIn < 0.5 ? 4*slideIn*slideIn*slideIn : 1 - Math.pow(-2*slideIn+2,3)/2;
+      const slideY = 80 * (1 - slideEased);
+      const opacity = slideEased;
+
+      // Subscribe at 2.5s
+      if (time > 2.5 && !subscribed) {
+        setSubscribed(true);
+      }
+
+      // Fade out at 4s
+      const fadeOut = time > 4 ? Math.max(0, 1 - (time - 4) / 0.5) : 1;
+
+      // Sub count with animated tick
+      const subCount = subscribed ? '1,240,001' : '1,240,000';
+
+      return (
+        <div style={{
+          position: 'absolute',
+          bottom: '80px',
+          left: '50%',
+          transform: `translateX(-50%) translateY(${slideY}px)`,
+          opacity: opacity * fadeOut,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          background: '#fff',
+          borderRadius: '12px',
+          padding: '16px 24px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+          minWidth: '500px',
+        }}>
+          {/* Avatar */}
+          <div style={{
+            width: '56px', height: '56px', borderRadius: '50%',
+            background: 'linear-gradient(135deg, #cc0000, #ff4444)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '24px', fontWeight: 700, color: '#fff',
+            flexShrink: 0,
+          }}>
+            FF
+          </div>
+
+          {/* Info */}
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f0f0f' }}>
+              FrameForge
+            </div>
+            <div style={{ fontSize: '13px', color: '#606060', marginTop: '2px' }}>
+              {subCount} subscribers
+            </div>
+          </div>
+
+          {/* Subscribe button */}
+          <SubscribeButton
+            isSubscribed={subscribed}
+            progress={time}
+          />
+        </div>
+      );
+    }
+
+    // Background — semi-transparent to show this works as an overlay
+    function App() {
+      const [time, setTime] = useState(0);
+
+      useEffect(() => {
+        function tick() {
+          setTime(performance.now() / 1000);
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }, []);
+
+      return (
+        <div style={{
+          width: '1920px', height: '1080px',
+          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+          position: 'relative',
+        }}>
+          {/* Fake video content behind the overlay */}
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              fontSize: '64px', fontWeight: 700, color: '#fff',
+              opacity: Math.min(1, time / 0.5),
+            }}>
+              React Works in FrameForge
+            </div>
+            <div style={{
+              fontSize: '24px', color: 'rgba(255,255,255,0.5)',
+              marginTop: '12px',
+              opacity: Math.min(1, Math.max(0, (time - 0.3) / 0.5)),
+            }}>
+              This entire video is a React 18 app rendered to MP4
+            </div>
+            <div style={{
+              fontSize: '16px', color: '#e94560',
+              marginTop: '24px', fontFamily: 'monospace',
+              opacity: Math.min(1, Math.max(0, (time - 1.0) / 0.5)),
+            }}>
+              {'<'}App /{'>'} → Puppeteer → FFmpeg → video.mp4
+            </div>
+          </div>
+
+          {/* YouTube-style lower third */}
+          <LowerThird />
+
+          {/* Watermark */}
+          <div style={{
+            position: 'absolute', top: '20px', right: '30px',
+            fontSize: '12px', color: 'rgba(255,255,255,0.2)',
+            fontFamily: 'monospace',
+            opacity: Math.min(1, Math.max(0, (time - 0.5) / 0.5)),
+          }}>
+            React 18 + FrameForge · No Remotion
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
