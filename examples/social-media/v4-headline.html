@@ -5,7 +5,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 1080px; height: 1920px; overflow: hidden; background: #fafafa; font-family: 'DM Sans', system-ui; }
+    html, body { width: 1080px; height: 1920px; overflow: hidden; background: #fafafa !important; font-family: 'DM Sans', system-ui; color: #000; }
     canvas#grain { position: absolute; top: 0; left: 0; z-index: 10; mix-blend-mode: multiply; opacity: 0.06; pointer-events: none; }
     .content { position: relative; z-index: 1; width: 100%; height: 100%; }
 
@@ -59,17 +59,19 @@
 
     /* Pull quote */
     .quote {
-      position: absolute; top: 980px; left: 80px; right: 80px;
+      position: absolute; top: 900px; left: 80px; right: 80px;
       border-left: 6px solid #ffe17c;
       padding: 24px 32px;
-      font-size: 32px; font-weight: 700; color: #000;
+      font-size: 32px; font-weight: 700; color: #222 !important;
       line-height: 1.4; font-style: italic;
       opacity: 0; transform: translateX(-30px);
+      background: rgba(255,225,124,0.08);
+      border-radius: 0 12px 12px 0;
     }
 
     /* Stats bar */
     .stats-bar {
-      position: absolute; top: 1260px; left: 80px; right: 80px;
+      position: absolute; top: 1150px; left: 80px; right: 80px;
       display: flex; gap: 16px;
     }
 
@@ -86,7 +88,7 @@
 
     /* Image placeholder */
     .img-block {
-      position: absolute; top: 1480px; left: 80px; right: 80px;
+      position: absolute; top: 1370px; left: 80px; right: 80px;
       height: 240px;
       background: linear-gradient(135deg, #171e19, #1a2530);
       border: 2px solid #000; border-radius: 16px;
@@ -114,14 +116,13 @@
       <div class="source" id="source"><div class="source-dot"></div> TechCrunch</div>
       <div class="date" id="date">March 15, 2026</div>
       <h1 class="headline" id="headline">
-        <span class="word">Open-Source</span>
+        <span class="word">This</span>
         <span class="word">Tool</span>
         <span class="word highlight">Renders</span>
         <span class="word highlight">Any</span>
         <span class="word highlight">Web</span>
         <span class="word highlight">Animation</span>
         <span class="word">to</span>
-        <span class="word">Deterministic</span>
         <span class="word highlight">Video</span>
       </h1>
       <p class="body-text" id="body">FrameForge patches every browser time API — Date.now, requestAnimationFrame, setTimeout, CSS animations — making frame capture perfectly deterministic. No dropped frames, no timing bugs.</p>
