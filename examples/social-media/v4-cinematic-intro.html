@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; font-family: 'DM Sans', system-ui; }
+    canvas { position: absolute; top: 0; left: 0; }
+    #bg { z-index: 0; }
+    #constellation { z-index: 1; }
+    #fx { z-index: 3; }
+    #grain { z-index: 10; mix-blend-mode: overlay; opacity: 0.10; pointer-events: none; }
+    .content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+
+    /* Kinetic text containers */
+    .kinetic {
+      position: absolute; width: 100%; text-align: center;
+      font-weight: 900; letter-spacing: -4px;
+      overflow: visible;
+    }
+    .kinetic span {
+      display: inline-block;
+      opacity: 0; transform: translateY(60px) scale(0.7) rotate(8deg);
+    }
+
+    .scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; }
+
+    /* Scene 1: Hook */
+    .s1-tag { top: 700px; font-size: 24px; color: #ffe17c; letter-spacing: 8px; font-weight: 700; text-transform: uppercase; opacity: 0; }
+    .s1-main { top: 760px; font-size: 160px; color: #fff; line-height: 0.9; }
+    .s1-sub { top: 1060px; font-size: 36px; color: rgba(255,255,255,0.4); font-weight: 500; letter-spacing: 0; opacity: 0; }
+
+    /* Scene 2: What it does */
+    .s2-main { top: 600px; font-size: 100px; color: #000; line-height: 0.95; }
+    .s2-items { position: absolute; top: 950px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .s2-item {
+      width: 820px; display: flex; align-items: center; gap: 16px;
+      background: #fff; border: 3px solid #000; border-radius: 14px;
+      padding: 20px 24px; box-shadow: 6px 6px 0 #000;
+      opacity: 0; transform: translateX(-60px) scale(0.9);
+    }
+    .s2-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .s2-text { font-size: 22px; font-weight: 700; color: #000; }
+
+    /* Scene 3: The punchline */
+    .s3-main { top: 680px; font-size: 120px; line-height: 0.95; color: #fff; }
+    .s3-main .yellow, .s3-main span.yellow { color: #ffe17c; }
+    .s3-main .white, .s3-main span.white { color: #fff; }
+    .s3-badge {
+      position: absolute; top: 1050px; left: 50%; transform: translateX(-50%);
+      background: #ffe17c; color: #000; border: 3px solid #000; border-radius: 12px;
+      padding: 16px 40px; font-family: 'Space Mono'; font-size: 20px; font-weight: 700;
+      box-shadow: 8px 8px 0 #000; opacity: 0;
+    }
+    .s3-url {
+      position: absolute; top: 1150px; width: 100%; text-align: center;
+      font-family: 'Space Mono'; font-size: 16px; color: rgba(255,255,255,0.3); opacity: 0;
+    }
+
+    /* Circle wipe mask */
+    .wipe-mask {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 4; pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg" width="1080" height="1920"></canvas>
+  <canvas id="constellation" width="1080" height="1920"></canvas>
+  <canvas id="fx" width="1080" height="1920"></canvas>
+  <canvas id="grain" width="1080" height="1920"></canvas>
+
+  <div class="content">
+    <!-- Scene 1: Dark, cinematic hook -->
+    <div class="scene" id="scene1">
+      <div class="s1-tag kinetic" id="s1-tag">Introducing</div>
+      <div class="s1-main kinetic" id="s1-main">FRAME<br>FORGE</div>
+      <div class="s1-sub" id="s1-sub">Programmatic video from any web technology</div>
+    </div>
+
+    <!-- Scene 2: Features on yellow -->
+    <div class="scene" id="scene2">
+      <div class="s2-main kinetic" id="s2-main">WHAT<br>IT DOES.</div>
+      <div class="s2-items" id="s2-items">
+        <div class="s2-item"><div class="s2-dot" style="background:#88ce02"></div><div class="s2-text">Renders any HTML animation to MP4</div></div>
+        <div class="s2-item"><div class="s2-dot" style="background:#049ef4"></div><div class="s2-text">Deterministic — frame-perfect every time</div></div>
+        <div class="s2-item"><div class="s2-dot" style="background:#e94560"></div><div class="s2-text">GSAP, Three.js, CSS — all native</div></div>
+        <div class="s2-item"><div class="s2-dot" style="background:#8b5cf6"></div><div class="s2-text">TypeScript + Python SDKs</div></div>
+        <div class="s2-item"><div class="s2-dot" style="background:#f97316"></div><div class="s2-text">AI agent integration (MCP + Skill)</div></div>
+      </div>
+    </div>
+
+    <!-- Scene 3: CTA on dark -->
+    <div class="scene" id="scene3">
+      <div class="s3-main kinetic" id="s3-main"><span class="yellow">CODE</span><br><span class="white">YOUR</span><br><span class="yellow">VIDEO.</span></div>
+      <div class="s3-badge" id="s3-badge">npm i @frameforge/core</div>
+      <div class="s3-url" id="s3-url">github.com/Trejon-888/frameforge</div>
+    </div>
+  </div>
+
+  <script>
+    // ====== SYSTEMS ======
+
+    // --- Grain ---
+    var grainC = document.getElementById('grain').getContext('2d');
+    var grainFrame = 0;
+    function renderGrain() {
+      var img = grainC.createImageData(270, 480); // quarter res for perf
+      var d = img.data;
+      for (var i = 0; i < d.length; i += 4) {
+        var v = Math.random() * 255;
+        d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255;
+      }
+      grainC.save();
+      grainC.scale(4, 4);
+      grainC.putImageData(img, 0, 0);
+      grainC.restore();
+    }
+
+    // --- Constellation Particles ---
+    var conC = document.getElementById('constellation').getContext('2d');
+    var nodes = [];
+    for (var n = 0; n < 40; n++) {
+      nodes.push({
+        x: Math.random() * 1080, y: Math.random() * 1920,
+        vx: (Math.random() - 0.5) * 30, vy: (Math.random() - 0.5) * 30,
+        size: 2 + Math.random() * 3
+      });
+    }
+
+    function renderConstellation(dt, alpha) {
+      conC.clearRect(0, 0, 1080, 1920);
+      // Update positions
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        n.x += n.vx * dt; n.y += n.vy * dt;
+        if (n.x < 0 || n.x > 1080) n.vx *= -1;
+        if (n.y < 0 || n.y > 1920) n.vy *= -1;
+      }
+      // Draw connections
+      conC.strokeStyle = 'rgba(255,225,124,' + (alpha * 0.15) + ')';
+      conC.lineWidth = 1;
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = i + 1; j < nodes.length; j++) {
+          var dx = nodes[i].x - nodes[j].x;
+          var dy = nodes[i].y - nodes[j].y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < 200) {
+            conC.globalAlpha = (1 - dist/200) * alpha * 0.3;
+            conC.beginPath();
+            conC.moveTo(nodes[i].x, nodes[i].y);
+            conC.lineTo(nodes[j].x, nodes[j].y);
+            conC.stroke();
+          }
+        }
+      }
+      // Draw nodes
+      for (var i = 0; i < nodes.length; i++) {
+        conC.globalAlpha = alpha * 0.5;
+        conC.fillStyle = '#ffe17c';
+        conC.fillRect(nodes[i].x - nodes[i].size/2, nodes[i].y - nodes[i].size/2, nodes[i].size, nodes[i].size);
+      }
+      conC.globalAlpha = 1;
+    }
+
+    // --- Burst Particles ---
+    var fxC = document.getElementById('fx').getContext('2d');
+    var bursts = [];
+    function spawnBurst(x, y, color, count) {
+      for (var i = 0; i < count; i++) {
+        var a = (Math.PI*2/count)*i + (Math.random()-0.5)*0.8;
+        var spd = 200 + Math.random() * 500;
+        bursts.push({ x:x, y:y, vx: Math.cos(a)*spd, vy: Math.sin(a)*spd,
+          size: 4+Math.random()*10, color:color, life:1, decay:0.6+Math.random()*0.8, rot: Math.random()*Math.PI });
+      }
+    }
+    function renderBursts(dt) {
+      fxC.clearRect(0, 0, 1080, 1920);
+      for (var i = bursts.length-1; i >= 0; i--) {
+        var p = bursts[i];
+        p.x += p.vx*dt; p.y += p.vy*dt;
+        p.vx *= 0.95; p.vy *= 0.95; p.vy += 80*dt;
+        p.rot += 2*dt; p.life -= p.decay*dt;
+        if (p.life <= 0) { bursts.splice(i,1); continue; }
+        fxC.save(); fxC.translate(p.x, p.y); fxC.rotate(p.rot);
+        fxC.globalAlpha = p.life * 0.7;
+        fxC.fillStyle = p.color;
+        fxC.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+        fxC.restore();
+      }
+      fxC.globalAlpha = 1;
+    }
+
+    // --- Background ---
+    var bgC = document.getElementById('bg').getContext('2d');
+    function renderBg(color1, color2, progress) {
+      var grd = bgC.createLinearGradient(0, 0, 1080, 1920);
+      grd.addColorStop(0, color1);
+      grd.addColorStop(1, color2);
+      bgC.fillStyle = grd;
+      bgC.fillRect(0, 0, 1080, 1920);
+    }
+
+    // --- Kinetic Typography ---
+    function setupKinetic(el) {
+      // Preserve innerHTML (including <br> and <span> with classes)
+      var html = el.innerHTML;
+      // Split into segments by <br> tags
+      var segments = html.split(/<br\s*\/?>/i);
+      el.innerHTML = '';
+      var chars = [];
+      for (var s = 0; s < segments.length; s++) {
+        if (s > 0) el.appendChild(document.createElement('br'));
+        // Strip HTML tags but remember them
+        var temp = document.createElement('div');
+        temp.innerHTML = segments[s].trim();
+        var plainText = temp.textContent || '';
+        // Check if segment had a span with a class
+        var classMatch = segments[s].match(/class="([^"]+)"/);
+        for (var i = 0; i < plainText.length; i++) {
+          var span = document.createElement('span');
+          span.textContent = plainText[i] === ' ' ? '\u00A0' : plainText[i];
+          if (classMatch) span.className = classMatch[1];
+          el.appendChild(span);
+          chars.push(span);
+        }
+      }
+      return chars;
+    }
+
+    function animateKinetic(chars, t, startTime, staggerMs) {
+      var stagger = staggerMs / 1000;
+      for (var i = 0; i < chars.length; i++) {
+        var charT = t - startTime - i * stagger;
+        var p = spring(Math.min(1, Math.max(0, charT / 0.3)));
+        chars[i].style.opacity = p;
+        chars[i].style.transform = 'translateY(' + (60*(1-p)) + 'px) scale(' + (0.7+0.3*p) + ') rotate(' + (8*(1-p)) + 'deg)';
+      }
+    }
+
+    // --- Easing ---
+    function spring(t) {
+      if (t <= 0) return 0; if (t >= 1) return 1;
+      return Math.pow(2,-10*t) * Math.sin((t*10-0.75)*(2*Math.PI/3)) + 1;
+    }
+    function ease(t) { t=Math.max(0,Math.min(1,t)); return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
+
+    // ====== SETUP ======
+    var s1TagChars = setupKinetic(document.getElementById('s1-tag'));
+    var s1MainChars = setupKinetic(document.getElementById('s1-main'));
+    var s2MainChars = setupKinetic(document.getElementById('s2-main'));
+    var s3MainChars = setupKinetic(document.getElementById('s3-main'));
+
+    // ====== TIMELINE (120 BPM = 0.5s per beat) ======
+    // Beat:  0    0.5   1.0   1.5   2.0   2.5   3.0   3.5   4.0  ...
+    // Scene1: 0-4s, Scene2: 4-8s, Scene3: 8-12s
+
+    var prevT = 0;
+    var camScale = 1;
+    var wipeProg = 0; // 0 = no wipe, 1 = full wipe
+
+    function update() {
+      var t = performance.now() / 1000;
+      var dt = Math.min(t - prevT, 0.05);
+      prevT = t;
+
+      // Grain (quarter-res for perf)
+      grainFrame++;
+      if (grainFrame % 4 === 0) renderGrain();
+
+      // === SCENE 1: Dark cinematic (0-4s) ===
+      if (t < 4.5) {
+        document.getElementById('scene1').style.opacity = 1;
+        renderBg('#0a0a12', '#12101e', 0);
+        renderConstellation(dt, Math.min(1, t / 1.0));
+
+        // "Introducing" on beat 0.5
+        animateKinetic(s1TagChars, t, 0.3, 40);
+        document.getElementById('s1-tag').style.opacity = 1;
+
+        // "FRAMEFORGE" on beat 1.0 — each letter pops with stagger
+        animateKinetic(s1MainChars, t, 0.8, 35);
+
+        // Subtitle on beat 2.0
+        document.getElementById('s1-sub').style.opacity = ease((t - 2.0) / 0.4);
+
+        // Camera zoom breathe
+        camScale = 1 + Math.sin(t * 0.8) * 0.008;
+      }
+
+      // Circle wipe transition at 3.5-4.5s
+      if (t > 3.5 && t < 4.5) {
+        wipeProg = ease((t - 3.5) / 0.8);
+        var radius = wipeProg * 2200;
+        document.getElementById('scene2').style.clipPath = 'circle(' + radius + 'px at 540px 960px)';
+        document.getElementById('scene2').style.opacity = 1;
+      }
+
+      // === SCENE 2: Yellow features (4-8.5s) ===
+      if (t >= 4.0 && t < 9.0) {
+        renderBg('#ffe17c', '#ffd633', ease((t-4)/0.5));
+        renderConstellation(dt, Math.max(0, 1 - (t-4)/0.5));
+
+        // "WHAT IT DOES" kinetic on beat 4.5
+        animateKinetic(s2MainChars, t, 4.3, 40);
+
+        // Feature items stagger on 0.5s beats
+        var items = document.querySelectorAll('.s2-item');
+        for (var i = 0; i < items.length; i++) {
+          var itemT = t - (5.0 + i * 0.4);
+          var ip = spring(Math.min(1, Math.max(0, itemT / 0.35)));
+          items[i].style.opacity = ip;
+          items[i].style.transform = 'translateX(' + (-60*(1-ip)) + 'px) scale(' + (0.9+0.1*ip) + ')';
+        }
+      }
+
+      // Circle wipe to scene 3 at 8-9s
+      if (t > 8.0 && t < 9.0) {
+        var wp2 = ease((t - 8.0) / 0.8);
+        var r2 = wp2 * 2200;
+        document.getElementById('scene3').style.clipPath = 'circle(' + r2 + 'px at 540px 960px)';
+        document.getElementById('scene3').style.opacity = 1;
+      }
+
+      // === SCENE 3: Dark CTA (8.5-12s) ===
+      if (t >= 8.5) {
+        renderBg('#0a0a12', '#171e19', 1);
+        renderConstellation(dt, Math.min(1, (t-8.5)/0.5));
+
+        // "CODE YOUR VIDEO." kinetic
+        animateKinetic(s3MainChars, t, 9.0, 40);
+
+        // Badge on beat
+        document.getElementById('s3-badge').style.opacity = spring(Math.min(1, Math.max(0, (t-10.5)/0.4)));
+
+        // Particle burst on badge appear
+        if (Math.abs(t - 10.5) < 0.04) {
+          spawnBurst(540, 1050, '#ffe17c', 20);
+          spawnBurst(540, 1050, '#fff', 10);
+        }
+
+        // URL
+        document.getElementById('s3-url').style.opacity = ease((t - 11.0) / 0.4);
+      }
+
+      // Scene opacity management
+      if (t >= 4.5) document.getElementById('scene1').style.opacity = 0;
+      if (t >= 9.0) document.getElementById('scene2').style.opacity = 0;
+
+      renderBursts(dt);
+      requestAnimationFrame(update);
+    }
+
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>
