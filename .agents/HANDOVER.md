@@ -25,6 +25,26 @@
 
 ## Session Log
 
+### Session 7 — 2026-03-16
+- **Context:** Product stress testing — find and fix bugs before real users hit them
+- **Completed:**
+  - **BUG FIX (CRITICAL):** `workspace:*` in published packages broke npm install — republished all at 0.1.1
+  - **BUG FIX:** Python SDK `subprocess.run(["npx"])` fails on Windows — added `shell=True`
+  - **BUG FIX:** `npx frameforge` resolved to wrong package — use `@frameforge/core` scoped name
+  - Verified clean npm install → render works in 10 seconds
+  - Verified SDK render from npm (3-line script → MP4)
+  - Verified Python SDK full end-to-end (Python → HTML → Node CLI → MP4)
+  - Tested edge cases: 0.5s video, odd dims, 1fps, 60fps, empty page, JS errors, CSS-only, Canvas 2D, SVG
+  - Tested CLI error handling: missing duration, missing file, invalid manifest — all clear
+  - 15/15 test scenarios passing
+- **Stats:** 169 tests, 2 critical bugs fixed, all packages republished at 0.1.1
+- **Next:** Continue stress testing (composition, subtitles, animation libs), then remaining Remotion benchmarks
+
+### Session 6 — 2026-03-15
+- **Context:** Social media videos v1→v4 + Studio Phase 2 + competitive benchmark plan
+- **Completed:** 8 video iterations (v1 4/10 → v4 8/10), Studio keyboard overlay + export presets + console, data viz + headline videos, competitive benchmark plan
+- **Next:** Product stress testing, remaining Remotion benchmarks
+
 ### Session 5 — 2026-03-15
 - **Context:** Phase 4 Advanced Features — composition, transitions, subtitles, GPU
 - **Completed:**

@@ -24,6 +24,10 @@
 |---------|-----------|----------|---------|
 | `__originalRAF` undefined in frame-capture | Variable scoped inside time-virtualization IIFE, not exposed on window | Added `window.__originalRAF = _originalRAF` at end of IIFE | Session 1 |
 | Output path resolves to CWD not manifest dir | `resolve(options.output)` uses CWD; CLI always set default `-o` value | Remove CLI default for `-o`; resolve output relative to `dirname(manifestPath)` in renderer | Session 1 |
+| npm install fails with EUNSUPPORTEDPROTOCOL | `workspace:*` in published package.json — pnpm workspace ref doesn't work on npm | Changed to `^0.1.0`, republished all packages at 0.1.1 | Session 7 |
+| Python SDK render fails on Windows | `subprocess.run(["npx"])` — npx not found without `shell=True` on Windows | Added `shell=True` on Windows + `shutil.which("npx")` | Session 7 |
+| `npx frameforge` resolves to wrong package | Unscoped `frameforge` on npm is a different project (needs GEMINI_API_KEY) | Use `@frameforge/core` as scoped name, or local CLI path when available | Session 7 |
+| Background override breaks light-themed pages | Renderer sets `document.body.style.background` which overrides page CSS | Use `!important` in page CSS, or check if bg is already set before override | Session 6 |
 
 ---
 
