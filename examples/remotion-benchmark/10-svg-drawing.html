@@ -10,7 +10,7 @@ canvas#grain{position:absolute;top:0;left:0;z-index:10;mix-blend-mode:multiply;o
 svg{position:absolute;z-index:2}
 
 /* The illustration: a camera icon made of clean geometric SVG paths */
-.illustration{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%)}
+.illustration{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%)}
 
 .title{position:absolute;bottom:100px;width:100%;text-align:center;font-size:44px;font-weight:900;color:#000;letter-spacing:-2px;opacity:0;z-index:5}
 .title .accent{color:#6366f1}
@@ -36,7 +36,18 @@ svg{position:absolute;z-index:2}
 <canvas id="grain" width="1920" height="1080"></canvas>
 <div class="scene">
   <div class="illustration">
-    <svg width="600" height="500" viewBox="0 0 600 500">
+    <svg width="900" height="700" viewBox="-150 -60 900 700">
+      <!-- Construction guidelines (draw first, very light) -->
+      <line class="draw-path" id="g1" x1="300" y1="-40" x2="300" y2="520"
+        stroke="#ddd" stroke-width="1" stroke-dasharray="8 6" style="--len:560"/>
+      <line class="draw-path" id="g2" x1="-20" y1="280" x2="620" y2="280"
+        stroke="#ddd" stroke-width="1" stroke-dasharray="8 6" style="--len:640"/>
+      <!-- Diagonal guides -->
+      <line class="draw-path" id="g3" x1="50" y1="120" x2="550" y2="440"
+        stroke="#eee" stroke-width="1" stroke-dasharray="6 8" style="--len:580"/>
+      <line class="draw-path" id="g4" x1="550" y1="120" x2="50" y2="440"
+        stroke="#eee" stroke-width="1" stroke-dasharray="6 8" style="--len:580"/>
+
       <!-- Camera body -->
       <rect class="draw-path" id="d1" x="50" y="120" width="500" height="320" rx="30"
         stroke="#000" stroke-width="4" style="--len:1700"/>
@@ -62,7 +73,7 @@ svg{position:absolute;z-index:2}
         stroke="#000" stroke-width="2.5" style="--len:165"/>
 
       <!-- Button -->
-      <circle class="draw-path" id="d7" cx="480" y="145" r="12"
+      <circle class="draw-path" id="d7" cx="480" cy="145" r="12"
         stroke="#e94560" stroke-width="3" style="--len:76"/>
 
       <!-- Grip lines -->
@@ -71,19 +82,19 @@ svg{position:absolute;z-index:2}
       <line class="draw-path" id="d9" x1="100" y1="200" x2="100" y2="380"
         stroke="#000" stroke-width="2" style="--len:180"/>
 
-      <!-- Lens flare lines -->
-      <line class="draw-path" id="d10" x1="300" y1="140" x2="300" y2="160"
-        stroke="#6366f1" stroke-width="2" style="--len:20"/>
-      <line class="draw-path" id="d11" x1="300" y1="420" x2="300" y2="440"
-        stroke="#6366f1" stroke-width="2" style="--len:20"/>
-      <line class="draw-path" id="d12" x1="150" y1="290" x2="170" y2="290"
-        stroke="#6366f1" stroke-width="2" style="--len:20"/>
-      <line class="draw-path" id="d13" x1="430" y1="290" x2="450" y2="290"
-        stroke="#6366f1" stroke-width="2" style="--len:20"/>
+      <!-- Lens flare lines (crosshair style) -->
+      <line class="draw-path" id="d10" x1="300" y1="140" x2="300" y2="165"
+        stroke="#6366f1" stroke-width="2" style="--len:25"/>
+      <line class="draw-path" id="d11" x1="300" y1="415" x2="300" y2="440"
+        stroke="#6366f1" stroke-width="2" style="--len:25"/>
+      <line class="draw-path" id="d12" x1="145" y1="290" x2="170" y2="290"
+        stroke="#6366f1" stroke-width="2" style="--len:25"/>
+      <line class="draw-path" id="d13" x1="430" y1="290" x2="455" y2="290"
+        stroke="#6366f1" stroke-width="2" style="--len:25"/>
 
       <!-- Fill elements (appear after drawing) -->
       <circle id="fill1" cx="300" cy="290" r="28" fill="#e94560" opacity="0"/>
-      <circle id="fill2" cx="300" cy="290" r="73" fill="none" stroke="#6366f1" stroke-width="1" opacity="0"/>
+      <circle id="fill2" cx="300" cy="290" r="118" fill="none" stroke="#6366f1" stroke-width="1" opacity="0"/>
     </svg>
   </div>
 
@@ -106,19 +117,25 @@ function ease(t){t=Math.max(0,Math.min(1,t));return t<0.5?4*t*t*t:1-Math.pow(-2*
 
 // Drawing schedule: each path draws over ~0.6s, staggered
 var paths = [
-  {id:'d1', start:0.3, dur:0.8},  // camera body
-  {id:'d5', start:0.8, dur:0.4},  // flash bump
-  {id:'d6', start:1.0, dur:0.3},  // viewfinder
-  {id:'d2', start:1.2, dur:0.6},  // lens outer
-  {id:'d3', start:1.6, dur:0.5},  // lens inner
-  {id:'d4', start:2.0, dur:0.4},  // lens core
-  {id:'d7', start:2.2, dur:0.3},  // button
-  {id:'d8', start:2.4, dur:0.3},  // grip 1
-  {id:'d9', start:2.5, dur:0.3},  // grip 2
-  {id:'d10', start:2.7, dur:0.15}, // flare lines
-  {id:'d11', start:2.8, dur:0.15},
-  {id:'d12', start:2.85, dur:0.15},
-  {id:'d13', start:2.9, dur:0.15},
+  // Construction guidelines draw first (light, dashed)
+  {id:'g1', start:0.1, dur:0.4},   // vertical center guide
+  {id:'g2', start:0.15, dur:0.4},  // horizontal center guide
+  {id:'g3', start:0.2, dur:0.35},  // diagonal 1
+  {id:'g4', start:0.25, dur:0.35}, // diagonal 2
+  // Camera body draws over the guides
+  {id:'d1', start:0.5, dur:0.8},   // camera body
+  {id:'d5', start:1.0, dur:0.4},   // flash bump
+  {id:'d6', start:1.2, dur:0.3},   // viewfinder
+  {id:'d2', start:1.4, dur:0.6},   // lens outer
+  {id:'d3', start:1.8, dur:0.5},   // lens inner
+  {id:'d4', start:2.2, dur:0.4},   // lens core
+  {id:'d7', start:2.4, dur:0.3},   // button
+  {id:'d8', start:2.6, dur:0.3},   // grip 1
+  {id:'d9', start:2.7, dur:0.3},   // grip 2
+  {id:'d10', start:2.9, dur:0.15}, // crosshair lines
+  {id:'d11', start:2.95, dur:0.15},
+  {id:'d12', start:3.0, dur:0.15},
+  {id:'d13', start:3.05, dur:0.15},
 ];
 
 function update() {
@@ -136,19 +153,28 @@ function update() {
   }
 
   // Fill elements appear after drawing
-  if (t > 2.4) {
-    document.getElementById('fill1').style.opacity = ease(Math.min(1, (t-2.4)/0.3));
+  if (t > 2.8) {
+    document.getElementById('fill1').style.opacity = ease(Math.min(1, (t-2.8)/0.3));
   }
-  if (t > 2.6) {
-    document.getElementById('fill2').style.opacity = ease(Math.min(1, (t-2.6)/0.3)) * 0.3;
+  if (t > 3.0) {
+    document.getElementById('fill2').style.opacity = ease(Math.min(1, (t-3.0)/0.3)) * 0.3;
+  }
+
+  // Fade out construction guides after camera is drawn
+  if (t > 2.0) {
+    var gFade = Math.min(1, (t-2.0)/0.8);
+    ['g1','g2','g3','g4'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.opacity = 1 - gFade;
+    });
   }
 
   // Tag
   document.getElementById('tag').style.opacity = ease(Math.min(1, t / 0.3));
 
   // Title + sub
-  document.getElementById('title').style.opacity = ease(Math.min(1, (t-3.2)/0.5));
-  document.getElementById('sub').style.opacity = ease(Math.min(1, (t-3.6)/0.4));
+  document.getElementById('title').style.opacity = ease(Math.min(1, (t-3.5)/0.5));
+  document.getElementById('sub').style.opacity = ease(Math.min(1, (t-3.9)/0.4));
 
   requestAnimationFrame(update);
 }
