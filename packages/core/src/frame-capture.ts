@@ -82,12 +82,20 @@ export async function captureFrames(
     const entryUrl = pathToFileURL(resolve(entryPath)).href;
     await page.goto(entryUrl, { waitUntil: "networkidle0", timeout: 30000 });
 
-    // Set background color
+    // Set background color — only as fallback if page doesn't define its own
     if (manifest.canvas.background) {
       await page.evaluate(
         (bg: string) => {
-          document.body.style.background = bg;
-          document.documentElement.style.background = bg;
+          const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+          const htmlBg = window.getComputedStyle(document.documentElement).backgroundColor;
+          const isTransparent = (c: string) =>
+            !c || c === "transparent" || c === "rgba(0, 0, 0, 0)";
+
+          // Only apply manifest background if page has no background set
+          if (isTransparent(bodyBg) && isTransparent(htmlBg)) {
+            document.body.style.background = bg;
+            document.documentElement.style.background = bg;
+          }
         },
         manifest.canvas.background
       );

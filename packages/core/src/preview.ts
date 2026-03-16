@@ -61,8 +61,14 @@ export async function capturePreview(
     if (manifest.canvas.background) {
       await page.evaluate(
         (bg: string) => {
-          document.body.style.background = bg;
-          document.documentElement.style.background = bg;
+          const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+          const htmlBg = window.getComputedStyle(document.documentElement).backgroundColor;
+          const isTransparent = (c: string) =>
+            !c || c === "transparent" || c === "rgba(0, 0, 0, 0)";
+          if (isTransparent(bodyBg) && isTransparent(htmlBg)) {
+            document.body.style.background = bg;
+            document.documentElement.style.background = bg;
+          }
         },
         manifest.canvas.background
       );
