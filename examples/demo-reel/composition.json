@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "name": "frameforge-demo-reel",
+  "canvas": { "width": 1920, "height": 1080, "fps": 30 },
+  "scenes": [
+    { "entry": "./01-opening.html", "duration": 4, "transition": { "type": "dissolve", "duration": 0.6 } },
+    { "entry": "./02-threejs.html", "duration": 4, "transition": { "type": "wipeleft", "duration": 0.5 } },
+    { "entry": "./03-dataviz.html", "duration": 4, "transition": { "type": "fadeblack", "duration": 0.5 } },
+    { "entry": "./04-gsap.html", "duration": 4, "transition": { "type": "slideup", "duration": 0.5 } },
+    { "entry": "./05-closer.html", "duration": 4 }
+  ],
+  "render": { "codec": "h264", "quality": "high", "pixelFormat": "yuv420p", "output": "./output/demo-reel.mp4" }
+}

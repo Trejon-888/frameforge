@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#000}
+.label{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);font:700 20px system-ui;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:6px;opacity:0;z-index:5}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head><body>
+<div class="label" id="lbl">Three.js · WebGL · Native</div>
+<script>
+var scene=new THREE.Scene();
+var camera=new THREE.PerspectiveCamera(60,1920/1080,0.1,1000);
+camera.position.set(0,2,6);camera.lookAt(0,0,0);
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(1920,1080);renderer.setClearColor(0x06060f);
+document.body.insertBefore(renderer.domElement,document.body.firstChild);
+renderer.domElement.style.position='absolute';renderer.domElement.style.zIndex='1';
+
+scene.add(new THREE.AmbientLight(0x222244,0.5));
+var l1=new THREE.PointLight(0x6366f1,2.5,20);l1.position.set(4,4,4);scene.add(l1);
+var l2=new THREE.PointLight(0xe94560,2,20);l2.position.set(-4,2,-3);scene.add(l2);
+var l3=new THREE.PointLight(0x22c55e,1.5,15);l3.position.set(0,-2,4);scene.add(l3);
+
+var torus=new THREE.Mesh(new THREE.TorusKnotGeometry(1.2,0.4,128,32),
+  new THREE.MeshStandardMaterial({color:0x6366f1,metalness:0.85,roughness:0.15,emissive:0x1a1a4e,emissiveIntensity:0.4}));
+scene.add(torus);
+
+var orbs=[];
+for(var i=0;i<8;i++){
+  var m=new THREE.Mesh(new THREE.SphereGeometry(0.15,24,24),
+    new THREE.MeshStandardMaterial({color:[0xe94560,0x22c55e,0xf59e0b,0x3b82f6,0x8b5cf6,0xec4899,0x14b8a6,0x06b6d4][i],metalness:0.7,roughness:0.3}));
+  scene.add(m);orbs.push({mesh:m,r:2.5+i*0.2,spd:0.6+i*0.12,off:i/8*Math.PI*2,yOff:(i-3.5)*0.3});
+}
+
+var grid=new THREE.GridHelper(16,32,0x222244,0x111133);grid.position.y=-2.5;scene.add(grid);
+
+function ease(t){t=Math.max(0,Math.min(1,t));return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+
+function update(){
+  var t=performance.now()/1000;
+  var sc=ease(Math.min(1,t/0.6));torus.scale.setScalar(sc);
+  torus.rotation.x=t*0.4;torus.rotation.y=t*0.6;
+  torus.material.emissiveIntensity=0.4+Math.sin(t*2)*0.2;
+
+  for(var i=0;i<orbs.length;i++){
+    var o=orbs[i],ep=ease(Math.min(1,Math.max(0,(t-0.3-i*0.08)/0.4)));
+    var a=t*o.spd+o.off;
+    o.mesh.position.set(Math.cos(a)*o.r*ep,o.yOff+Math.sin(t*1.5+i)*0.2,Math.sin(a)*o.r*ep);
+    o.mesh.scale.setScalar(ep);
+  }
+
+  var ca=t*0.25,cr=6+Math.sin(t*0.3)*1;
+  camera.position.set(Math.cos(ca)*cr,2+Math.sin(t*0.2)*0.8,Math.sin(ca)*cr);
+  camera.lookAt(0,0,0);
+
+  l1.position.x=Math.cos(t*0.6)*5;l1.position.z=Math.sin(t*0.6)*5;
+  l2.position.x=Math.cos(t*0.4+2)*4;l2.position.z=Math.sin(t*0.4+2)*4;
+
+  renderer.render(scene,camera);
+  document.getElementById('lbl').style.opacity=ease(Math.min(1,(t-1)/0.4));
+  requestAnimationFrame(update);
+}
+requestAnimationFrame(update);
+</script></body></html>

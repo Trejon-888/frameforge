@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#0a0a0f;font-family:system-ui}
+.scene{position:relative;width:100%;height:100%}
+.word{position:absolute;font-weight:900;letter-spacing:-4px;opacity:0}
+.w1{font-size:180px;color:#fff;top:200px;left:120px}
+.w2{font-size:180px;color:#6366f1;top:380px;left:120px}
+.w3{font-size:120px;color:#e94560;top:570px;left:120px}
+.bar{position:absolute;top:730px;left:120px;width:0;height:4px;background:linear-gradient(90deg,#6366f1,#e94560);border-radius:2px}
+.pill{position:absolute;bottom:120px;padding:14px 32px;border-radius:10px;font:700 16px system-ui;opacity:0;transform:translateY(30px)}
+.p1{left:120px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);color:#818cf8}
+.p2{left:360px;background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.2);color:#f87171}
+.p3{left:590px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#4ade80}
+.label{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);font:700 20px system-ui;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:6px;opacity:0}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head><body>
+<div class="scene">
+  <div class="word w1" id="w1">ANIMATE</div>
+  <div class="word w2" id="w2">EVERYTHING.</div>
+  <div class="word w3" id="w3">Ship it as MP4.</div>
+  <div class="bar" id="bar"></div>
+  <div class="pill p1" id="p1">Springs</div>
+  <div class="pill p2" id="p2">Stagger</div>
+  <div class="pill p3" id="p3">Timeline</div>
+  <div class="label" id="lbl">GSAP 3.12 · Native · Zero Config</div>
+</div>
+<script>
+var tl=gsap.timeline({defaults:{ease:"power3.out"}});
+tl.to("#w1",{opacity:1,x:0,duration:0.6,ease:"power4.out"},0.2)
+  .from("#w1",{x:-100,duration:0.6,ease:"power4.out"},0.2)
+  .to("#w2",{opacity:1,x:0,duration:0.6,ease:"power4.out"},0.5)
+  .from("#w2",{x:-100,duration:0.6,ease:"power4.out"},0.5)
+  .to("#w3",{opacity:1,duration:0.5},0.9)
+  .from("#w3",{x:-60,duration:0.5},0.9)
+  .to("#bar",{width:700,duration:0.8,ease:"power2.inOut"},1.2)
+  .to("#p1",{opacity:1,y:0,duration:0.4,ease:"back.out(2)"},1.8)
+  .to("#p2",{opacity:1,y:0,duration:0.4,ease:"back.out(2)"},2.0)
+  .to("#p3",{opacity:1,y:0,duration:0.4,ease:"back.out(2)"},2.2)
+  .to("#lbl",{opacity:1,duration:0.4},2.5);
+</script></body></html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#0F0F1A;font-family:system-ui}
+canvas{position:absolute;top:0;left:0;z-index:1}
+.label{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);font:700 20px system-ui;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:6px;opacity:0;z-index:5}
+</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<div class="label" id="lbl">Canvas 2D · Data Visualization</div>
+<script>
+var c=document.getElementById('c').getContext('2d');
+var months=['Jan','Feb','Mar','Apr','May','Jun'];
+var vals=[8,12,10,15,18,22];
+var conv=[2.1,2.8,2.5,3.2,3.8,4.2];
+var mR=26,mC=5;
+var L=180,R=1740,T=140,B=860,W=R-L,H=B-T;
+var bW=100,bG=(W-bW*6)/7;
+
+function spring(t){if(t<=0)return 0;if(t>=1)return 1;return Math.pow(2,-10*t)*Math.sin((t*10-0.75)*(2*Math.PI/3))+1;}
+function ease(t){t=Math.max(0,Math.min(1,t));return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+
+function draw(t){
+  var g=c.createRadialGradient(960+Math.sin(t*0.3)*80,400,100,960,540,900);
+  g.addColorStop(0,'#1a1a3e');g.addColorStop(1,'#0a0a18');c.fillStyle=g;c.fillRect(0,0,1920,1080);
+
+  c.fillStyle='rgba(99,102,241,'+ease(Math.min(1,(t-0.3)/0.8))*0.03+')';
+  c.beginPath();c.ellipse(960,500,600,300,0,0,Math.PI*2);c.fill();
+
+  var ga=ease(Math.min(1,(t-0.2)/0.4));
+  c.strokeStyle='rgba(255,255,255,'+(ga*0.04)+')';c.lineWidth=1;
+  for(var i=0;i<=5;i++){var y=B-(i/5)*H;c.beginPath();c.moveTo(L,y);c.lineTo(R,y);c.stroke();
+    c.fillStyle='rgba(255,255,255,'+(ga*0.25)+')';c.font='500 12px monospace';c.textAlign='right';c.fillText('$'+Math.round(i*mR/5)+'K',L-16,y+4);
+  }
+
+  // Title
+  c.fillStyle='rgba(255,255,255,'+ease(Math.min(1,t/0.4))+')';c.font='700 36px system-ui';c.textAlign='left';c.fillText('Revenue & Conversion',L,80);
+
+  for(var i=0;i<6;i++){
+    var bd=0.5+i*0.1,bp=spring(Math.min(1,Math.max(0,(t-bd)/0.4)));
+    var bh=(vals[i]/mR)*H*bp,bx=L+bG+i*(bW+bG),by=B-bh;
+    var bg=c.createLinearGradient(bx,by,bx+bW,B);bg.addColorStop(0,'#818cf8');bg.addColorStop(1,'#4f46e5');c.fillStyle=bg;
+    var r=6;c.beginPath();c.moveTo(bx,B);c.lineTo(bx,by+r);c.quadraticCurveTo(bx,by,bx+r,by);c.lineTo(bx+bW-r,by);c.quadraticCurveTo(bx+bW,by,bx+bW,by+r);c.lineTo(bx+bW,B);c.closePath();c.fill();
+    if(bp>0.7){c.fillStyle='rgba(255,255,255,'+ease((bp-0.7)*3.3)+')';c.font='700 14px monospace';c.textAlign='center';c.fillText('$'+vals[i]+'K',bx+bW/2,by-10);}
+    c.fillStyle='rgba(255,255,255,'+(ga*0.4)+')';c.font='600 13px system-ui';c.textAlign='center';c.fillText(months[i],bx+bW/2,B+26);
+  }
+
+  var ld=1.5,lp=ease(Math.min(1,Math.max(0,(t-ld)/1.0)));
+  if(lp>0){
+    var pts=[];for(var i=0;i<6;i++)pts.push({x:L+bG+i*(bW+bG)+bW/2,y:B-(conv[i]/mC)*H});
+    c.strokeStyle='rgba(56,189,248,0.12)';c.lineWidth=16;c.lineJoin='round';c.lineCap='round';drawL(c,pts,lp);
+    c.strokeStyle='#38bdf8';c.lineWidth=3;drawL(c,pts,lp);
+    for(var i=0;i<pts.length;i++){var sp=i/(pts.length-1);if(sp>lp)continue;var dp=spring(Math.min(1,Math.max(0,(t-ld-0.1-i*0.1)/0.3)));if(dp<=0)continue;
+      c.fillStyle='rgba(56,189,248,0.1)';c.beginPath();c.arc(pts[i].x,pts[i].y,14*dp,0,Math.PI*2);c.fill();
+      c.fillStyle='#38bdf8';c.beginPath();c.arc(pts[i].x,pts[i].y,5*dp,0,Math.PI*2);c.fill();
+      c.fillStyle='#fff';c.beginPath();c.arc(pts[i].x,pts[i].y,2*dp,0,Math.PI*2);c.fill();
+    }
+  }
+  document.getElementById('lbl').style.opacity=ease(Math.min(1,(t-1)/0.4));
+}
+function drawL(ctx,pts,prog){var tl=0;for(var i=1;i<pts.length;i++)tl+=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y);var dl=tl*prog,dr=0;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(var i=1;i<pts.length;i++){var sl=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y);if(dr+sl<=dl){ctx.lineTo(pts[i].x,pts[i].y);dr+=sl;}else{var f=(dl-dr)/sl;ctx.lineTo(pts[i-1].x+(pts[i].x-pts[i-1].x)*f,pts[i-1].y+(pts[i].y-pts[i-1].y)*f);break;}}ctx.stroke();}
+
+function update(){var t=performance.now()/1000;draw(t);requestAnimationFrame(update);}
+requestAnimationFrame(update);
+</script></body></html>

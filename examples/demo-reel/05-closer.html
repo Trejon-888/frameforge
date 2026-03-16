@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#000;font-family:system-ui}
+canvas{position:absolute;top:0;left:0;z-index:0}
+.content{position:absolute;top:0;left:0;width:100%;height:100%;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.logo{font-size:120px;font-weight:900;letter-spacing:-4px;opacity:0}
+.logo .f1{color:#e94560} .logo .f2{color:#6366f1}
+.tagline{font-size:28px;font-weight:400;color:rgba(255,255,255,0.5);opacity:0}
+.cmd{font:700 20px monospace;color:#22c55e;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.15);padding:14px 36px;border-radius:10px;opacity:0}
+.url{font:600 16px system-ui;color:rgba(255,255,255,0.2);opacity:0}
+.techs{display:flex;gap:24px;margin-top:12px;opacity:0}
+.tech{font:600 13px system-ui;color:rgba(255,255,255,0.3);padding:6px 16px;border:1px solid rgba(255,255,255,0.08);border-radius:6px}
+</style></head><body>
+<canvas id="bg" width="1920" height="1080"></canvas>
+<div class="content">
+  <div class="logo" id="logo"><span class="f1">Frame</span><span class="f2">Forge</span></div>
+  <div class="tagline" id="tag">If a browser can render it, FrameForge can record it.</div>
+  <div class="cmd" id="cmd">npm install @frameforge/core</div>
+  <div class="url" id="url">github.com/Trejon-888/frameforge</div>
+  <div class="techs" id="techs">
+    <span class="tech">Canvas</span><span class="tech">Three.js</span><span class="tech">GSAP</span>
+    <span class="tech">React</span><span class="tech">CSS</span><span class="tech">Python</span>
+  </div>
+</div>
+<script>
+var bc=document.getElementById('bg').getContext('2d');
+// Constellation bg
+var nodes=[];for(var i=0;i<30;i++)nodes.push({x:Math.random()*1920,y:Math.random()*1080,vx:(Math.random()-0.5)*20,vy:(Math.random()-0.5)*20,s:2+Math.random()*2});
+
+function spring(t){if(t<=0)return 0;if(t>=1)return 1;return Math.pow(2,-10*t)*Math.sin((t*10-0.75)*(2*Math.PI/3))+1;}
+function ease(t){t=Math.max(0,Math.min(1,t));return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+
+function update(){
+  var t=performance.now()/1000;
+  // BG
+  var g=bc.createRadialGradient(960,540,50,960,540,900);
+  g.addColorStop(0,'#120818');g.addColorStop(1,'#050208');bc.fillStyle=g;bc.fillRect(0,0,1920,1080);
+  // Constellation
+  bc.strokeStyle='rgba(99,102,241,0.06)';bc.lineWidth=1;
+  for(var i=0;i<nodes.length;i++){
+    nodes[i].x+=nodes[i].vx*0.016;nodes[i].y+=nodes[i].vy*0.016;
+    if(nodes[i].x<0||nodes[i].x>1920)nodes[i].vx*=-1;if(nodes[i].y<0||nodes[i].y>1080)nodes[i].vy*=-1;
+    for(var j=i+1;j<nodes.length;j++){var dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;if(dx*dx+dy*dy<40000){bc.globalAlpha=0.08;bc.beginPath();bc.moveTo(nodes[i].x,nodes[i].y);bc.lineTo(nodes[j].x,nodes[j].y);bc.stroke();}}
+    bc.globalAlpha=0.3;bc.fillStyle='#6366f1';bc.fillRect(nodes[i].x-nodes[i].s/2,nodes[i].y-nodes[i].s/2,nodes[i].s,nodes[i].s);
+  }
+  bc.globalAlpha=1;
+
+  // Animate elements
+  var lp=spring(Math.min(1,Math.max(0,(t-0.3)/0.5)));
+  document.getElementById('logo').style.opacity=lp;
+  document.getElementById('logo').style.transform='scale('+(0.8+0.2*lp)+')';
+  document.getElementById('tag').style.opacity=ease(Math.min(1,(t-1.0)/0.5));
+  document.getElementById('cmd').style.opacity=spring(Math.min(1,Math.max(0,(t-1.5)/0.4)));
+  document.getElementById('url').style.opacity=ease(Math.min(1,(t-2.0)/0.4));
+  document.getElementById('techs').style.opacity=ease(Math.min(1,(t-2.3)/0.4));
+  requestAnimationFrame(update);
+}
+requestAnimationFrame(update);
+</script></body></html>
