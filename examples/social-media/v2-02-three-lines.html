@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      background: #171e19; font-family: 'DM Sans', system-ui, sans-serif;
+    }
+    canvas { position: absolute; top: 0; left: 0; z-index: 0; }
+
+    .content { position: relative; z-index: 1; width: 100%; height: 100%; }
+
+    .big-num {
+      position: absolute; top: 180px; left: 50%; transform: translateX(-50%) scale(1.5);
+      font-size: 400px; font-weight: 800; color: #ffe17c;
+      letter-spacing: -20px; opacity: 0;
+      text-shadow: 8px 8px 0px #000;
+    }
+
+    .heading {
+      position: absolute; top: 500px; width: 100%; text-align: center;
+      font-size: 64px; font-weight: 800; color: #fff;
+      letter-spacing: -2px; opacity: 0;
+    }
+    .heading .accent { color: #ffe17c; }
+
+    /* Code editor */
+    .editor {
+      position: absolute; top: 680px; left: 50%; transform: translateX(-50%);
+      width: 960px; background: #0d1117; border: 3px solid #ffe17c;
+      border-radius: 16px; overflow: hidden; opacity: 0;
+      box-shadow: 8px 8px 0px 0px #ffe17c;
+    }
+
+    .editor-bar {
+      background: #161b22; padding: 12px 16px;
+      display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid #30363d;
+    }
+    .ed { width: 12px; height: 12px; border-radius: 50%; }
+    .ed-r { background: #ff5f57; } .ed-y { background: #febc2e; } .ed-g { background: #28c840; }
+    .editor-tab {
+      margin-left: 12px; color: #ffe17c; font-family: 'Space Mono'; font-size: 13px; font-weight: 700;
+    }
+
+    .editor-code {
+      padding: 24px 28px; font-family: 'Space Mono', monospace;
+      font-size: 20px; line-height: 2.2; color: #e6edf3;
+    }
+
+    .code-line { opacity: 0; white-space: pre; }
+    .cursor {
+      display: inline-block; width: 2px; height: 24px;
+      background: #ffe17c; vertical-align: middle;
+      animation: blink 0.6s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .kw { color: #ff7b72; }
+    .fn { color: #79c0ff; }
+    .str { color: #a5d6ff; }
+    .num { color: #ffa657; }
+    .cm { color: #8b949e; }
+
+    /* Result slam */
+    .result {
+      position: absolute; top: 1320px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 16px; opacity: 0;
+    }
+
+    .stat-card {
+      width: 200px; padding: 24px 16px; text-align: center;
+      background: #ffe17c; border: 3px solid #000; border-radius: 12px;
+      box-shadow: 6px 6px 0px 0px #000;
+      transform: translateY(40px);
+    }
+
+    .stat-val { font-size: 36px; font-weight: 800; color: #000; }
+    .stat-lbl { font-size: 13px; font-weight: 700; color: #333; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+    .final-msg {
+      position: absolute; bottom: 140px; width: 100%; text-align: center;
+      font-size: 48px; font-weight: 800; color: #ffe17c; opacity: 0;
+      letter-spacing: -1px;
+    }
+    .final-sub {
+      position: absolute; bottom: 80px; width: 100%; text-align: center;
+      font-family: 'Space Mono'; font-size: 16px; color: #b7c6c2; opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg" width="1080" height="1920"></canvas>
+  <div class="content">
+    <div class="big-num" id="big-num">3</div>
+    <div class="heading" id="heading"><span class="accent">Lines</span> of code.<br>One video.</div>
+
+    <div class="editor" id="editor">
+      <div class="editor-bar">
+        <div class="ed ed-r"></div><div class="ed ed-y"></div><div class="ed ed-g"></div>
+        <span class="editor-tab">render.ts</span>
+      </div>
+      <div class="editor-code">
+        <div class="code-line" data-i="0"><span class="kw">const</span> scene = <span class="kw">new</span> <span class="fn">Scene</span>({ duration: <span class="num">5</span> });</div>
+        <div class="code-line" data-i="1">scene.<span class="fn">add</span>(<span class="kw">new</span> <span class="fn">Text</span>(<span class="str">"Hello"</span>, { fontSize: <span class="num">72</span> }));</div>
+        <div class="code-line" data-i="2"><span class="kw">await</span> scene.<span class="fn">render</span>(<span class="str">"video.mp4"</span>); <span class="cm">// → done</span><span class="cursor"></span></div>
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="stat-card" id="s1"><div class="stat-val">1080p</div><div class="stat-lbl">Resolution</div></div>
+      <div class="stat-card" id="s2"><div class="stat-val">30fps</div><div class="stat-lbl">Frame Rate</div></div>
+      <div class="stat-card" id="s3"><div class="stat-val">H.264</div><div class="stat-lbl">Codec</div></div>
+      <div class="stat-card" id="s4"><div class="stat-val">~12s</div><div class="stat-lbl">Render</div></div>
+    </div>
+
+    <div class="final-msg" id="final-msg">Code your video.</div>
+    <div class="final-sub" id="final-sub">npm install @frameforge/core @frameforge/sdk</div>
+  </div>
+
+  <script>
+    // Subtle grid background on canvas
+    var bgCanvas = document.getElementById('bg');
+    var bgCtx = bgCanvas.getContext('2d');
+    function drawGrid(alpha) {
+      bgCtx.clearRect(0, 0, 1080, 1920);
+      bgCtx.strokeStyle = 'rgba(255, 225, 124, ' + alpha + ')';
+      bgCtx.lineWidth = 1;
+      for (var x = 0; x < 1080; x += 60) {
+        bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, 1920); bgCtx.stroke();
+      }
+      for (var y = 0; y < 1920; y += 60) {
+        bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(1080, y); bgCtx.stroke();
+      }
+    }
+
+    function spring(t) {
+      var c4 = (2 * Math.PI) / 3;
+      return t <= 0 ? 0 : t >= 1 ? 1 : Math.pow(2, -10*t) * Math.sin((t*10-0.75)*c4) + 1;
+    }
+    function ease(t) { return t < 0 ? 0 : t > 1 ? 1 : t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+    function update() {
+      var t = performance.now() / 1000;
+
+      // Grid fades in
+      drawGrid(Math.min(0.04, t * 0.02));
+
+      // Big "3" slams in
+      var numP = spring(Math.min(1, t / 0.3));
+      var bigNum = document.getElementById('big-num');
+      bigNum.style.opacity = numP;
+      bigNum.style.transform = 'translateX(-50%) scale(' + (1.5 - 0.5 * numP) + ')';
+
+      // "3" shrinks and fades after 1s
+      if (t > 1.0) {
+        var fadeP = Math.min(1, (t - 1.0) / 0.3);
+        bigNum.style.opacity = 1 - fadeP;
+        bigNum.style.transform = 'translateX(-50%) scale(' + (1.0 - 0.3 * fadeP) + ')';
+      }
+
+      // Heading appears
+      document.getElementById('heading').style.opacity = ease(Math.min(1, Math.max(0, (t-0.8)/0.4)));
+
+      // Editor slams in
+      var edP = spring(Math.min(1, Math.max(0, (t-1.3)/0.4)));
+      var editor = document.getElementById('editor');
+      editor.style.opacity = edP;
+
+      // Code lines type in
+      var lines = document.querySelectorAll('.code-line');
+      for (var i = 0; i < lines.length; i++) {
+        var delay = 1.8 + i * 0.6;
+        lines[i].style.opacity = Math.min(1, Math.max(0, (t-delay)/0.15));
+      }
+
+      // Result cards slam in staggered
+      if (t > 3.8) {
+        document.getElementById('result').style.opacity = 1;
+        var cards = document.querySelectorAll('.stat-card');
+        for (var j = 0; j < cards.length; j++) {
+          var cp = spring(Math.min(1, Math.max(0, (t - (3.8 + j*0.12))/0.4)));
+          cards[j].style.opacity = cp;
+          cards[j].style.transform = 'translateY(' + (40*(1-cp)) + 'px)';
+        }
+      }
+
+      // Final message
+      document.getElementById('final-msg').style.opacity = ease(Math.min(1, Math.max(0, (t-5.0)/0.4)));
+      document.getElementById('final-sub').style.opacity = Math.min(1, Math.max(0, (t-5.4)/0.4));
+
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>
