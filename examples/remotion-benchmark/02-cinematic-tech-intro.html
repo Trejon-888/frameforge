@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1920px; height: 1080px; overflow: hidden; background: #f5f5f5; font-family: system-ui; }
+    canvas { position: absolute; top: 0; left: 0; }
+    #matrix { z-index: 1; }
+    #particles { z-index: 3; }
+    #grain { z-index: 20; mix-blend-mode: multiply; opacity: 0.04; pointer-events: none; }
+    .content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+
+    /* Radial noise texture bg */
+    .bg-texture {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 60% 40%, #ffffff 0%, #f0f0f0 50%, #e8e8e8 100%);
+    }
+
+    /* Main name text */
+    .name-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(3);
+      font-family: 'Orbitron', sans-serif; font-size: 120px; font-weight: 900;
+      color: #76B900; letter-spacing: 8px;
+      text-shadow: 0 0 40px rgba(118,185,0,0.3);
+      opacity: 0; z-index: 6;
+    }
+
+    /* HUD Panel */
+    .hud-panel {
+      position: absolute; top: 300px; left: -600px;
+      width: 500px; padding: 32px;
+      background: rgba(20, 60, 10, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(118,185,0,0.3);
+      clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 0 100%);
+      z-index: 8;
+    }
+
+    .hud-title {
+      font-family: 'Share Tech Mono', monospace; font-size: 14px;
+      color: #76B900; text-transform: uppercase; letter-spacing: 4px;
+      margin-bottom: 12px; opacity: 0.7;
+    }
+
+    .hud-role {
+      font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: 700;
+      color: #fff; margin-bottom: 8px;
+    }
+
+    .hud-detail {
+      font-family: 'Share Tech Mono', monospace; font-size: 15px;
+      color: rgba(118,185,0,0.8); line-height: 1.8;
+    }
+
+    /* Tech rings */
+    .ring {
+      position: absolute; border: 2px dashed rgba(118,185,0,0.15);
+      border-radius: 50%; z-index: 2;
+    }
+    .ring-1 { width: 500px; height: 500px; top: 290px; right: 200px; }
+    .ring-2 { width: 350px; height: 350px; top: 365px; right: 275px; }
+    .ring-3 { width: 650px; height: 650px; top: 215px; right: 125px; }
+
+    /* Scanner line */
+    .scanner {
+      position: absolute; top: 0; left: 50%; width: 2px; height: 100%;
+      background: linear-gradient(180deg, transparent, #76B900, transparent);
+      opacity: 0; z-index: 9;
+    }
+
+    /* Corner brackets */
+    .bracket {
+      position: absolute; width: 40px; height: 40px;
+      border-color: rgba(118,185,0,0.4); border-style: solid;
+      z-index: 7; opacity: 0;
+    }
+    .br-tl { top: 280px; right: 770px; border-width: 2px 0 0 2px; }
+    .br-tr { top: 280px; right: 180px; border-width: 2px 2px 0 0; }
+    .br-bl { bottom: 280px; right: 770px; border-width: 0 0 2px 2px; }
+    .br-br { bottom: 280px; right: 180px; border-width: 0 2px 2px 0; }
+
+    .watermark {
+      position: absolute; bottom: 20px; left: 30px;
+      font-family: 'Share Tech Mono'; font-size: 12px; color: rgba(0,0,0,0.15);
+      z-index: 15; opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-texture"></div>
+  <canvas id="matrix" width="1920" height="1080"></canvas>
+  <canvas id="particles" width="1920" height="1080"></canvas>
+  <canvas id="grain" width="1920" height="1080"></canvas>
+
+  <div class="content">
+    <div class="name-text" id="name-text">JENSEN HUANG</div>
+
+    <div class="ring ring-1" id="r1"></div>
+    <div class="ring ring-2" id="r2"></div>
+    <div class="ring ring-3" id="r3"></div>
+
+    <div class="hud-panel" id="hud">
+      <div class="hud-title">/// Personnel File</div>
+      <div class="hud-role">CEO & Co-Founder</div>
+      <div class="hud-detail">
+        NVIDIA Corporation<br>
+        Founded: 1993<br>
+        Market Cap: $3.4T<br>
+        Focus: GPU / AI / Accelerated Computing
+      </div>
+    </div>
+
+    <div class="scanner" id="scanner"></div>
+    <div class="bracket br-tl" id="b1"></div>
+    <div class="bracket br-tr" id="b2"></div>
+    <div class="bracket br-bl" id="b3"></div>
+    <div class="bracket br-br" id="b4"></div>
+
+    <div class="watermark" id="wm">RENDERED BY FRAMEFORGE — NO REACT REQUIRED</div>
+  </div>
+
+  <script>
+    // Matrix rain on canvas
+    var matC = document.getElementById('matrix').getContext('2d');
+    var columns = 60;
+    var drops = [];
+    for (var i = 0; i < columns; i++) drops[i] = Math.random() * -50;
+    var chars = '01アイウエオカキクケコ█▓▒░'.split('');
+
+    function drawMatrix(alpha) {
+      matC.fillStyle = 'rgba(245,245,245,' + (1 - alpha * 0.02) + ')';
+      matC.fillRect(0, 0, 1920, 1080);
+      matC.fillStyle = 'rgba(118,185,0,' + (alpha * 0.08) + ')';
+      matC.font = '14px "Share Tech Mono"';
+      for (var i = 0; i < drops.length; i++) {
+        var char = chars[Math.floor(Math.random() * chars.length)];
+        matC.fillText(char, i * 32, drops[i] * 20);
+        if (drops[i] * 20 > 1080 && Math.random() > 0.98) drops[i] = 0;
+        drops[i] += 0.5;
+      }
+    }
+
+    // Floating particles
+    var partC = document.getElementById('particles').getContext('2d');
+    var floaters = [];
+    for (var f = 0; f < 25; f++) {
+      floaters.push({
+        x: Math.random() * 1920, y: Math.random() * 1080,
+        size: 4 + Math.random() * 8, speed: 10 + Math.random() * 30,
+        shape: Math.random() > 0.5 ? 'tri' : 'hex',
+        angle: Math.random() * Math.PI * 2
+      });
+    }
+
+    function drawFloaters(t, alpha) {
+      partC.clearRect(0, 0, 1920, 1080);
+      for (var i = 0; i < floaters.length; i++) {
+        var f = floaters[i];
+        f.y -= f.speed * 0.016;
+        f.angle += 0.02;
+        if (f.y < -20) { f.y = 1100; f.x = Math.random() * 1920; }
+
+        partC.save();
+        partC.translate(f.x, f.y);
+        partC.rotate(f.angle);
+        partC.globalAlpha = alpha * 0.3;
+        partC.strokeStyle = '#76B900';
+        partC.lineWidth = 1;
+
+        if (f.shape === 'tri') {
+          partC.beginPath();
+          partC.moveTo(0, -f.size);
+          partC.lineTo(f.size, f.size);
+          partC.lineTo(-f.size, f.size);
+          partC.closePath();
+          partC.stroke();
+        } else {
+          partC.beginPath();
+          for (var h = 0; h < 6; h++) {
+            var a = (Math.PI / 3) * h;
+            var method = h === 0 ? 'moveTo' : 'lineTo';
+            partC[method](Math.cos(a) * f.size, Math.sin(a) * f.size);
+          }
+          partC.closePath();
+          partC.stroke();
+        }
+        partC.restore();
+      }
+      partC.globalAlpha = 1;
+    }
+
+    // Grain
+    var grainC = document.getElementById('grain').getContext('2d');
+    var gf = 0;
+    function renderGrain() {
+      var img = grainC.createImageData(480, 270);
+      var d = img.data;
+      for (var i = 0; i < d.length; i += 4) { var v = Math.random()*255; d[i]=d[i+1]=d[i+2]=v; d[i+3]=255; }
+      grainC.save(); grainC.scale(4,4); grainC.putImageData(img, 0, 0); grainC.restore();
+    }
+
+    function spring(t) {
+      if (t<=0) return 0; if (t>=1) return 1;
+      return Math.pow(2,-10*t)*Math.sin((t*10-0.75)*(2*Math.PI/3))+1;
+    }
+    function ease(t) { t=Math.max(0,Math.min(1,t)); return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
+
+    function update() {
+      var t = performance.now() / 1000;
+      gf++; if (gf % 4 === 0) renderGrain();
+
+      var matAlpha = ease(Math.min(1, (t-1.5)/1.0));
+      drawMatrix(matAlpha);
+      drawFloaters(t, ease(Math.min(1, (t-1.5)/1.0)));
+
+      // Name text: pop-in from 3x to 1x
+      var nameEl = document.getElementById('name-text');
+      var nameP = spring(Math.min(1, Math.max(0, (t-0.3)/0.5)));
+      nameEl.style.opacity = nameP;
+      nameEl.style.transform = 'translate(-50%, -50%) scale(' + (3 - 2 * nameP) + ')';
+
+      // Tech rings rotate
+      var rings = [document.getElementById('r1'), document.getElementById('r2'), document.getElementById('r3')];
+      for (var i = 0; i < rings.length; i++) {
+        var rp = ease(Math.min(1, Math.max(0, (t-1.0)/0.5)));
+        rings[i].style.opacity = rp * 0.5;
+        rings[i].style.transform = 'rotate(' + (t * (15 + i * 10) * (i % 2 === 0 ? 1 : -1)) + 'deg)';
+      }
+
+      // HUD panel slides in from left at frame 40 (~1.33s at 30fps)
+      var hud = document.getElementById('hud');
+      var hudP = spring(Math.min(1, Math.max(0, (t-1.33)/0.6)));
+      hud.style.left = (-600 + 680 * hudP) + 'px';
+
+      // Scanner line
+      var scanner = document.getElementById('scanner');
+      if (t > 2.0 && t < 3.5) {
+        scanner.style.opacity = 0.6;
+        var scanP = ease((t - 2.0) / 1.5);
+        scanner.style.left = (scanP * 1920) + 'px';
+      } else {
+        scanner.style.opacity = 0;
+      }
+
+      // Corner brackets
+      var brackets = [document.getElementById('b1'), document.getElementById('b2'), document.getElementById('b3'), document.getElementById('b4')];
+      for (var j = 0; j < brackets.length; j++) {
+        brackets[j].style.opacity = ease(Math.min(1, Math.max(0, (t-1.8-j*0.1)/0.3)));
+      }
+
+      // Watermark
+      document.getElementById('wm').style.opacity = ease(Math.min(1, Math.max(0, (t-4.0)/0.5)));
+
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>
