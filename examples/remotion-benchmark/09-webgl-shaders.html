@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#000}
+canvas#gl{position:absolute;top:0;left:0;z-index:1}
+canvas#grain{position:absolute;top:0;left:0;z-index:10;mix-blend-mode:overlay;opacity:0.04;pointer-events:none}
+.overlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none}
+.title{font:900 140px system-ui;color:#fff;letter-spacing:-6px;opacity:0;mix-blend-mode:difference}
+.sub{font:400 28px system-ui;color:rgba(255,255,255,0.5);margin-top:12px;opacity:0;mix-blend-mode:difference}
+.tag{font:700 14px monospace;color:rgba(255,255,255,0.2);position:absolute;bottom:40px;opacity:0}
+</style></head><body>
+<canvas id="gl" width="1920" height="1080"></canvas>
+<canvas id="grain" width="1920" height="1080"></canvas>
+<div class="overlay">
+  <div class="title" id="title">SHADERS</div>
+  <div class="sub" id="sub">WebGL fragment shaders — the cinematic edge</div>
+  <div class="tag" id="tag">FRAMEFORGE · WEBGL NATIVE</div>
+</div>
+<script>
+// === WEBGL SETUP ===
+var canvas = document.getElementById('gl');
+var gl = canvas.getContext('webgl');
+
+var vsSource = `
+  attribute vec2 a_position;
+  varying vec2 v_uv;
+  void main() {
+    v_uv = a_position * 0.5 + 0.5;
+    gl_Position = vec4(a_position, 0.0, 1.0);
+  }
+`;
+
+var fsSource = `
+  precision highp float;
+  varying vec2 v_uv;
+  uniform float u_time;
+  uniform vec2 u_resolution;
+
+  // Simplex-like noise
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+  }
+
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  }
+
+  float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 5; i++) {
+      v += a * noise(p);
+      p *= 2.0;
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  void main() {
+    vec2 uv = v_uv;
+    vec2 center = vec2(0.5);
+    float t = u_time;
+
+    // Liquid distortion
+    float distort = fbm(uv * 3.0 + t * 0.3) * 0.06;
+    float distort2 = fbm(uv * 5.0 - t * 0.2) * 0.03;
+    vec2 distUV = uv + vec2(distort, distort2);
+
+    // Flowing color field
+    float n1 = fbm(distUV * 2.0 + t * 0.15);
+    float n2 = fbm(distUV * 3.0 - t * 0.1 + 5.0);
+    float n3 = fbm(distUV * 1.5 + t * 0.08 + 10.0);
+
+    // Color palette — deep cinematic
+    vec3 col1 = vec3(0.39, 0.40, 0.95); // indigo
+    vec3 col2 = vec3(0.91, 0.27, 0.38); // red
+    vec3 col3 = vec3(0.13, 0.72, 0.53); // emerald
+    vec3 col4 = vec3(0.96, 0.62, 0.04); // amber
+
+    vec3 color = mix(col1, col2, n1);
+    color = mix(color, col3, n2 * 0.5);
+    color = mix(color, col4, n3 * 0.3);
+
+    // Chromatic aberration
+    float aberration = 0.008 + sin(t * 0.5) * 0.004;
+    float r = fbm((distUV + vec2(aberration, 0.0)) * 2.0 + t * 0.15);
+    float b = fbm((distUV - vec2(aberration, 0.0)) * 2.0 + t * 0.15);
+    color.r = mix(color.r, mix(col2.r, col4.r, r), 0.3);
+    color.b = mix(color.b, mix(col1.b, col3.b, b), 0.3);
+
+    // Vignette
+    float dist = length(uv - center);
+    float vignette = 1.0 - smoothstep(0.3, 0.9, dist);
+    color *= vignette;
+
+    // Bloom-like glow in center
+    float bloom = exp(-dist * dist * 4.0) * 0.15;
+    color += bloom;
+
+    // Scanline effect (subtle)
+    float scanline = 1.0 - 0.03 * sin(uv.y * 800.0);
+    color *= scanline;
+
+    // Brightness pulse
+    float pulse = 0.85 + sin(t * 1.5) * 0.15;
+    color *= pulse;
+
+    // Entrance: fade from black
+    float fadeIn = smoothstep(0.0, 2.0, t);
+    color *= fadeIn;
+
+    gl_FragColor = vec4(color, 1.0);
+  }
+`;
+
+function compileShader(gl, type, source) {
+  var shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  return shader;
+}
+
+var vs = compileShader(gl, gl.VERTEX_SHADER, vsSource);
+var fs = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
+var program = gl.createProgram();
+gl.attachShader(program, vs);
+gl.attachShader(program, fs);
+gl.linkProgram(program);
+gl.useProgram(program);
+
+var posBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+var posLoc = gl.getAttribLocation(program, 'a_position');
+gl.enableVertexAttribArray(posLoc);
+gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+var timeLoc = gl.getUniformLocation(program, 'u_time');
+var resLoc = gl.getUniformLocation(program, 'u_resolution');
+gl.uniform2f(resLoc, 1920, 1080);
+
+// Grain
+var gc = document.getElementById('grain').getContext('2d');
+var gf = 0;
+function grain() {
+  var img = gc.createImageData(480, 270);
+  var d = img.data;
+  for(var i=0;i<d.length;i+=4){var v=Math.random()*255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255;}
+  gc.save();gc.scale(4,4);gc.putImageData(img,0,0);gc.restore();
+}
+
+function ease(t){t=Math.max(0,Math.min(1,t));return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+
+function render() {
+  var t = performance.now() / 1000;
+  gf++; if(gf%5===0) grain();
+
+  gl.uniform1f(timeLoc, t);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // Text overlay
+  document.getElementById('title').style.opacity = ease(Math.min(1, (t-1.5)/0.8));
+  document.getElementById('sub').style.opacity = ease(Math.min(1, (t-2.5)/0.5));
+  document.getElementById('tag').style.opacity = ease(Math.min(1, (t-3.5)/0.5));
+
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+</script></body></html>
