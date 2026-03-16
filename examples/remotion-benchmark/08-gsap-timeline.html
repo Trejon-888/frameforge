@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0a0a0f; font-family: 'Inter', system-ui; }
+    canvas#grain { position: absolute; top: 0; left: 0; z-index: 10; mix-blend-mode: overlay; opacity: 0.04; pointer-events: none; }
+
+    .scene { position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+    .bg-circle {
+      position: absolute; border-radius: 50%;
+      opacity: 0; transform: scale(0);
+    }
+    .bg-c1 { width: 800px; height: 800px; top: -200px; right: -200px; background: radial-gradient(circle, rgba(99,102,241,0.08), transparent 70%); }
+    .bg-c2 { width: 600px; height: 600px; bottom: -100px; left: -100px; background: radial-gradient(circle, rgba(233,69,96,0.06), transparent 70%); }
+
+    .hero-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center; width: 100%;
+    }
+
+    .hero-line {
+      font-size: 110px; font-weight: 900; letter-spacing: -4px;
+      line-height: 1.1; overflow: hidden;
+    }
+    .hero-line span {
+      display: inline-block; transform: translateY(120%);
+    }
+    .line1 span { color: #fff; }
+    .line2 span { color: #6366f1; }
+    .line3 span { color: #e94560; }
+
+    .hero-sub {
+      font-size: 24px; font-weight: 400; color: rgba(255,255,255,0.4);
+      margin-top: 20px; opacity: 0;
+    }
+
+    .bar { position: absolute; height: 4px; background: linear-gradient(90deg, #6366f1, #e94560); border-radius: 2px; width: 0; }
+    .bar-1 { top: 50%; left: 50%; transform: translate(-50%, 60px); }
+
+    .cards {
+      position: absolute; bottom: 120px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; gap: 24px;
+    }
+
+    .card {
+      width: 260px; padding: 28px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      text-align: center;
+      opacity: 0; transform: translateY(60px) scale(0.9);
+    }
+
+    .card-icon { font-size: 36px; margin-bottom: 12px; }
+    .card-title { font-size: 18px; font-weight: 800; color: #fff; }
+    .card-desc { font-size: 13px; color: rgba(255,255,255,0.35); margin-top: 6px; line-height: 1.5; }
+
+    .tag {
+      position: absolute; top: 40px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px; font-weight: 700; color: #6366f1;
+      text-transform: uppercase; letter-spacing: 4px;
+      opacity: 0;
+    }
+
+    .cta-btn {
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      background: #6366f1; color: #fff;
+      border: none; border-radius: 12px;
+      padding: 16px 48px; font: 700 18px 'Inter';
+      opacity: 0; transform: translateX(-50%) translateY(20px);
+    }
+
+    .watermark {
+      position: absolute; top: 40px; right: 40px;
+      font: 500 12px monospace; color: rgba(255,255,255,0.12);
+      opacity: 0;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+  <canvas id="grain" width="1920" height="1080"></canvas>
+  <div class="scene">
+    <div class="bg-circle bg-c1" id="bgc1"></div>
+    <div class="bg-circle bg-c2" id="bgc2"></div>
+
+    <div class="tag" id="tag">Powered by GSAP</div>
+
+    <div class="hero-text">
+      <div class="hero-line line1"><span id="h1">ANIMATE</span></div>
+      <div class="hero-line line2"><span id="h2">EVERYTHING</span></div>
+      <div class="hero-line line3"><span id="h3">RENDER IT.</span></div>
+    </div>
+
+    <div class="hero-sub" id="hsub">GSAP timelines run natively in FrameForge. Zero config.</div>
+    <div class="bar bar-1" id="bar1"></div>
+
+    <div class="cards">
+      <div class="card" id="c1"><div class="card-icon">⚡</div><div class="card-title">GSAP Native</div><div class="card-desc">Full timeline support. Springs, easing, stagger — all work.</div></div>
+      <div class="card" id="c2"><div class="card-icon">🎬</div><div class="card-title">Deterministic</div><div class="card-desc">Every frame captured perfectly. No timing bugs.</div></div>
+      <div class="card" id="c3"><div class="card-icon">🔥</div><div class="card-title">No Wrappers</div><div class="card-desc">Import GSAP from CDN. Write your timeline. Render.</div></div>
+      <div class="card" id="c4"><div class="card-icon">📦</div><div class="card-title">Any Library</div><div class="card-desc">GSAP, anime.js, Motion One — all supported natively.</div></div>
+    </div>
+
+    <div class="cta-btn" id="cta">npm install @frameforge/core</div>
+    <div class="watermark" id="wm">GSAP 3.12 + FrameForge · No React</div>
+  </div>
+
+  <script>
+    // === GSAP TIMELINE — this is the whole point ===
+    // GSAP uses requestAnimationFrame internally,
+    // which FrameForge has virtualized. It just works.
+
+    var tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    tl
+      // Background circles scale in
+      .to("#bgc1", { opacity: 1, scale: 1, duration: 1.5, ease: "power2.out" }, 0.2)
+      .to("#bgc2", { opacity: 1, scale: 1, duration: 1.5, ease: "power2.out" }, 0.5)
+
+      // Tag
+      .to("#tag", { opacity: 1, duration: 0.5 }, 0.3)
+
+      // Hero text lines slide up from below (reveal)
+      .to("#h1", { y: "0%", duration: 0.8, ease: "power4.out" }, 0.5)
+      .to("#h2", { y: "0%", duration: 0.8, ease: "power4.out" }, 0.7)
+      .to("#h3", { y: "0%", duration: 0.8, ease: "power4.out" }, 0.9)
+
+      // Bar expands
+      .to("#bar1", { width: 600, duration: 1.0, ease: "power2.inOut" }, 1.5)
+
+      // Subtitle fades in
+      .to("#hsub", { opacity: 1, duration: 0.6 }, 2.0)
+
+      // Cards stagger in with spring-like bounce
+      .to("#c1", { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, 2.5)
+      .to("#c2", { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, 2.7)
+      .to("#c3", { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, 2.9)
+      .to("#c4", { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, 3.1)
+
+      // CTA button
+      .to("#cta", { opacity: 1, y: 0, duration: 0.5, ease: "back.out(2)" }, 3.5)
+
+      // Watermark
+      .to("#wm", { opacity: 1, duration: 0.4 }, 3.8)
+
+      // Pulse the hero text for visual interest
+      .to("#h2", { scale: 1.02, duration: 0.3, yoyo: true, repeat: 1, ease: "sine.inOut" }, 4.5)
+
+      // Color shift the bar
+      .to("#bar1", { background: "linear-gradient(90deg, #e94560, #f59e0b, #6366f1)", duration: 1.0 }, 4.0)
+    ;
+
+    // Grain
+    var gC = document.getElementById('grain').getContext('2d');
+    var gf = 0;
+    function grain() {
+      var img = gC.createImageData(480, 270);
+      var d = img.data;
+      for(var i=0;i<d.length;i+=4){var v=Math.random()*255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255;}
+      gC.save();gC.scale(4,4);gC.putImageData(img,0,0);gC.restore();
+    }
+
+    function loop() {
+      gf++; if(gf%5===0) grain();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

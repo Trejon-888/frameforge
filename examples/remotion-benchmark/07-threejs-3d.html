@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+    canvas#three { position: absolute; top: 0; left: 0; z-index: 1; }
+    canvas#grain { position: absolute; top: 0; left: 0; z-index: 10; mix-blend-mode: overlay; opacity: 0.04; pointer-events: none; }
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+    .title {
+      position: absolute; top: 60px; left: 80px;
+      font: 800 48px system-ui; color: #fff; opacity: 0;
+      letter-spacing: -1px;
+    }
+    .title .accent { color: #6366f1; }
+    .subtitle {
+      position: absolute; top: 120px; left: 80px;
+      font: 400 18px system-ui; color: rgba(255,255,255,0.4); opacity: 0;
+    }
+    .badge {
+      position: absolute; bottom: 60px; right: 80px;
+      font: 700 14px monospace; color: rgba(255,255,255,0.2); opacity: 0;
+    }
+    .stats {
+      position: absolute; bottom: 60px; left: 80px;
+      display: flex; gap: 40px; opacity: 0;
+    }
+    .stat-item { text-align: left; }
+    .stat-val { font: 800 28px system-ui; color: #6366f1; }
+    .stat-lbl { font: 500 12px system-ui; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <canvas id="grain" width="1920" height="1080"></canvas>
+  <div class="overlay">
+    <div class="title" id="title">Three.js <span class="accent">Native</span></div>
+    <div class="subtitle" id="subtitle">3D WebGL rendered to deterministic MP4 — no React wrappers needed</div>
+    <div class="stats" id="stats">
+      <div class="stat-item"><div class="stat-val" id="sv1">0</div><div class="stat-lbl">Vertices</div></div>
+      <div class="stat-item"><div class="stat-val" id="sv2">0</div><div class="stat-lbl">Draw Calls</div></div>
+      <div class="stat-item"><div class="stat-val" id="sv3">0fps</div><div class="stat-lbl">Locked</div></div>
+    </div>
+    <div class="badge" id="badge">RENDERED BY FRAMEFORGE</div>
+  </div>
+
+  <script>
+    // === THREE.JS SCENE ===
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(60, 1920/1080, 0.1, 1000);
+    camera.position.set(0, 2, 8);
+    camera.lookAt(0, 0, 0);
+
+    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(1920, 1080);
+    renderer.setPixelRatio(1);
+    renderer.setClearColor(0x08080f);
+    document.body.insertBefore(renderer.domElement, document.body.firstChild);
+    renderer.domElement.id = 'three';
+    renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.zIndex = '1';
+
+    // Lights
+    var ambientLight = new THREE.AmbientLight(0x222244, 0.5);
+    scene.add(ambientLight);
+
+    var pointLight1 = new THREE.PointLight(0x6366f1, 2, 20);
+    pointLight1.position.set(5, 5, 5);
+    scene.add(pointLight1);
+
+    var pointLight2 = new THREE.PointLight(0xe94560, 1.5, 20);
+    pointLight2.position.set(-5, 3, -3);
+    scene.add(pointLight2);
+
+    var pointLight3 = new THREE.PointLight(0x22c55e, 1, 15);
+    pointLight3.position.set(0, -3, 5);
+    scene.add(pointLight3);
+
+    // Central torusKnot
+    var torusGeo = new THREE.TorusKnotGeometry(1.5, 0.5, 128, 32);
+    var torusMat = new THREE.MeshStandardMaterial({
+      color: 0x6366f1,
+      metalness: 0.8,
+      roughness: 0.2,
+      emissive: 0x1a1a4e,
+      emissiveIntensity: 0.3,
+    });
+    var torusKnot = new THREE.Mesh(torusGeo, torusMat);
+    scene.add(torusKnot);
+
+    // Orbiting spheres
+    var orbiters = [];
+    var orbiterColors = [0xe94560, 0x22c55e, 0xf59e0b, 0x3b82f6, 0x8b5cf6, 0xec4899];
+    for (var i = 0; i < 6; i++) {
+      var sphereGeo = new THREE.SphereGeometry(0.25, 32, 32);
+      var sphereMat = new THREE.MeshStandardMaterial({
+        color: orbiterColors[i],
+        metalness: 0.6,
+        roughness: 0.3,
+        emissive: orbiterColors[i],
+        emissiveIntensity: 0.2,
+      });
+      var sphere = new THREE.Mesh(sphereGeo, sphereMat);
+      scene.add(sphere);
+      orbiters.push({
+        mesh: sphere,
+        radius: 3 + i * 0.3,
+        speed: 0.5 + i * 0.15,
+        offset: (i / 6) * Math.PI * 2,
+        yOffset: (i - 2.5) * 0.4,
+      });
+    }
+
+    // Floating wireframe cubes
+    var cubes = [];
+    for (var i = 0; i < 12; i++) {
+      var cubeGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+      var cubeMat = new THREE.MeshBasicMaterial({
+        color: 0x6366f1,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.15,
+      });
+      var cube = new THREE.Mesh(cubeGeo, cubeMat);
+      cube.position.set(
+        (Math.random() - 0.5) * 14,
+        (Math.random() - 0.5) * 8,
+        (Math.random() - 0.5) * 10
+      );
+      scene.add(cube);
+      cubes.push({ mesh: cube, rotSpeed: 0.5 + Math.random() * 1.5 });
+    }
+
+    // Grid floor
+    var gridHelper = new THREE.GridHelper(20, 40, 0x222244, 0x111133);
+    gridHelper.position.y = -3;
+    scene.add(gridHelper);
+
+    // Particle field
+    var particleCount = 500;
+    var particleGeo = new THREE.BufferGeometry();
+    var positions = new Float32Array(particleCount * 3);
+    for (var i = 0; i < particleCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 20;
+      positions[i+1] = (Math.random() - 0.5) * 12;
+      positions[i+2] = (Math.random() - 0.5) * 20;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    var particleMat = new THREE.PointsMaterial({
+      color: 0x6366f1,
+      size: 0.05,
+      transparent: true,
+      opacity: 0.4,
+    });
+    var particleSystem = new THREE.Points(particleGeo, particleMat);
+    scene.add(particleSystem);
+
+    // === GRAIN ===
+    var gC = document.getElementById('grain').getContext('2d');
+    var gf = 0;
+    function grain() {
+      var img = gC.createImageData(480, 270);
+      var d = img.data;
+      for(var i=0;i<d.length;i+=4){var v=Math.random()*255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255;}
+      gC.save();gC.scale(4,4);gC.putImageData(img,0,0);gC.restore();
+    }
+
+    function ease(t) { t=Math.max(0,Math.min(1,t)); return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
+
+    var totalVerts = torusGeo.attributes.position.count;
+    for (var i = 0; i < orbiters.length; i++) totalVerts += 32*32*2;
+    totalVerts += particleCount;
+
+    function update() {
+      var t = performance.now() / 1000;
+      gf++; if(gf%5===0) grain();
+
+      // Camera orbit
+      var camAngle = t * 0.2;
+      var camRadius = 8 + Math.sin(t * 0.3) * 1.5;
+      var camY = 2 + Math.sin(t * 0.15) * 1;
+      camera.position.set(
+        Math.cos(camAngle) * camRadius,
+        camY,
+        Math.sin(camAngle) * camRadius
+      );
+      camera.lookAt(0, 0, 0);
+
+      // Torus rotation
+      torusKnot.rotation.x = t * 0.3;
+      torusKnot.rotation.y = t * 0.5;
+
+      // Torus scale entrance
+      var torusScale = ease(Math.min(1, t / 1.0));
+      torusKnot.scale.setScalar(torusScale);
+
+      // Torus material pulse
+      torusMat.emissiveIntensity = 0.3 + Math.sin(t * 2) * 0.15;
+
+      // Orbiters
+      for (var i = 0; i < orbiters.length; i++) {
+        var o = orbiters[i];
+        var enterP = ease(Math.min(1, Math.max(0, (t - 0.5 - i * 0.15) / 0.5)));
+        var angle = t * o.speed + o.offset;
+        o.mesh.position.set(
+          Math.cos(angle) * o.radius * enterP,
+          o.yOffset + Math.sin(t * 1.5 + i) * 0.3,
+          Math.sin(angle) * o.radius * enterP
+        );
+        o.mesh.scale.setScalar(enterP);
+      }
+
+      // Wireframe cubes drift and rotate
+      for (var i = 0; i < cubes.length; i++) {
+        cubes[i].mesh.rotation.x += 0.005 * cubes[i].rotSpeed;
+        cubes[i].mesh.rotation.y += 0.008 * cubes[i].rotSpeed;
+        cubes[i].mesh.position.y += Math.sin(t * 0.5 + i) * 0.002;
+      }
+
+      // Particle system rotation
+      particleSystem.rotation.y = t * 0.05;
+
+      // Lights orbit
+      pointLight1.position.x = Math.cos(t * 0.7) * 6;
+      pointLight1.position.z = Math.sin(t * 0.7) * 6;
+      pointLight2.position.x = Math.cos(t * 0.5 + 2) * 5;
+      pointLight2.position.z = Math.sin(t * 0.5 + 2) * 5;
+
+      // Render Three.js
+      renderer.render(scene, camera);
+
+      // HUD overlay
+      var titleA = ease(Math.min(1, (t-0.5)/0.5));
+      document.getElementById('title').style.opacity = titleA;
+      document.getElementById('subtitle').style.opacity = ease(Math.min(1, (t-0.8)/0.5));
+
+      // Stats with count-up
+      var statsA = ease(Math.min(1, (t-1.5)/0.5));
+      document.getElementById('stats').style.opacity = statsA;
+      var countP = ease(Math.min(1, (t-1.5)/1.0));
+      document.getElementById('sv1').textContent = Math.round(totalVerts * countP).toLocaleString();
+      document.getElementById('sv2').textContent = Math.round(renderer.info.render.calls * countP);
+      document.getElementById('sv3').textContent = '30fps';
+
+      document.getElementById('badge').style.opacity = ease(Math.min(1, (t-2.5)/0.5));
+
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>
