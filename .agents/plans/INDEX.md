@@ -8,9 +8,9 @@
 
 | Status | Count |
 |--------|-------|
-| Active | 4 |
+| Active | 2 |
 | Pending | 0 |
-| Completed | 4 |
+| Completed | 6 |
 
 ---
 
@@ -18,18 +18,18 @@
 
 | Plan | Started | Status | Notes |
 |------|---------|--------|-------|
-| [npm Publish + README](active/npm-publish-readme.md) | 2026-03-15 | Ready | P0 — ship to npm, killer README |
-| [Social Media Launch](active/social-media-launch.md) | 2026-03-15 | Ready | P1 — 8 demo videos, distribution plan |
-| [Studio Phase 2](active/studio-phase2-polish.md) | 2026-03-15 | Ready | P1 — layers, inspector, smooth scrubbing |
-| [FrameForge Studio PRD](active/frameforge-studio-prd.md) | 2026-03-15 | Phase 1 Done | Reference PRD for Studio development |
+| [Social Media Launch](active/social-media-launch.md) | 2026-03-15 | On Hold | Waiting for testing week to complete (~March 22) |
+| [FrameForge Studio PRD](active/frameforge-studio-prd.md) | 2026-03-15 | Phase 2 Done | Reference PRD for Studio development |
 
 ---
 
 ## Completed Plans
 
-| Plan | Completed | Execution Report | Notes |
-|------|-----------|-----------------|-------|
-| [Phase 1 Core Renderer](completed/phase1-core-renderer-mvp.md) | 2026-03-15 | [Report](../execution-reports/2026-03-15-phase1-complete.md) | 106 tests, 4 examples |
-| [Phase 2 SDKs](completed/phase2-sdks-core.md) | 2026-03-15 | [Report](../execution-reports/2026-03-15-phase2-sdks.md) | Animation primitives, Image, 35 SDK tests |
-| [Phase 3 Agent Skills](completed/phase3-agent-skills.md) | 2026-03-15 | [Report](../execution-reports/2026-03-15-phase3-agent.md) | Skill file, MCP server, preview CLI |
-| [Phase 4 Advanced](completed/phase4-advanced-features.md) | 2026-03-15 | [Report](../execution-reports/2026-03-15-phase4-advanced.md) | Composition, transitions, subtitles, GPU |
+| Plan | Completed | Notes |
+|------|-----------|-------|
+| [Phase 1 Core Renderer](completed/phase1-core-renderer-mvp.md) | 2026-03-15 | 106 tests, 4 examples |
+| [Phase 2 SDKs](completed/phase2-sdks-core.md) | 2026-03-15 | Animation primitives, Image, 35 SDK tests |
+| [Phase 3 Agent Skills](completed/phase3-agent-skills.md) | 2026-03-15 | Skill file, MCP server, preview CLI |
+| [Phase 4 Advanced](completed/phase4-advanced-features.md) | 2026-03-15 | Composition, transitions, subtitles, GPU |
+| [npm Publish + README](completed/npm-publish-readme.md) | 2026-03-15 | 4 packages on npm, README rewrite |
+| [Studio Phase 2](completed/studio-phase2-polish.md) | 2026-03-15 | Layers, keyboard overlay, export presets, console |
