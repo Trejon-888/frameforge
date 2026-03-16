@@ -25,6 +25,20 @@
 
 ## Session Log
 
+### Session 8 — 2026-03-16
+- **Context:** Remotion competitive benchmark + video quality iterations + stress testing
+- **Completed:**
+  - Fetched actual Remotion prompts from remotion.dev/prompts
+  - Built 10 benchmark videos across 7 technologies (Canvas, Three.js, GSAP, React, WebGL shaders, SVG, CSS)
+  - Built 18s Demo Reel composition (5 scenes, 4 transitions)
+  - Video quality pushed v1(4/10) → v2(6/10) → v3(7/10) → v4(8.5/10)
+  - Fixed critical bugs: workspace:* in npm, Python SDK Windows subprocess
+  - Stress tested clean npm install, Python e2e, 15/15 edge cases pass
+  - Republished all packages at v0.1.1
+- **Stats:** 169 tests, 10 benchmark videos, 1 demo reel, 2 critical bugs fixed
+- **Known issue:** Background override breaks light-themed pages (needs proper fix in renderer)
+- **Next:** Real usage testing, fix bg override, remaining stress tests, then launch ~March 22
+
 ### Session 7 — 2026-03-16
 - **Context:** Product stress testing — find and fix bugs before real users hit them
 - **Completed:**
