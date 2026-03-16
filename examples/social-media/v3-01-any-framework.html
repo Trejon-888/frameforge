@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1080px; height: 1920px; overflow: hidden;
+      font-family: 'DM Sans', system-ui; background: #000;
+    }
+    canvas#fx { position: absolute; top: 0; left: 0; z-index: 10; pointer-events: none; }
+    canvas#bg { position: absolute; top: 0; left: 0; z-index: 0; }
+    canvas#grain { position: absolute; top: 0; left: 0; z-index: 20; pointer-events: none; mix-blend-mode: overlay; opacity: 0.12; }
+
+    .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+
+    /* Parallax background shapes */
+    .bg-shape {
+      position: absolute; border: 2px solid rgba(0,0,0,0.08);
+      opacity: 0;
+    }
+    .bg-s1 { width: 300px; height: 300px; top: -50px; right: -80px; transform: rotate(15deg); }
+    .bg-s2 { width: 200px; height: 200px; bottom: 100px; left: -60px; transform: rotate(-20deg); border-radius: 50%; }
+    .bg-s3 { width: 400px; height: 400px; top: 600px; right: -150px; transform: rotate(45deg); }
+
+    /* Full-screen text */
+    .mega {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center; z-index: 6;
+    }
+
+    .mega-main {
+      font-size: 240px; font-weight: 900; letter-spacing: -12px;
+      line-height: 0.85; opacity: 0;
+    }
+
+    .mega-sub {
+      font-size: 40px; font-weight: 600; margin-top: 16px;
+      letter-spacing: 2px; opacity: 0;
+    }
+
+    .mega-badge {
+      display: inline-block; margin-top: 24px;
+      font-family: 'Space Mono'; font-size: 16px; font-weight: 700;
+      padding: 8px 20px; border: 2px solid; border-radius: 8px;
+      box-shadow: 4px 4px 0px 0px currentColor;
+      text-transform: uppercase; letter-spacing: 3px;
+      opacity: 0;
+    }
+
+    /* CTA */
+    .cta-wrap {
+      position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+      text-align: center; z-index: 6; opacity: 0;
+    }
+
+    .cta-box {
+      display: inline-block; background: #000; color: #ffe17c;
+      border: 3px solid #000; border-radius: 12px;
+      padding: 18px 44px; font-size: 22px; font-weight: 800;
+      box-shadow: 8px 8px 0px 0px rgba(0,0,0,0.4);
+      font-family: 'Space Mono';
+    }
+
+    .cta-sub {
+      font-family: 'Space Mono'; font-size: 14px;
+      margin-top: 16px; opacity: 0.5;
+    }
+
+    /* Light sweep */
+    .sweep {
+      position: absolute; top: 0; left: -400px; width: 200px; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+      z-index: 7; transform: skewX(-15deg);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg" width="1080" height="1920"></canvas>
+  <canvas id="fx" width="1080" height="1920"></canvas>
+  <canvas id="grain" width="1080" height="1920"></canvas>
+
+  <div class="layer">
+    <div class="bg-shape bg-s1"></div>
+    <div class="bg-shape bg-s2"></div>
+    <div class="bg-shape bg-s3"></div>
+  </div>
+
+  <div class="mega" id="mega">
+    <div class="mega-main" id="mega-main"></div>
+    <div class="mega-sub" id="mega-sub"></div>
+    <div class="mega-badge" id="mega-badge"></div>
+  </div>
+
+  <div class="sweep" id="sweep"></div>
+
+  <div class="cta-wrap" id="cta-wrap">
+    <div class="cta-box">npm i @frameforge/core</div>
+    <div class="cta-sub">Open source · MIT License</div>
+  </div>
+
+  <script>
+    // --- Canvases ---
+    var bgC = document.getElementById('bg').getContext('2d');
+    var fxC = document.getElementById('fx').getContext('2d');
+    var grainC = document.getElementById('grain').getContext('2d');
+
+    // --- Film Grain ---
+    function renderGrain() {
+      var imgData = grainC.createImageData(1080, 1920);
+      var d = imgData.data;
+      for (var i = 0; i < d.length; i += 4) {
+        var v = Math.random() * 255;
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = 255;
+      }
+      grainC.putImageData(imgData, 0, 0);
+    }
+
+    // --- Particles ---
+    var particles = [];
+    function spawnBurst(x, y, color, count) {
+      for (var i = 0; i < count; i++) {
+        var angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5);
+        var speed = 200 + Math.random() * 600;
+        particles.push({
+          x: x, y: y,
+          vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+          size: 4 + Math.random() * 12,
+          color: color, life: 1, decay: 0.5 + Math.random() * 1.0,
+          rotation: Math.random() * Math.PI
+        });
+      }
+    }
+
+    function updateParticles(dt) {
+      fxC.clearRect(0, 0, 1080, 1920);
+      for (var i = particles.length - 1; i >= 0; i--) {
+        var p = particles[i];
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.vx *= 0.95; p.vy *= 0.95;
+        p.vy += 100 * dt; // gravity
+        p.rotation += 2 * dt;
+        p.life -= p.decay * dt;
+        if (p.life <= 0) { particles.splice(i, 1); continue; }
+        fxC.save();
+        fxC.translate(p.x, p.y);
+        fxC.rotate(p.rotation);
+        fxC.globalAlpha = p.life * 0.8;
+        fxC.fillStyle = p.color;
+        fxC.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+        fxC.restore();
+      }
+      fxC.globalAlpha = 1;
+    }
+
+    // --- Scene Data ---
+    var scenes = [
+      { text: 'ANY', sub: '', badge: '', bg: '#ffe17c', fg: '#000', dur: 0.7 },
+      { text: 'FRAME\nWORK', sub: '', badge: '', bg: '#ffe17c', fg: '#000', dur: 0.5 },
+      { text: 'GSAP', sub: 'Animation Platform', badge: 'NATIVE', bg: '#88ce02', fg: '#000', dur: 0.85 },
+      { text: 'THREE', sub: '3D WebGL Engine', badge: 'NATIVE', bg: '#049ef4', fg: '#fff', dur: 0.85 },
+      { text: 'CSS', sub: '@keyframes', badge: 'NATIVE', bg: '#264de4', fg: '#fff', dur: 0.85 },
+      { text: 'D3.JS', sub: 'Data Visualization', badge: 'NATIVE', bg: '#f68e45', fg: '#000', dur: 0.85 },
+      { text: 'LOTTIE', sub: 'After Effects Export', badge: 'NATIVE', bg: '#00ddb3', fg: '#000', dur: 0.85 },
+      { text: 'ANY.', sub: 'If a browser renders it...', badge: 'FRAMEFORGE', bg: '#171e19', fg: '#ffe17c', dur: 1.5 },
+    ];
+
+    var totalDur = 0; var sceneStarts = [];
+    for (var s = 0; s < scenes.length; s++) { sceneStarts.push(totalDur); totalDur += scenes[s].dur; }
+    var ctaStart = totalDur;
+
+    var lastIdx = -1;
+
+    // --- Easing ---
+    function spring(t) {
+      if (t <= 0) return 0; if (t >= 1) return 1;
+      return Math.pow(2, -10*t) * Math.sin((t*10-0.75) * (2*Math.PI/3)) + 1;
+    }
+    function ease(t) { t = Math.max(0, Math.min(1, t)); return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+    // --- Camera state ---
+    var camScale = 1; var camTargetScale = 1;
+
+    var prevT = 0;
+    var grainFrame = 0;
+
+    function update() {
+      var t = performance.now() / 1000;
+      var dt = Math.min(t - prevT, 0.05);
+      prevT = t;
+
+      // Grain: update every 3 frames for performance
+      grainFrame++;
+      if (grainFrame % 3 === 0) renderGrain();
+
+      // Find scene
+      var idx = scenes.length - 1;
+      for (var i = 0; i < scenes.length; i++) {
+        if (t < sceneStarts[i] + scenes[i].dur) { idx = i; break; }
+      }
+
+      var sc = scenes[idx];
+      var st = t - sceneStarts[idx];
+
+      // Background with subtle camera zoom
+      camTargetScale = 1 + (idx % 2) * 0.02;
+      camScale += (camTargetScale - camScale) * 0.05;
+
+      bgC.save();
+      bgC.scale(camScale, camScale);
+      bgC.fillStyle = sc.bg;
+      bgC.fillRect(-20, -20, 1120, 1960);
+      bgC.restore();
+
+      // Scene changed
+      if (idx !== lastIdx) {
+        lastIdx = idx;
+        var m = document.getElementById('mega-main');
+        m.innerHTML = sc.text.replace('\n', '<br>');
+        m.style.color = sc.fg;
+        document.getElementById('mega-sub').textContent = sc.sub;
+        document.getElementById('mega-sub').style.color = sc.fg;
+        var badge = document.getElementById('mega-badge');
+        badge.textContent = sc.badge;
+        badge.style.color = sc.fg;
+        badge.style.borderColor = sc.fg;
+
+        // Parallax shapes
+        document.querySelectorAll('.bg-shape').forEach(function(el) {
+          el.style.borderColor = sc.fg === '#000' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+        });
+
+        // Particle burst
+        var burstColors = [sc.fg, sc.fg === '#000' ? '#333' : '#ddd'];
+        spawnBurst(540, 960, burstColors[0], 25);
+        spawnBurst(540, 960, burstColors[1], 15);
+
+        // Camera kick
+        camScale = 1.06;
+      }
+
+      // Animate elements
+      var ep = spring(Math.min(1, st / 0.2));
+      var m = document.getElementById('mega-main');
+      m.style.opacity = ep;
+      m.style.transform = 'scale(' + (1.15 - 0.15 * ep) + ')';
+
+      document.getElementById('mega-sub').style.opacity = ease((st - 0.15) / 0.15);
+      document.getElementById('mega-badge').style.opacity = sc.badge ? ease((st - 0.25) / 0.15) : 0;
+
+      // Parallax: shapes move slightly opposite to camera
+      var shapes = document.querySelectorAll('.bg-shape');
+      shapes.forEach(function(el, i) {
+        el.style.opacity = 0.4;
+        var offset = Math.sin(t * 0.5 + i * 2) * 10;
+        el.style.marginTop = offset + 'px';
+      });
+
+      // Light sweep
+      var sweep = document.getElementById('sweep');
+      if (idx !== lastIdx || st < 0.6) {
+        var sweepX = -400 + (st / 0.6) * 1880;
+        sweep.style.left = sweepX + 'px';
+      }
+
+      // CTA
+      if (t >= ctaStart) {
+        var cp = spring(Math.min(1, (t - ctaStart) / 0.5));
+        document.getElementById('cta-wrap').style.opacity = cp;
+      }
+
+      updateParticles(dt);
+      requestAnimationFrame(update);
+    }
+
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>
