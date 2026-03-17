@@ -223,4 +223,82 @@ program
     }
   });
 
+program
+  .command("edit")
+  .description("Edit a video with auto-generated captions and motion graphics")
+  .argument("<input>", "Path to source video file")
+  .option("-o, --output <path>", "Output file path", "./edited.mp4")
+  .option("-s, --style <preset>", "Style preset (neo-brutalist, clean-minimal, corporate, bold-dark)", "neo-brutalist")
+  .option("--caption-style <style>", "Caption style (pop-in, karaoke, highlight, minimal, bold-center)", "pop-in")
+  .option("--format <format>", "Output format (landscape, vertical, square, source)", "source")
+  .option("--brand-color <hex>", "Override primary brand color")
+  .option("--srt <path>", "Use existing SRT file (skip transcription)")
+  .option("--word-timings <path>", "Use existing WhisperX word timings JSON")
+  .option("--speaker-name <name>", "Speaker name for lower third")
+  .option("--speaker-title <title>", "Speaker title for lower third")
+  .option("--max-words <n>", "Max words per caption group", parseInt, 4)
+  .option("--caption-position <pos>", "Caption position (bottom, center, top)", "bottom")
+  .option("--captions-only", "Skip overlay generation, only add captions")
+  .option("--quality <speed>", "Encoding quality (fast, balanced, slow, lossless)", "balanced")
+  .action(async (input: string, opts) => {
+    const spinner = ora();
+
+    console.log(
+      chalk.bold("\n  FrameForge ") +
+        chalk.dim(`v${getVersion()} — edit`) +
+        "\n"
+    );
+
+    try {
+      spinner.start(chalk.dim("Starting video edit..."));
+
+      const { editVideo } = await import("./editor.js");
+      const result = await editVideo({
+        input,
+        output: opts.output,
+        style: opts.style,
+        brandColor: opts.brandColor,
+        captionPreset: opts.captionStyle,
+        format: opts.format,
+        encodingSpeed: opts.quality,
+        srtPath: opts.srt,
+        wordTimingsPath: opts.wordTimings,
+        speakerName: opts.speakerName,
+        speakerTitle: opts.speakerTitle,
+        maxWordsPerGroup: opts.maxWords,
+        captionPosition: opts.captionPosition,
+        captionsOnly: opts.captionsOnly,
+        onProgress: (stage, detail) => {
+          spinner.text = chalk.dim(`[${stage}] ${detail}`);
+        },
+      });
+
+      spinner.succeed(
+        chalk.green(`Edited video saved to ${result.outputPath}`) +
+          chalk.dim(
+            ` (${result.wordCount} words, ${result.captionGroupCount} caption groups, ` +
+              `${result.overlayCount} overlays, ${(result.durationMs / 1000).toFixed(1)}s)`
+          )
+      );
+    } catch (err: any) {
+      spinner.fail(chalk.red("Edit failed"));
+      console.error(chalk.red(`\n  ${err.message}\n`));
+
+      if (err.message.includes("ffprobe") || err.message.includes("FFmpeg")) {
+        console.error(
+          chalk.yellow("  Hint: Install FFmpeg — https://ffmpeg.org/download.html\n")
+        );
+      }
+      if (err.message.includes("speech recognition")) {
+        console.error(
+          chalk.yellow(
+            "  Hint: Install WhisperX (pip install whisperx) or provide --srt <file>\n"
+          )
+        );
+      }
+
+      process.exit(1);
+    }
+  });
+
 program.parse();

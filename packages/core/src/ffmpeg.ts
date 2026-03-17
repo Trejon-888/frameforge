@@ -11,6 +11,16 @@ export interface FFmpegOptions {
   pixelFormat: string;
   output: string;
   audioTracks?: Array<{ src: string; startAt: number; volume: number }>;
+  /** Override CRF value (takes precedence over quality preset) */
+  crf?: number;
+  /** FFmpeg encoding preset (ultrafast, fast, medium, slow, veryslow) */
+  preset?: string;
+  /** Max bitrate constraint (e.g., "8000k") */
+  maxrate?: string;
+  /** Buffer size for rate control (e.g., "16000k") */
+  bufsize?: string;
+  /** Audio bitrate (e.g., "256k") */
+  audioBitrate?: string;
 }
 
 const QUALITY_CRF: Record<string, number> = {
@@ -36,7 +46,8 @@ export async function encodeVideo(
   await mkdir(dirname(outputPath), { recursive: true });
 
   const codec = CODEC_MAP[options.codec] || "libx264";
-  const crf = QUALITY_CRF[options.quality] ?? 18;
+  const crf = options.crf ?? QUALITY_CRF[options.quality] ?? 18;
+  const preset = options.preset || "medium";
 
   const args = [
     // Input: raw PNG frames from stdin
@@ -56,12 +67,20 @@ export async function encodeVideo(
     "-pix_fmt",
     options.pixelFormat,
     "-preset",
-    "medium",
+    preset,
 
     // Ensure dimensions are even (required by H.264)
     "-vf",
     `scale=trunc(iw/2)*2:trunc(ih/2)*2`,
   ];
+
+  // Add rate control if specified (for quality matching)
+  if (options.maxrate) {
+    args.push("-maxrate", options.maxrate);
+  }
+  if (options.bufsize) {
+    args.push("-bufsize", options.bufsize);
+  }
 
   // Add audio tracks if provided
   if (options.audioTracks && options.audioTracks.length > 0) {
@@ -82,7 +101,7 @@ export async function encodeVideo(
         "-c:a",
         "aac",
         "-b:a",
-        "192k"
+        options.audioBitrate || "192k"
       );
     } else {
       const filters: string[] = [];
@@ -105,7 +124,7 @@ export async function encodeVideo(
         "-c:a",
         "aac",
         "-b:a",
-        "192k"
+        options.audioBitrate || "192k"
       );
     }
   }
