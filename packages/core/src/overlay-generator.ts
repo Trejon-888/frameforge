@@ -25,8 +25,7 @@ export type OverlayType =
   | "key-point"
   | "stat-callout"
   | "chapter-marker"
-  | "cta-card"
-  | "progress-bar";
+  | "cta-card";
 
 export interface OverlayElement {
   type: OverlayType;
@@ -189,10 +188,7 @@ export function generateOverlayHTML(
   return `
 (function() {
   // === OVERLAY GENERATOR ===
-  var link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = '${typography.googleFontsUrl}';
-  document.head.appendChild(link);
+  // Google Fonts are loaded via <link> in the HTML template — no need to load again here.
 
   var styleEl = document.createElement('style');
   styleEl.textContent = \`
@@ -357,7 +353,7 @@ export function generateOverlayHTML(
   document.body.appendChild(overlayContainer);
 
   var overlays = ${overlaysJSON};
-  var elements = {};
+  var overlayEls = {};
 
   // Create DOM elements for each overlay
   for (var i = 0; i < overlays.length; i++) {
@@ -369,7 +365,7 @@ export function generateOverlayHTML(
     el.className += ' ' + getOverlayClass(ov);
     if (ov.position) el.className += ' pos-' + ov.position;
     overlayContainer.appendChild(el);
-    elements[i] = el;
+    overlayEls[i] = el;
   }
 
   function buildOverlayContent(ov) {
@@ -423,7 +419,7 @@ export function generateOverlayHTML(
     var t = window.__frameforge ? window.__frameforge.currentTimeMs : performance.now();
     for (var i = 0; i < overlays.length; i++) {
       var ov = overlays[i];
-      var el = elements[i];
+      var el = overlayEls[i];
       if (t >= ov.startMs && t <= ov.endMs) {
         el.classList.add('visible');
       } else {

@@ -1,20 +1,15 @@
-# Plan: Real Video Editing Test — Overlay + Captions on Source Footage
+# Plan: Real Video Editing Test — `frameforge edit` Validation
 
 **Status:** Ready
 **Priority:** P0 — The ultimate product validation
 **Date:** 2026-03-16
+**Updated:** 2026-03-16 (rewritten for v2 transparent compositing architecture)
 
 ---
 
 ## Objective
 
-Take a real source video, understand its content, and produce an edited version with:
-- Styled captions (transcribed from audio)
-- Motion graphics overlays (intro, lower third, key point callouts, outro)
-- Neo-Brutalist style with ORANGE (#f97316) as primary branding color
-- All done using FrameForge's rendering pipeline
-
-This proves FrameForge can be used for **real video editing workflows**, not just from-scratch animation.
+Validate the `frameforge edit` pipeline end-to-end with a real source video. This proves FrameForge can be used for **real video editing workflows** — a single CLI command takes raw footage and produces a professionally edited video with word-level captions and auto-generated motion graphics.
 
 ---
 
@@ -23,113 +18,102 @@ This proves FrameForge can be used for **real video editing workflows**, not jus
 | Property | Value |
 |----------|-------|
 | File | `clip-7-RAW-building-ai-manager-v1.mp4` |
-| Resolution | 1440×2560 (vertical/portrait) |
+| Resolution | 1440x2560 (vertical/portrait) |
 | Duration | 50.8 seconds |
 | Codec | H.264 + AAC audio |
 | Content | AI outreach campaign tutorial |
 
 ---
 
-## Style Spec (Neo-Brutalist + Orange)
+## Test Commands
 
-| Element | Value |
-|---------|-------|
-| Primary | `#f97316` (Orange) |
-| Background | `#171e19` (Charcoal) |
-| Accent | `#b7c6c2` (Sage) |
-| Text | `#000000` / `#ffffff` |
-| Borders | 2px solid black |
-| Shadows | 4px/8px hard, 0 blur |
-| Heading Font | Cabinet Grotesk / Inter 800 |
-| Body Font | Satoshi / Inter 500 |
+### Test 1: Basic edit with word timings
+```bash
+frameforge edit clip-7-RAW-building-ai-manager-v1.mp4 \
+  --word-timings word-timings.json \
+  --style neo-brutalist \
+  --caption-style pop-in \
+  --speaker-name "Enrique" \
+  --speaker-title "Business Development" \
+  --quality balanced \
+  --output edited-basic.mp4
+```
 
----
+### Test 2: Different style presets
+```bash
+# Clean minimal
+frameforge edit clip.mp4 --word-timings wt.json --style clean-minimal --output edited-minimal.mp4
 
-## Execution Steps
+# Bold dark
+frameforge edit clip.mp4 --word-timings wt.json --style bold-dark --output edited-dark.mp4
 
-### Step 1: Transcribe Audio
-- Extract transcript from source video using WhisperX or ffmpeg + whisper
-- Generate SRT file with word-level timestamps
-- Review transcript for accuracy
+# Corporate
+frameforge edit clip.mp4 --word-timings wt.json --style corporate --output edited-corp.mp4
+```
 
-### Step 2: Analyze Content
-- Read transcript to understand the video's purpose
-- Identify key moments for motion graphics:
-  - **Intro** (0-3s): Who is speaking, what topic
-  - **Key points**: Important statements that deserve visual emphasis
-  - **Transitions**: Topic changes where a divider/card could help
-  - **Outro** (last 3-5s): CTA or closing
+### Test 3: Format conversion (vertical → landscape)
+```bash
+frameforge edit clip.mp4 --word-timings wt.json --format landscape --output edited-landscape.mp4
+```
 
-### Step 3: Create HTML Overlay
-Build an HTML page that:
-- Plays the source video via `<video>` element (FrameForge controls time)
-- Overlays styled captions synced to virtual time
-- Adds motion graphics at identified key moments:
-  - Intro card with topic title
-  - Lower third with speaker name
-  - Key point callout cards
-  - Animated transitions between sections
-  - Outro CTA card
+### Test 4: Caption styles
+```bash
+frameforge edit clip.mp4 --word-timings wt.json --caption-style karaoke --output edited-karaoke.mp4
+frameforge edit clip.mp4 --word-timings wt.json --caption-style bold-center --output edited-bold.mp4
+```
 
-### Step 4: Apply Neo-Brutalist Styling
-All overlay elements use:
-- 2px solid black borders
-- 4px-8px hard shadows (no blur)
-- Orange (#f97316) primary
-- Charcoal (#171e19) backgrounds
-- Bold geometric typography
-- Dot pattern on orange backgrounds
+### Test 5: Quality presets
+```bash
+frameforge edit clip.mp4 --word-timings wt.json --quality fast --output preview.mp4    # Fast preview
+frameforge edit clip.mp4 --word-timings wt.json --quality slow --output final.mp4      # High quality
+```
 
-### Step 5: Render Composite
-- `frameforge render overlay.html --duration 50.8 --fps 30 --width 1440 --height 2560`
-- This produces a new MP4 with the source video + all overlays
-- Audio from source video needs to be re-muxed (FrameForge handles video, ffmpeg merges audio)
-
-### Step 6: Re-mux Audio
-- Extract audio from source: `ffmpeg -i source.mp4 -vn -acodec copy audio.aac`
-- Merge with rendered video: `ffmpeg -i rendered.mp4 -i audio.aac -c copy final.mp4`
+### Test 6: Captions only (no overlays)
+```bash
+frameforge edit clip.mp4 --word-timings wt.json --captions-only --output captions-only.mp4
+```
 
 ---
 
-## Technical Approach
+## Architecture (v2 — Transparent Overlay Compositing)
 
 ```
 Source Video (1440x2560, 50.8s)
        ↓
-HTML Overlay Page
-  ├── <video> element (source video, time-synced)
-  ├── Caption overlay (from SRT, styled)
-  ├── Intro card (0-3s)
-  ├── Lower third (3-6s)
-  ├── Key point cards (at key moments)
-  └── Outro card (last 3s)
+frameforge edit (single command)
+  ├── 1. ffprobe → probe source metadata
+  ├── 2. WhisperX or --word-timings → word-level timestamps
+  ├── 3. Content analysis → auto-generate overlay timeline
+  ├── 4. Style preset → generate transparent overlay HTML (NO <video> element)
+  ├── 5. Puppeteer → render overlay as transparent PNG frames (omitBackground: true)
+  ├── 6. FFmpeg overlay filter → composite transparent frames ON TOP of source video
+  └── 7. Audio copied from source
        ↓
-FrameForge render (headless Chrome screenshots)
-       ↓
-Raw rendered MP4 (video only)
-       ↓
-FFmpeg re-mux (add original audio)
-       ↓
-Final edited video with captions + motion graphics
+Final edited video (smooth, native playback)
 ```
+
+**Key:** Source video NEVER touches the browser. FFmpeg handles it natively.
 
 ---
 
 ## Success Criteria
 
-- [ ] Transcript is accurate
-- [ ] Captions display at correct times in Neo-Brutalist style
-- [ ] At least 3 motion graphic overlays (intro, lower third, key point)
-- [ ] Source video plays correctly underneath overlays
+- [ ] Video plays smoothly (not frame-by-frame/choppy)
+- [ ] Captions show 2-4 words at a time with active word highlighting
+- [ ] Overlays are proportionally sized (readable, not tiny)
+- [ ] At least 5+ auto-generated overlay elements (hook, lower third, key points, CTA)
 - [ ] Audio is preserved in final output
+- [ ] All 4 style presets produce visually distinct results
+- [ ] Format conversion (vertical → landscape) works with proper padding
+- [ ] Quality presets affect encode speed and file size as expected
 - [ ] Final video looks professionally edited
-- [ ] All done through FrameForge — no manual video editor used
+- [ ] All done via single CLI command — no manual steps
 
 ---
 
 ## Why This Matters
 
-If this works, FrameForge isn't just an "animation to video" tool — it's a **programmable video editor**. That changes the entire market positioning:
+If this works, FrameForge isn't just an "animation to video" tool — it's a **programmable video editor**:
 - Content creators can script their edits
 - AI agents can edit videos end-to-end
 - Bulk video editing becomes code, not clicking

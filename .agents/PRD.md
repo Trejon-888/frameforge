@@ -70,6 +70,21 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Remote/cloud rendering | Render on Lambda/Cloud Run | P3 | Planned |
 | GPU acceleration | Chrome GPU flag for complex 3D scenes | P3 | Implemented |
 
+### Phase 5 — Video Editing Engine
+
+| Feature | Description | Priority | Status |
+|---------|-------------|----------|--------|
+| `frameforge edit` CLI | Single command: source video → edited video with captions + overlays | P0 | Implemented |
+| Video probe (ffprobe) | Extract source video metadata for quality-matched encoding | P0 | Implemented |
+| Word-level caption engine | WhisperX word timings → 2-4 word groups with active word highlighting | P0 | Implemented |
+| Caption animation presets | 5 styles: pop-in, karaoke, highlight, minimal, bold-center | P0 | Implemented |
+| Transparent overlay compositing | Overlay PNGs rendered in browser, composited by FFmpeg natively | P0 | Implemented |
+| Quality-matched encoding | CRF + bitrate matched to source via ffprobe, 4 speed presets | P0 | Implemented |
+| Style preset system | 4 presets (neo-brutalist, clean-minimal, corporate, bold-dark) | P1 | Implemented |
+| Auto overlay timeline | Content analysis → hook cards, lower thirds, key points, stats, CTAs | P1 | Implemented |
+| Multi-format output | landscape, vertical, square, source with FFmpeg scale+pad | P1 | Implemented |
+| Smart cropping (fill/smart) | Face/subject-aware cropping for format changes | P2 | Planned |
+
 ---
 
 ## Implementation Status
@@ -102,6 +117,14 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Transition library | Phase 4 Advanced | 2026-03-15 | 23 FFmpeg xfade types (fade, dissolve, wipe, slide, etc.) |
 | Subtitle engine | Phase 4 Advanced | 2026-03-15 | SRT/VTT parser + HTML overlay synced to virtual time |
 | GPU acceleration | Phase 4 Advanced | 2026-03-15 | --gpu flag for Chrome hardware acceleration |
+| `frameforge edit` CLI | Phase 5 Video Edit | 2026-03-16 | Full pipeline: probe → transcribe → overlay → composite |
+| Video probe (ffprobe) | Phase 5 Video Edit | 2026-03-16 | VideoProbeResult with bitrate, codec, rotation, audio |
+| Word-level captions | Phase 5 Video Edit | 2026-03-16 | WhisperX parser, word grouping, 5 animation presets |
+| Transparent compositing | Phase 5 Video Edit | 2026-03-16 | FFmpeg overlay filter, omitBackground capture |
+| Quality-matched encoding | Phase 5 Video Edit | 2026-03-16 | Source-matched CRF + 4 speed presets (fast/balanced/slow/lossless) |
+| Style preset system | Phase 5 Video Edit | 2026-03-16 | 4 presets with colors, typography, elements, animations |
+| Auto overlay timeline | Phase 5 Video Edit | 2026-03-16 | Content analysis: hooks, stats, key points, chapters, CTAs |
+| Multi-format output | Phase 5 Video Edit | 2026-03-16 | landscape/vertical/square/source with FFmpeg scale+pad |
 
 ---
 

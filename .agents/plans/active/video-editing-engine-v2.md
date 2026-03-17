@@ -349,12 +349,13 @@ frameforge edit video.mp4 --preview-frame 150 --output preview.png
 - [x] **CRITICAL FIX:** Transparent overlay architecture — source video handled by FFmpeg natively, not browser
 
 ### Phase B: Intelligence (Week 2)
-- [ ] F4: Automated overlay timeline (content analysis)
-- [ ] F5: Style preset system (3 presets minimum)
+- [x] F4: Automated overlay timeline — content analysis with hook detection, key points, stats, chapter markers, CTA, gap-filling, overlap resolution
+- [x] F5: Style preset system — 4 presets (neo-brutalist, clean-minimal, corporate, bold-dark) + custom brand color override
 
 ### Phase C: Polish (Week 3)
-- [ ] F3: Multi-format support (landscape, vertical, square)
-- [ ] 5 caption animation styles
+- [x] F3: Multi-format support — landscape (1920x1080), vertical (1080x1920), square (1080x1080), source; FFmpeg scale+pad for format changes
+- [x] 5 caption animation styles (pop-in, karaoke, highlight, minimal, bold-center)
+- [ ] Smart cropping strategies (fit/fill/smart) — currently only "fit" (letterbox/pad)
 - [ ] Documentation + examples
 
 ---
