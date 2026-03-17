@@ -1,7 +1,7 @@
 # Session Handover
 
 **Project:** FrameForge
-**Current Status:** ALL 4 PHASES COMPLETE — Full rendering pipeline shipped
+**Current Status:** Component system live, Semantic Illustration System next
 
 ---
 
@@ -9,15 +9,29 @@
 
 | Plan | Status | Notes |
 |------|--------|-------|
-| [Video Editing Engine v2](plans/active/video-editing-engine-v2.md) | Phase A complete | Transparent overlay compositing pipeline, scaled sizing |
+| [Video Editing Engine v2](plans/active/video-editing-engine-v2.md) | Phase B complete | Component system shipped |
+| [Video Editing Test](plans/active/video-editing-test.md) | In Progress | Blocked: need Semantic Illustration System first |
 | [Social Media Launch](plans/active/social-media-launch.md) | On Hold | Waiting for testing week (~March 22) |
 
 ---
 
 ## What's Next
 
-1. Remaining elements: Video, Code Block, Chart
+**#1 PRIORITY: Semantic Illustration System**
+User feedback: text-label overlays (glass-callout, kinetic-title) add no value — they repeat what the speaker says. Need animated mini-UI illustrations that SHOW the concept:
+- `social-feed.ts` — AI social manager dashboard (posts appear with live counts)
+- `crm-calendar.ts` — Calendar with booking slots filling in automatically
+- `ai-workflow.ts` — Flowchart with data particles flowing through nodes
+- `stat-counter.ts` — Large bold number with spring physics counting up
+- `pipeline-board.ts` — Kanban with deal cards moving through stages
+- `concept-extractor.ts` — Maps transcript keywords to visual concept types
+- Replace `key-point` + `stat-callout` in overlay-generator with illustration overlays
+- Re-render `reframed-9x16.mp4` (at `C:\Users\enriq\Videos\Claude Creatives Video\clips\reframed\clip-01-cloud-code-creates-all-my-visual-content\reframed-9x16.mp4`)
+
+**#2: Other**
+1. Smart cropping strategies (fit/fill/smart) — currently only letterbox/pad
 2. Template system
+3. Render preview server (hot-reload)
 3. Render preview server (hot-reload)
 4. Remote/cloud rendering (Docker image)
 5. npm publish preparation
@@ -25,6 +39,25 @@
 ---
 
 ## Session Log
+
+### Session 10 — 2026-03-17
+- **Context:** Component system implementation — replace CSS-transition overlays with GSAP/Canvas/Spring components
+- **Completed:**
+  - Full component architecture: types, registry, assembler, init, gsap-inline
+  - 8 renderers: kinetic-title, animated-lower-third, number-counter, glass-callout, particle-burst, progress-bar, cta-reveal, chapter-wipe
+  - GSAP inlined from node_modules (no CDN race conditions)
+  - Error boundaries on every component init + update
+  - 39 component tests (all pass)
+  - 30 keyword patterns across 7 domains in overlay-generator
+  - Filler word filtering (um, uh, hmm, er, ah...) + confidence < 0.3 filter
+  - Engagement-scored hook extraction, rhetorical question detection, dual-trigger transitions
+  - BACKGROUND_OVERLAY_TYPES: progress-bar excluded from 3-slot limit
+  - `frameforge preview-edit` CLI command — standalone HTML with play/pause/scrub controls
+  - `--background` flag with base64 image embed + video file:// URL support
+  - Rendered v5-components.mp4 with new system
+- **Critical feedback from user:** Text-label overlays (glass-callout, number-counter) have no visual value — they repeat what the speaker says. User wants animated mini-UI illustrations that SHOW the concept (calendar for CRM, social feed for social media, etc.). Called out "50 plus" rendering as debug-looking "50 | PLUS".
+- **Stats:** 220 tests (all pass), build clean
+- **Next:** Semantic Illustration System (see What's Next)
 
 ### Session 9 — 2026-03-16
 - **Context:** Critical fix — video editing output was choppy (frame-by-frame) with undersized overlays

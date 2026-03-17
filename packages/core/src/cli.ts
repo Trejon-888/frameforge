@@ -224,6 +224,103 @@ program
   });
 
 program
+  .command("preview-edit")
+  .description("Generate an interactive HTML preview of edit overlays + captions (no video needed)")
+  .option("-o, --output <path>", "Output HTML path", "./edit-preview.html")
+  .option("-s, --style <preset>", "Style preset", "neo-brutalist")
+  .option("--caption-style <style>", "Caption style", "pop-in")
+  .option("--srt <path>", "SRT file for transcript")
+  .option("--word-timings <path>", "WhisperX word timings JSON")
+  .option("-d, --duration <seconds>", "Video duration in seconds", parseFloat, 30)
+  .option("--width <pixels>", "Video width", parseInt, 1920)
+  .option("--height <pixels>", "Video height", parseInt, 1080)
+  .option("--brand-color <hex>", "Override primary brand color")
+  .option("--speaker-name <name>", "Speaker name for lower third")
+  .option("--speaker-title <title>", "Speaker title for lower third")
+  .option("--max-words <n>", "Max words per caption group", parseInt, 4)
+  .option("--caption-position <pos>", "Caption position (bottom, center, top)", "bottom")
+  .option("--captions-only", "Skip overlay generation")
+  .option("--background <path>", "Background image or video file (jpg/png/mp4/webm)")
+  .action(async (opts) => {
+    const spinner = ora();
+
+    console.log(
+      chalk.bold("\n  FrameForge ") +
+        chalk.dim(`v${getVersion()} — preview-edit`) +
+        "\n"
+    );
+
+    try {
+      spinner.start(chalk.dim("Generating edit preview..."));
+
+      const { generateEditPreview } = await import("./preview-edit.js");
+      const { parseSRT } = await import("./subtitles.js");
+      const { parseWhisperXWords } = await import("./word-captions.js");
+      const { writeFile } = await import("node:fs/promises");
+
+      // Load word timings from SRT or WhisperX JSON
+      let words: any[];
+      if (opts.wordTimings) {
+        const json = readFileSync(resolve(opts.wordTimings), "utf-8");
+        words = parseWhisperXWords(json);
+      } else if (opts.srt) {
+        const srtContent = readFileSync(resolve(opts.srt), "utf-8");
+        const entries = parseSRT(srtContent);
+        words = srtToWordTimings(entries);
+      } else {
+        // Generate sample words for preview
+        words = generateSampleWords(opts.duration);
+      }
+
+      // Handle background image/video
+      let backgroundImage: string | undefined;
+      let backgroundVideo: string | undefined;
+      if (opts.background) {
+        const bgPath = resolve(opts.background);
+        const ext = bgPath.toLowerCase().split(".").pop();
+        if (ext === "mp4" || ext === "webm" || ext === "mov") {
+          // Video: use file:// URL (works when HTML and video are on same machine)
+          backgroundVideo = "file:///" + bgPath.replace(/\\/g, "/");
+        } else {
+          // Image: base64 encode for portability
+          const imgBuf = readFileSync(bgPath);
+          const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
+          backgroundImage = `data:${mime};base64,${imgBuf.toString("base64")}`;
+        }
+      }
+
+      const html = generateEditPreview({
+        words,
+        duration: opts.duration,
+        style: opts.style,
+        brandColor: opts.brandColor,
+        captionPreset: opts.captionStyle,
+        width: opts.width,
+        height: opts.height,
+        speakerName: opts.speakerName,
+        speakerTitle: opts.speakerTitle,
+        maxWordsPerGroup: opts.maxWords,
+        captionPosition: opts.captionPosition,
+        captionsOnly: opts.captionsOnly,
+        backgroundImage,
+        backgroundVideo,
+      });
+
+      const outputPath = resolve(opts.output);
+      await writeFile(outputPath, html, "utf-8");
+
+      spinner.succeed(
+        chalk.green(`Preview saved to ${outputPath}`) +
+          chalk.dim(" — open in browser to view")
+      );
+    } catch (err: any) {
+      spinner.fail(chalk.red("Preview generation failed"));
+      console.error(chalk.red(`\n  ${err.message}\n`));
+      process.exit(1);
+    }
+  });
+
+program
   .command("edit")
   .description("Edit a video with auto-generated captions and motion graphics")
   .argument("<input>", "Path to source video file")
@@ -300,5 +397,65 @@ program
       process.exit(1);
     }
   });
+
+// === CLI Helpers ===
+
+function srtToWordTimings(
+  entries: Array<{ startMs: number; endMs: number; text: string }>
+): Array<{ word: string; start: number; end: number; confidence: number }> {
+  const words: Array<{ word: string; start: number; end: number; confidence: number }> = [];
+  for (const entry of entries) {
+    const entryWords = entry.text.split(/\s+/).filter((w) => w.length > 0);
+    if (entryWords.length === 0) continue;
+    const wordDuration = (entry.endMs - entry.startMs) / entryWords.length;
+    for (let i = 0; i < entryWords.length; i++) {
+      words.push({
+        word: entryWords[i],
+        start: (entry.startMs + i * wordDuration) / 1000,
+        end: (entry.startMs + (i + 1) * wordDuration) / 1000,
+        confidence: 0.8,
+      });
+    }
+  }
+  return words;
+}
+
+function generateSampleWords(
+  duration: number
+): Array<{ word: string; start: number; end: number; confidence: number }> {
+  const sentences = [
+    "So you can create your own social media AI agent manager that is going to post for you.",
+    "What's up, everyone?",
+    "Hey, if you're new here, my name is Creator.",
+    "My background is in business development.",
+    "This last year has been spent building agent workflows.",
+    "We built the first AI client acquisition system for agencies.",
+    "Used by 50 plus partners to automate client acquisition.",
+    "The key thing is automation saves you time.",
+    "Let me show you how it works.",
+    "Step one: connect your accounts.",
+    "Step two: set your schedule.",
+    "Step three: watch the magic happen.",
+    "This is a game changer for small businesses.",
+    "Follow for more tips on automation.",
+  ];
+
+  const words: Array<{ word: string; start: number; end: number; confidence: number }> = [];
+  let t = 0.2;
+  const sentenceDur = Math.max(2, duration / sentences.length);
+
+  for (let s = 0; s < sentences.length && t < duration - 1; s++) {
+    const sWords = sentences[s].split(/\s+/);
+    const wordDur = (sentenceDur - 0.5) / sWords.length;
+    for (const w of sWords) {
+      if (t >= duration - 1) break;
+      words.push({ word: w, start: t, end: t + wordDur * 0.9, confidence: 0.95 });
+      t += wordDur;
+    }
+    t += 0.5; // pause between sentences
+  }
+
+  return words;
+}
 
 program.parse();

@@ -16,7 +16,7 @@
  */
 
 import { resolve, join } from "node:path";
-import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
+import { readFile, writeFile, mkdir, rm, stat } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { tmpdir } from "node:os";
@@ -24,9 +24,12 @@ import { tmpdir } from "node:os";
 import { probeVideo, computeMatchedEncoding, getFormatDimensions, type VideoProbeResult } from "./video-probe.js";
 import { parseWhisperXWords, groupWords, generateCaptionOverlay, type WordTiming, type CaptionStyleConfig, type CaptionPreset } from "./word-captions.js";
 import { getStylePreset, createCustomStyle, type EditStyle } from "./edit-styles.js";
-import { generateOverlayTimeline, generateOverlayHTML, type TranscriptSegment } from "./overlay-generator.js";
+import { generateOverlayTimeline, type TranscriptSegment } from "./overlay-generator.js";
 import { captureFrames } from "./frame-capture.js";
 import { compositeVideo } from "./ffmpeg.js";
+import "./components/init.js";
+import { assembleOverlayPage } from "./components/assembler.js";
+import { type ComponentDependency } from "./components/types.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -135,6 +138,7 @@ export async function editVideo(options: EditOptions): Promise<EditResult> {
   // === Stage 6: Generate overlay timeline ===
   let overlayCount = 0;
   let overlayScript = "";
+  let overlayDeps: ComponentDependency[] = [];
   if (!options.captionsOnly) {
     progress("overlays", "Generating overlay timeline...");
     const overlays = generateOverlayTimeline({
@@ -148,8 +152,10 @@ export async function editVideo(options: EditOptions): Promise<EditResult> {
       height: dims.height,
     });
     overlayCount = overlays.length;
-    overlayScript = generateOverlayHTML(overlays, style, dims.width, dims.height);
-    progress("overlays", `Generated ${overlayCount} overlay elements`);
+    const assembled = assembleOverlayPage(overlays, style, dims.width, dims.height);
+    overlayScript = assembled.script;
+    overlayDeps = assembled.dependencies;
+    progress("overlays", `Generated ${overlayCount} overlay elements (${overlayDeps.length} deps)`);
   }
 
   // === Stage 7: Generate caption overlay ===
@@ -178,7 +184,8 @@ export async function editVideo(options: EditOptions): Promise<EditResult> {
     captionScript,
     overlayScript,
     style,
-    captionPosition
+    captionPosition,
+    overlayDeps
   );
   await writeFile(htmlPath, overlayHTML, "utf-8");
 
@@ -234,7 +241,17 @@ export async function editVideo(options: EditOptions): Promise<EditResult> {
   // Finalize encoding
   await pipeline.finalize();
 
-  // === Stage 10: Cleanup temp files ===
+  // === Stage 10: Validate output ===
+  try {
+    const outputStat = await stat(outputPath);
+    if (outputStat.size < 1000) {
+      progress("warn", `Output file is suspiciously small (${outputStat.size} bytes) — encoding may have failed`);
+    }
+  } catch {
+    // stat failure means file doesn't exist — pipeline.finalize should have thrown
+  }
+
+  // === Stage 11: Cleanup temp files ===
   try {
     await rm(tmpDir, { recursive: true, force: true });
   } catch {
@@ -430,7 +447,8 @@ function buildOverlayOnlyHTML(
   captionScript: string,
   overlayScript: string,
   style: EditStyle,
-  captionPosition: "bottom" | "center" | "top"
+  captionPosition: "bottom" | "center" | "top",
+  dependencies?: ComponentDependency[]
 ): string {
   // Build gradient CSS based on caption position
   const gradients: string[] = [];
@@ -460,11 +478,22 @@ function buildOverlayOnlyHTML(
     captionPosition === "top" || captionPosition === "center" ? '<div class="gradient-top"></div>' : '',
   ].filter(Boolean).join("\n  ");
 
+  const depScripts = (dependencies || [])
+    .map(dep => {
+      // Prefer inline content (eliminates CDN race condition in headless Chrome)
+      if (dep.getInlineContent) {
+        return `  <script>${dep.getInlineContent()}<\/script>`;
+      }
+      return `  <script src="${dep.url}"><\/script>`;
+    })
+    .join("\n");
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <link href="${style.typography.googleFontsUrl}" rel="stylesheet">
+${depScripts}
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {

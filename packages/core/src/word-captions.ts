@@ -54,6 +54,28 @@ const DEFAULT_CONFIG: CaptionStyleConfig = {
   maxWordsPerGroup: 4,
 };
 
+/** Filler words to exclude from captions (common speech disfluencies) */
+const FILLER_WORDS = new Set([
+  "um", "uh", "uhm", "umm", "uhh", "hmm", "hm", "mm", "mmm",
+  "er", "erm", "ah", "ahh", "eh",
+]);
+
+/**
+ * Filter out filler words and very low-confidence words.
+ * Filler words (um, uh, etc.) are removed entirely.
+ * Words with confidence < 0.3 are dropped (likely background noise).
+ */
+export function filterWords(words: WordTiming[]): WordTiming[] {
+  return words.filter((w) => {
+    // Drop very low confidence (noise, non-speech)
+    if (w.confidence < 0.3) return false;
+    // Drop filler words
+    const clean = w.word.toLowerCase().replace(/[.,!?;:]+$/, "");
+    if (FILLER_WORDS.has(clean)) return false;
+    return true;
+  });
+}
+
 /**
  * Group word-level timestamps into 2-4 word caption groups.
  *
@@ -62,6 +84,8 @@ const DEFAULT_CONFIG: CaptionStyleConfig = {
  * 2. Break at natural pauses (gap > 300ms between words)
  * 3. Break at punctuation (commas, periods, question marks, exclamation marks)
  * 4. Minimum 1 word per group
+ *
+ * Automatically filters filler words (um, uh) and low-confidence noise.
  */
 export function groupWords(
   words: WordTiming[],
@@ -69,15 +93,19 @@ export function groupWords(
 ): CaptionGroup[] {
   if (words.length === 0) return [];
 
+  // Filter out filler words and noise before grouping
+  const filtered = filterWords(words);
+  if (filtered.length === 0) return [];
+
   const groups: CaptionGroup[] = [];
   let currentGroup: WordTiming[] = [];
 
-  for (let i = 0; i < words.length; i++) {
-    const word = words[i];
+  for (let i = 0; i < filtered.length; i++) {
+    const word = filtered[i];
     currentGroup.push(word);
 
-    const isLast = i === words.length - 1;
-    const nextWord = isLast ? null : words[i + 1];
+    const isLast = i === filtered.length - 1;
+    const nextWord = isLast ? null : filtered[i + 1];
 
     // Decide whether to break after this word
     let shouldBreak = false;
@@ -324,29 +352,51 @@ function getPresetCode(cfg: CaptionStyleConfig): {
   animationLogic: string;
 } {
   // Computed sizes based on the configured font size
-  const shadowSize = Math.max(3, Math.round(cfg.fontSize * 0.04));
-  const strokeShadow = `${shadowSize}px ${shadowSize}px 0 #000, -${shadowSize}px -${shadowSize}px 0 #000, ${shadowSize}px -${shadowSize}px 0 #000, -${shadowSize}px ${shadowSize}px 0 #000, 0 ${shadowSize}px 0 #000, 0 -${shadowSize}px 0 #000, ${shadowSize}px 0 0 #000, -${shadowSize}px 0 0 #000`;
+  const s = cfg.fontSize; // shorthand for scale calculations
+  const shadowSize = Math.max(3, Math.round(s * 0.05));
+  // Full 8-direction stroke for maximum readability on any background
+  const strokeShadow = [
+    `${shadowSize}px ${shadowSize}px 0 #000`,
+    `-${shadowSize}px -${shadowSize}px 0 #000`,
+    `${shadowSize}px -${shadowSize}px 0 #000`,
+    `-${shadowSize}px ${shadowSize}px 0 #000`,
+    `0 ${shadowSize}px 0 #000`,
+    `0 -${shadowSize}px 0 #000`,
+    `${shadowSize}px 0 0 #000`,
+    `-${shadowSize}px 0 0 #000`,
+    `0 0 ${Math.round(s * 0.15)}px rgba(0,0,0,0.5)`, // soft glow for depth
+  ].join(", ");
+
+  // Glass backdrop for captions that need a background panel
+  const glassBg = `background: rgba(0,0,0,0.35); backdrop-filter: blur(${Math.round(s * 0.2)}px); -webkit-backdrop-filter: blur(${Math.round(s * 0.2)}px);`;
+  const glassPad = `padding: ${Math.round(s * 0.15)}px ${Math.round(s * 0.25)}px; border-radius: ${Math.round(s * 0.12)}px;`;
 
   switch (cfg.preset) {
     case "pop-in":
       return {
         styles: `
+          .ff-caption-group {
+            ${glassBg}
+            ${glassPad}
+          }
           .ff-word {
             text-shadow: ${strokeShadow};
-            transform: scale(0.5);
+            transform: scale(0) translateY(${Math.round(s * 0.3)}px);
             opacity: 0;
           }
           .ff-caption-group.active .ff-word {
-            animation: ff-pop-word 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: ff-pop-word 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.4) forwards;
           }
           .ff-word.speaking {
             color: ${cfg.accentColor};
-            transform: scale(1.2);
+            transform: scale(1.25) !important;
+            filter: drop-shadow(0 0 ${Math.round(s * 0.15)}px ${cfg.accentColor}40);
           }
           @keyframes ff-pop-word {
-            0% { transform: scale(0.5); opacity: 0; }
-            60% { transform: scale(1.12); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(0) translateY(${Math.round(s * 0.3)}px); opacity: 0; }
+            50% { transform: scale(1.2) translateY(0); opacity: 1; }
+            75% { transform: scale(0.95) translateY(0); opacity: 1; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
           }
         `,
         animationLogic: `
@@ -354,7 +404,7 @@ function getPresetCode(cfg: CaptionStyleConfig): {
           for (var j = 0; j < wordEls.length; j++) {
             var ws = parseInt(wordEls[j].getAttribute('data-start'));
             var we = parseInt(wordEls[j].getAttribute('data-end'));
-            wordEls[j].style.animationDelay = (j * 0.06) + 's';
+            wordEls[j].style.animationDelay = (j * 0.07) + 's';
             if (t >= ws && t <= we) {
               wordEls[j].classList.add('speaking');
             } else {
@@ -367,13 +417,17 @@ function getPresetCode(cfg: CaptionStyleConfig): {
     case "karaoke":
       return {
         styles: `
+          .ff-caption-group {
+            ${glassBg}
+            ${glassPad}
+          }
           .ff-word {
             text-shadow: ${strokeShadow};
-            opacity: 0.4;
-            transition: all 0.12s ease;
+            opacity: 0.35;
+            transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           }
           .ff-caption-group.active .ff-word {
-            opacity: 0.4;
+            opacity: 0.35;
           }
           .ff-word.spoken {
             opacity: 1;
@@ -382,7 +436,8 @@ function getPresetCode(cfg: CaptionStyleConfig): {
           .ff-word.speaking {
             opacity: 1;
             color: ${cfg.accentColor};
-            transform: scale(1.15);
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 ${Math.round(s * 0.12)}px ${cfg.accentColor}60);
           }
         `,
         animationLogic: `
@@ -409,9 +464,9 @@ function getPresetCode(cfg: CaptionStyleConfig): {
         styles: `
           .ff-word {
             text-shadow: ${strokeShadow};
-            padding: ${Math.round(cfg.fontSize * 0.06)}px ${Math.round(cfg.fontSize * 0.12)}px;
-            border-radius: ${Math.round(cfg.fontSize * 0.1)}px;
-            transition: all 0.1s ease;
+            padding: ${Math.round(s * 0.06)}px ${Math.round(s * 0.14)}px;
+            border-radius: ${Math.round(s * 0.08)}px;
+            transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
           }
           .ff-caption-group.active .ff-word {
             opacity: 1;
@@ -420,8 +475,8 @@ function getPresetCode(cfg: CaptionStyleConfig): {
             background: ${cfg.accentColor};
             color: #000;
             text-shadow: none;
-            transform: scale(1.08);
-            box-shadow: ${Math.round(cfg.fontSize * 0.08)}px ${Math.round(cfg.fontSize * 0.08)}px 0 rgba(0,0,0,0.3);
+            transform: scale(1.12);
+            box-shadow: ${Math.round(s * 0.06)}px ${Math.round(s * 0.06)}px 0 rgba(0,0,0,0.4), 0 0 ${Math.round(s * 0.2)}px ${cfg.accentColor}30;
           }
         `,
         animationLogic: `
@@ -443,16 +498,23 @@ function getPresetCode(cfg: CaptionStyleConfig): {
         styles: `
           .ff-word {
             font-weight: 700;
-            font-size: ${Math.round(cfg.fontSize * 0.9)}px;
-            opacity: 0.95;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.4);
+            font-size: ${Math.round(s * 0.9)}px;
+            opacity: 0;
+            text-shadow: 0 2px ${Math.round(s * 0.1)}px rgba(0,0,0,0.9), 0 0 ${Math.round(s * 0.25)}px rgba(0,0,0,0.5);
           }
           .ff-caption-group.active .ff-word {
-            opacity: 0.95;
+            animation: ff-minimal-fade 0.3s ease forwards;
+          }
+          @keyframes ff-minimal-fade {
+            0% { opacity: 0; transform: translateY(${Math.round(s * 0.1)}px); }
+            100% { opacity: 0.95; transform: translateY(0); }
           }
         `,
         animationLogic: `
-          // Minimal — no per-word animation, just show the group
+          var wordEls = container.querySelectorAll('.ff-word');
+          for (var j = 0; j < wordEls.length; j++) {
+            wordEls[j].style.animationDelay = (j * 0.04) + 's';
+          }
         `,
       };
 
@@ -465,23 +527,25 @@ function getPresetCode(cfg: CaptionStyleConfig): {
             transform: translate(-50%, -50%) !important;
           }
           .ff-word {
-            font-size: ${Math.round(cfg.fontSize * 1.5)}px;
+            font-size: ${Math.round(s * 1.5)}px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: -${Math.round(cfg.fontSize * 0.03)}px;
-            text-shadow: ${shadowSize + 1}px ${shadowSize + 1}px 0 #000, -${shadowSize + 1}px -${shadowSize + 1}px 0 #000, ${shadowSize + 1}px -${shadowSize + 1}px 0 #000, -${shadowSize + 1}px ${shadowSize + 1}px 0 #000;
-            transform: scale(0.8);
+            letter-spacing: -${Math.round(s * 0.03)}px;
+            text-shadow: ${shadowSize + 1}px ${shadowSize + 1}px 0 #000, -${shadowSize + 1}px -${shadowSize + 1}px 0 #000, ${shadowSize + 1}px -${shadowSize + 1}px 0 #000, -${shadowSize + 1}px ${shadowSize + 1}px 0 #000, 0 0 ${Math.round(s * 0.3)}px rgba(0,0,0,0.4);
+            transform: scale(2) rotate(-5deg);
             opacity: 0;
           }
           .ff-caption-group.active .ff-word {
-            animation: ff-bold-slam 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: ff-bold-slam 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
           .ff-word.speaking {
             color: ${cfg.accentColor};
+            filter: drop-shadow(0 0 ${Math.round(s * 0.2)}px ${cfg.accentColor}50);
           }
           @keyframes ff-bold-slam {
-            0% { transform: scale(1.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(2) rotate(-5deg); opacity: 0; }
+            60% { transform: scale(0.95) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
           }
         `,
         animationLogic: `

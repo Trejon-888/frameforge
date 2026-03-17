@@ -25,7 +25,9 @@ export type OverlayType =
   | "key-point"
   | "stat-callout"
   | "chapter-marker"
-  | "cta-card";
+  | "cta-card"
+  | "particle-burst"
+  | "progress-bar";
 
 export interface OverlayElement {
   type: OverlayType;
@@ -146,7 +148,28 @@ export function generateOverlayTimeline(
     });
   }
 
-  // 6. CTA card — last 3-5 seconds
+  // 6. Particle bursts — at topic transitions for visual impact
+  for (const ch of chapters) {
+    if (ch.startMs < 8000) continue;
+    overlays.push({
+      type: "particle-burst",
+      startMs: ch.startMs,
+      endMs: ch.startMs + 1500,
+      data: {},
+      position: "top-center",
+    });
+  }
+
+  // 7. Progress bar — always visible, spans full video
+  overlays.push({
+    type: "progress-bar",
+    startMs: 0,
+    endMs: duration * 1000,
+    data: { durationMs: String(duration * 1000) },
+    position: "bottom-left",
+  });
+
+  // 8. CTA card — last 3-5 seconds
   if (duration > 10) {
     overlays.push({
       type: "cta-card",
@@ -160,16 +183,20 @@ export function generateOverlayTimeline(
     });
   }
 
-  // 7. Ensure minimum overlay density (1 per 5s)
+  // 9. Ensure minimum overlay density (1 per 5s)
   fillGaps(overlays, segments, duration);
 
-  // 8. Remove overlaps (max 3 simultaneous)
+  // 10. Remove overlaps (max 3 simultaneous)
   return resolveOverlaps(overlays);
 }
 
 /**
  * Generate the HTML for all overlay elements.
  * Sizes are scaled proportionally to video dimensions.
+ *
+ * @deprecated Use `assembleOverlayPage()` from `./components/assembler.js` instead.
+ * This function uses basic CSS transitions. The component system provides
+ * GSAP-driven animations, Canvas particles, and spring physics.
  */
 export function generateOverlayHTML(
   overlays: OverlayElement[],
@@ -197,46 +224,59 @@ export function generateOverlayHTML(
       z-index: 9990;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.3s ${animations.enterCurve}, transform 0.3s ${animations.enterCurve};
+      transition: opacity 0.4s ${animations.enterCurve}, transform 0.5s ${animations.enterCurve};
     }
     .ff-overlay.visible {
       opacity: 1;
       transform: translate(0, 0) !important;
     }
 
-    /* Hook Card — large, prominent, centered */
+    /* Hook Card — drops down from top with bounce + glow pulse */
     .ff-hook-card {
-      top: ${Math.round(100 * s)}px; left: 50%; transform: translateX(-50%) translateY(-20px);
+      top: ${Math.round(100 * s)}px; left: 50%; transform: translateX(-50%) translateY(-${Math.round(60 * s)}px);
       background: ${colors.primary};
-      border: ${Math.max(2, Math.round(elements.borderWidth * 1.5))}px solid #000;
+      border: ${Math.max(3, Math.round(elements.borderWidth * 2))}px solid #000;
       border-radius: ${Math.round(elements.borderRadius * s)}px;
-      padding: ${Math.round(24 * s)}px ${Math.round(48 * s)}px;
-      box-shadow: ${elements.shadowStyle};
+      padding: ${Math.round(28 * s)}px ${Math.round(56 * s)}px;
+      box-shadow: ${elements.shadowStyle}, 0 0 ${Math.round(40 * s)}px ${colors.primary}30;
       font-family: ${typography.heading};
-      font-size: ${Math.round(36 * s)}px; font-weight: 800;
+      font-size: ${Math.round(38 * s)}px; font-weight: 800;
       color: #000; text-align: center;
       max-width: 80%;
       text-transform: uppercase;
-      letter-spacing: ${Math.round(3 * s)}px;
+      letter-spacing: ${Math.round(4 * s)}px;
+      transition: opacity 0.4s ${animations.enterCurve}, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .ff-hook-card.visible { transform: translateX(-50%) translateY(0); }
+    .ff-hook-card.visible {
+      transform: translateX(-50%) translateY(0);
+      animation: ff-hook-pulse 2s ease-in-out 0.6s infinite;
+    }
+    @keyframes ff-hook-pulse {
+      0%, 100% { box-shadow: ${elements.shadowStyle}, 0 0 ${Math.round(40 * s)}px ${colors.primary}30; }
+      50% { box-shadow: ${elements.shadowStyle}, 0 0 ${Math.round(60 * s)}px ${colors.primary}50; }
+    }
 
-    /* Lower Third — name + title bar */
+    /* Lower Third — slides in from left with animated bar */
     .ff-lower-third {
       bottom: ${Math.round(360 * s)}px; left: ${Math.round(60 * s)}px;
-      transform: translateX(-30px);
+      transform: translateX(-${Math.round(120 * s)}px);
       display: flex; align-items: center; gap: ${Math.round(16 * s)}px;
+      transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .ff-lt-bar {
-      width: ${Math.round(6 * s)}px; height: ${Math.round(80 * s)}px;
+      width: ${Math.round(6 * s)}px; height: 0;
       background: ${colors.primary};
       border: ${Math.max(1, elements.borderWidth)}px solid #000;
+      transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s;
+    }
+    .ff-lower-third.visible .ff-lt-bar {
+      height: ${Math.round(80 * s)}px;
     }
     .ff-lt-name {
       font-family: ${typography.heading};
       font-size: ${Math.round(44 * s)}px; font-weight: 900;
       color: ${colors.text};
-      text-shadow: 3px 3px 0 #000;
+      text-shadow: 3px 3px 0 #000, 0 0 ${Math.round(20 * s)}px rgba(0,0,0,0.3);
     }
     .ff-lt-title {
       font-family: ${typography.body};
@@ -246,17 +286,20 @@ export function generateOverlayHTML(
       margin-top: ${Math.round(4 * s)}px;
     }
 
-    /* Key Point — info cards */
+    /* Key Point — slides in from side with glass backdrop */
     .ff-key-point {
-      background: ${colors.background};
-      border: ${Math.max(2, Math.round(elements.borderWidth * 1.5))}px solid #000;
+      background: rgba(${colors.background === '#ffffff' || colors.background === '#0a0a0a' ? '0,0,0,0.7' : '23,30,25,0.85'});
+      backdrop-filter: blur(${Math.round(16 * s)}px);
+      -webkit-backdrop-filter: blur(${Math.round(16 * s)}px);
+      border: ${Math.max(2, Math.round(elements.borderWidth * 1.5))}px solid ${colors.primary}80;
       border-radius: ${Math.round(elements.borderRadius * s)}px;
       padding: ${Math.round(24 * s)}px ${Math.round(36 * s)}px;
-      box-shadow: ${Math.round(6 * s)}px ${Math.round(6 * s)}px 0 ${colors.primary};
+      box-shadow: ${Math.round(6 * s)}px ${Math.round(6 * s)}px 0 ${colors.primary}, 0 0 ${Math.round(30 * s)}px rgba(0,0,0,0.3);
       max-width: ${Math.round(480 * s)}px;
+      transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .ff-key-point.pos-top-right { top: ${Math.round(140 * s)}px; right: ${Math.round(60 * s)}px; transform: translateX(30px); }
-    .ff-key-point.pos-top-left { top: ${Math.round(140 * s)}px; left: ${Math.round(60 * s)}px; transform: translateX(-30px); }
+    .ff-key-point.pos-top-right { top: ${Math.round(140 * s)}px; right: ${Math.round(60 * s)}px; transform: translateX(${Math.round(80 * s)}px); }
+    .ff-key-point.pos-top-left { top: ${Math.round(140 * s)}px; left: ${Math.round(60 * s)}px; transform: translateX(-${Math.round(80 * s)}px); }
     .ff-kp-label {
       font-family: ${typography.body};
       font-size: ${Math.round(16 * s)}px; font-weight: 700;
@@ -271,11 +314,12 @@ export function generateOverlayHTML(
       line-height: 1.2;
     }
 
-    /* Stat Callout — prominent number displays */
+    /* Stat Callout — pops up with staggered boxes */
     .ff-stat-callout {
       top: ${Math.round(140 * s)}px; left: ${Math.round(60 * s)}px;
       display: flex; gap: ${Math.round(16 * s)}px;
-      transform: translateY(-20px);
+      transform: translateY(${Math.round(40 * s)}px);
+      transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .ff-stat-box {
       background: ${colors.primary};
@@ -287,7 +331,7 @@ export function generateOverlayHTML(
     }
     .ff-stat-num {
       font-family: 'Space Mono', ${typography.heading};
-      font-size: ${Math.round(48 * s)}px; font-weight: 900; color: #000;
+      font-size: ${Math.round(52 * s)}px; font-weight: 900; color: #000;
     }
     .ff-stat-label {
       font-family: ${typography.body};
@@ -297,39 +341,43 @@ export function generateOverlayHTML(
       margin-top: ${Math.round(4 * s)}px;
     }
 
-    /* Chapter Marker — topic transition pill */
+    /* Chapter Marker — drops from top with line extension */
     .ff-chapter-marker {
       top: ${Math.round(70 * s)}px; left: 50%;
-      transform: translateX(-50%) translateY(-15px);
-      background: ${colors.background};
+      transform: translateX(-50%) translateY(-${Math.round(40 * s)}px);
+      background: rgba(${colors.background === '#ffffff' ? '255,255,255,0.9' : '0,0,0,0.8'});
+      backdrop-filter: blur(${Math.round(12 * s)}px);
+      -webkit-backdrop-filter: blur(${Math.round(12 * s)}px);
       border: ${Math.max(2, Math.round(elements.borderWidth * 1.5))}px solid ${colors.primary};
       border-radius: 100px;
-      padding: ${Math.round(12 * s)}px ${Math.round(32 * s)}px;
+      padding: ${Math.round(14 * s)}px ${Math.round(36 * s)}px;
       font-family: ${typography.body};
       font-size: ${Math.round(18 * s)}px; font-weight: 700;
       color: ${colors.primary};
       text-transform: uppercase;
       letter-spacing: ${Math.round(4 * s)}px;
+      transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .ff-chapter-marker.visible { transform: translateX(-50%) translateY(0); }
 
-    /* CTA Card — call to action */
+    /* CTA Card — dramatic scale-in with glow */
     .ff-cta-card {
       top: 50%; left: 50%;
-      transform: translate(-50%, -50%) scale(0.9);
+      transform: translate(-50%, -50%) scale(0.5);
       text-align: center;
+      transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .ff-cta-card.visible { transform: translate(-50%, -50%) scale(1); }
     .ff-cta-text {
       font-family: ${typography.heading};
-      font-size: ${Math.round(60 * s)}px; font-weight: 900;
+      font-size: ${Math.round(64 * s)}px; font-weight: 900;
       color: ${colors.text};
-      text-shadow: 3px 3px 0 #000;
+      text-shadow: 3px 3px 0 #000, 0 0 ${Math.round(40 * s)}px rgba(0,0,0,0.3);
       margin-bottom: ${Math.round(20 * s)}px;
     }
     .ff-cta-sub {
       font-family: ${typography.body};
-      font-size: ${Math.round(30 * s)}px; font-weight: 600;
+      font-size: ${Math.round(32 * s)}px; font-weight: 600;
       color: ${colors.primary};
       text-shadow: 2px 2px 0 #000;
     }
@@ -339,10 +387,10 @@ export function generateOverlayHTML(
       color: #000;
       border: ${Math.max(2, elements.borderWidth)}px solid #000;
       border-radius: ${Math.round(elements.borderRadius * s)}px;
-      padding: ${Math.round(18 * s)}px ${Math.round(48 * s)}px;
+      padding: ${Math.round(20 * s)}px ${Math.round(52 * s)}px;
       font-family: ${typography.heading};
-      font-size: ${Math.round(28 * s)}px; font-weight: 800;
-      box-shadow: ${elements.shadowStyle};
+      font-size: ${Math.round(30 * s)}px; font-weight: 800;
+      box-shadow: ${elements.shadowStyle}, 0 0 ${Math.round(30 * s)}px ${colors.primary}40;
       margin-top: ${Math.round(24 * s)}px;
     }
   \`;
@@ -434,15 +482,112 @@ export function generateOverlayHTML(
 
 // === Content Analysis Functions ===
 
+// --- Multi-domain key point patterns ---
+// Organized by content domain for broad coverage across video types
+
+const KEY_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
+  // Business / Growth
+  { pattern: /(?:build|built|create|created)\s+(.{5,40})/i, label: "Building" },
+  { pattern: /(?:launch|launched|ship|shipped|released)\s+(.{5,40})/i, label: "Launching" },
+  { pattern: /(?:grow|grew|scale|scaled|expanded)\s+(.{5,40})/i, label: "Growth" },
+  { pattern: /(?:revenue|profit|income|sales|earnings)\s+(.{5,30})/i, label: "Revenue" },
+  { pattern: /(?:strategy|approach|method|framework|playbook)\s+(.{5,30})/i, label: "Strategy" },
+  { pattern: /(?:customer|client|user|subscriber)\s+(.{5,30})/i, label: "Audience" },
+
+  // Tech / Product
+  { pattern: /(?:workflow|system|platform|tool|product)\s+(.{5,30})/i, label: "System" },
+  { pattern: /(?:agent|ai|automation|machine learning|gpt)\s+(.{5,30})/i, label: "AI" },
+  { pattern: /(?:api|database|server|deploy|infrastructure)\s+(.{5,30})/i, label: "Tech" },
+  { pattern: /(?:feature|update|version|upgrade)\s+(.{5,30})/i, label: "Feature" },
+  { pattern: /(?:performance|speed|optimization|latency)\s+(.{5,30})/i, label: "Performance" },
+
+  // Education / Tutorial
+  { pattern: /(?:step|method|technique|process|recipe)\s+(.{5,30})/i, label: "Method" },
+  { pattern: /(?:learn|discover|understand|master|study)\s+(.{5,30})/i, label: "Learning" },
+  { pattern: /(?:mistake|avoid|wrong|don't|never)\s+(.{5,30})/i, label: "Watch Out" },
+  { pattern: /(?:tip|trick|hack|shortcut|cheat)\s+(.{5,30})/i, label: "Pro Tip" },
+  { pattern: /(?:example|demonstration|case study|real.?world)\s+(.{5,30})/i, label: "Example" },
+
+  // Emphasis / Highlight
+  { pattern: /(?:the (?:first|biggest|most|best|worst|fastest|easiest))\s+(.{5,40})/i, label: "Highlight" },
+  { pattern: /(?:important|key|critical|essential|crucial|vital)\s+(.{5,30})/i, label: "Key Point" },
+  { pattern: /(?:secret|hidden|unknown|surprising|shocking)\s+(.{5,30})/i, label: "Insight" },
+  { pattern: /(?:game.?changer|breakthrough|revolution|disrupt)\s*(.{0,30})/i, label: "Breakthrough" },
+  { pattern: /(?:problem|challenge|issue|pain\s?point|struggle)\s+(.{5,30})/i, label: "Challenge" },
+  { pattern: /(?:solution|answer|fix|resolve|overcome)\s+(.{5,30})/i, label: "Solution" },
+
+  // Personal / Story
+  { pattern: /(?:experience|journey|story|background)\s+(.{5,30})/i, label: "Story" },
+  { pattern: /(?:result|outcome|achievement|accomplishment)\s+(.{5,30})/i, label: "Result" },
+  { pattern: /(?:goal|dream|vision|mission|passion)\s+(.{5,30})/i, label: "Vision" },
+
+  // Creative / Design
+  { pattern: /(?:design|style|aesthetic|brand|visual)\s+(.{5,30})/i, label: "Design" },
+  { pattern: /(?:template|layout|mockup|prototype)\s+(.{5,30})/i, label: "Template" },
+
+  // Comparison
+  { pattern: /(?:better than|faster than|more than|unlike)\s+(.{5,30})/i, label: "Comparison" },
+  { pattern: /(?:versus|vs\.?|compared to)\s+(.{5,30})/i, label: "vs" },
+];
+
+// --- Transition phrase patterns (topic shifts beyond just pauses) ---
+
+const TRANSITION_PATTERNS: RegExp[] = [
+  /(?:now let'?s|moving on|the next|another thing|but here'?s)/i,
+  /(?:on (?:the other|that) (?:hand|note)|speaking of|when it comes to)/i,
+  /(?:^(?:so|now|but|however|anyway|alright|okay|next)\b)/i,
+  /(?:let me (?:show|tell|explain)|here'?s (?:the|what|how|why))/i,
+  /(?:the (?:real|big|main|key) (?:thing|question|point|takeaway))/i,
+];
+
+// --- Stat number patterns (expanded) ---
+
+const STAT_PATTERN = /(\d+[\d,]*\.?\d*)\s*(?:\+\s*)?((?:percent|%|x|million|billion|thousand|k|m|b|plus|partners|clients|users|customers|companies|businesses|people|team|employees|members|followers|subscribers|downloads|installs|views|likes|years?|months?|weeks?|days?|hours?|minutes?|seconds?|dollars?|\$|euros?|pounds?|points?|times|episodes?|steps?|projects?|deals?|leads?)[\w]*)/gi;
+
+/**
+ * Extract the most engaging sentence for the hook card.
+ * Prefers questions, bold claims with numbers, or superlatives over plain statements.
+ */
 function extractHook(segments: TranscriptSegment[]): string | null {
   if (segments.length === 0) return null;
-  const firstSeg = segments[0];
-  // Use first sentence, truncated to ~60 chars
-  const text = firstSeg.text.trim();
+
+  // Score each segment in the first ~10 seconds for engagement
+  const candidates: Array<{ text: string; score: number }> = [];
+
+  for (const seg of segments) {
+    if (seg.start > 10) break;
+    const sentences = seg.text.split(/(?<=[.!?])\s+/).filter((s) => s.length > 10);
+    if (sentences.length === 0) {
+      candidates.push({ text: seg.text, score: scoreEngagement(seg.text) });
+    } else {
+      for (const s of sentences) {
+        candidates.push({ text: s, score: scoreEngagement(s) });
+      }
+    }
+  }
+
+  if (candidates.length === 0) return null;
+
+  // Pick the highest-scoring candidate
+  candidates.sort((a, b) => b.score - a.score);
+  let text = candidates[0].text.trim();
+
   if (text.length <= 60) return text;
-  // Truncate at word boundary
   const truncated = text.substring(0, 60).replace(/\s+\S*$/, "");
   return truncated + "...";
+}
+
+/** Score a sentence's engagement level for hook selection */
+function scoreEngagement(text: string): number {
+  let score = 0;
+  if (text.endsWith("?")) score += 3; // Questions are engaging
+  if (/\d/.test(text)) score += 2; // Numbers add credibility
+  if (/(?:you|your)\b/i.test(text)) score += 2; // Direct address
+  if (/(?:how to|why|secret|truth|real|actually)/i.test(text)) score += 2;
+  if (/(?:best|worst|most|biggest|fastest|easiest|hardest)/i.test(text)) score += 1;
+  if (/[!]/.test(text)) score += 1;
+  if (text.length > 20 && text.length < 60) score += 1; // Goldilocks length
+  return score;
 }
 
 function findIntroduction(
@@ -455,6 +600,9 @@ function findIntroduction(
     /hey.*new here/i,
     /what's up/i,
     /hello.*i'm/i,
+    /welcome (?:to|back)/i,
+    /thanks for (?:watching|tuning|joining)/i,
+    /(?:this is|it's)\s+\w+\s+here/i,
   ];
 
   for (const seg of segments) {
@@ -479,17 +627,10 @@ interface KeyPoint {
 
 function extractKeyPoints(segments: TranscriptSegment[]): KeyPoint[] {
   const points: KeyPoint[] = [];
-  const keyPatterns = [
-    { pattern: /(?:build|built|create|created)\s+(.{5,40})/i, label: "Building" },
-    { pattern: /(?:launch|launched|ship|shipped)\s+(.{5,40})/i, label: "Launching" },
-    { pattern: /(?:the (?:first|biggest|most))\s+(.{5,40})/i, label: "Highlight" },
-    { pattern: /(?:important|key|critical|essential)\s+(.{5,30})/i, label: "Key Point" },
-    { pattern: /(?:workflow|system|platform|tool)\s+(.{5,30})/i, label: "System" },
-    { pattern: /(?:agent|ai|automation)\s+(.{5,30})/i, label: "AI" },
-  ];
 
   for (const seg of segments) {
-    for (const { pattern, label } of keyPatterns) {
+    // Check multi-domain keyword patterns
+    for (const { pattern, label } of KEY_PATTERNS) {
       const match = seg.text.match(pattern);
       if (match) {
         const startMs = Math.round(seg.start * 1000);
@@ -507,12 +648,60 @@ function extractKeyPoints(segments: TranscriptSegment[]): KeyPoint[] {
           label,
           text: capitalizeFirst(text),
         });
-        break;
+        break; // One match per segment
       }
     }
   }
 
-  return points.slice(0, 6);
+  // Also extract question-based callouts
+  const questions = extractQuestions(segments);
+  for (const q of questions) {
+    if (!points.some((p) => Math.abs(p.startMs - q.startMs) < 3000)) {
+      points.push(q);
+    }
+  }
+
+  // Sort by time, cap at 8 for longer videos
+  points.sort((a, b) => a.startMs - b.startMs);
+  return points.slice(0, 8);
+}
+
+/** Extract rhetorical questions as callout-worthy moments */
+function extractQuestions(segments: TranscriptSegment[]): KeyPoint[] {
+  const questions: KeyPoint[] = [];
+
+  for (const seg of segments) {
+    // Skip first 5s (hook territory)
+    if (seg.start < 5) continue;
+
+    const text = seg.text.trim();
+    // Direct question marks
+    if (text.includes("?")) {
+      const qSentences = text.split(/(?<=[.!?])\s+/).filter((s) => s.includes("?"));
+      for (const q of qSentences) {
+        const clean = q.trim().substring(0, 50);
+        if (clean.length > 10) {
+          questions.push({
+            startMs: Math.round(seg.start * 1000),
+            endMs: Math.round(seg.end * 1000) + 1500,
+            label: "Question",
+            text: clean,
+          });
+        }
+      }
+    }
+    // Implicit questions (how to, why, what if)
+    else if (/^(?:how|why|what if|have you ever|did you know)/i.test(text)) {
+      questions.push({
+        startMs: Math.round(seg.start * 1000),
+        endMs: Math.round(seg.end * 1000) + 1500,
+        label: "Question",
+        text: text.substring(0, 50),
+      });
+    }
+  }
+
+  return questions.slice(0, 3);
 }
 
 interface StatResult {
@@ -523,10 +712,9 @@ interface StatResult {
 
 function extractStats(segments: TranscriptSegment[]): StatResult[] {
   const stats: StatResult[] = [];
-  const numberPattern = /(\d+[\d,]*\.?\d*)\s*(?:\+\s*)?((?:percent|%|million|billion|thousand|k|m|plus|partners|clients|users|customers|companies|businesses|people|team|years?|months?|hours?|dollars?|\$)[\w]*)/gi;
 
   for (const seg of segments) {
-    const matches = [...seg.text.matchAll(numberPattern)];
+    const matches = [...seg.text.matchAll(STAT_PATTERN)];
     if (matches.length > 0) {
       const data: Record<string, string> = {};
       for (const m of matches.slice(0, 3)) {
@@ -556,6 +744,11 @@ interface TopicTransition {
   label: string;
 }
 
+/**
+ * Detect topic transitions using BOTH pauses AND transition phrases.
+ * This catches topic shifts even without silence, and avoids false
+ * positives from breathing pauses within the same topic.
+ */
 function detectTopicTransitions(
   segments: TranscriptSegment[]
 ): TopicTransition[] {
@@ -566,23 +759,49 @@ function detectTopicTransitions(
     const curr = segments[i];
     const gap = curr.start - prev.end;
 
-    // Significant pause between segments
-    if (gap > 1.0) {
-      const words = curr.text.split(/\s+/).slice(0, 4);
-      const label = words.join(" ").replace(/[.,!?]+$/, "");
+    // Method 1: Significant pause (>1s) between segments
+    const hasPause = gap > 1.0;
+
+    // Method 2: Transition phrase at start of segment
+    const hasTransitionPhrase = TRANSITION_PATTERNS.some((p) => p.test(curr.text));
+
+    // Either a long pause or a transition phrase (or both) triggers a chapter
+    if (hasPause || hasTransitionPhrase) {
+      // Extract a clean label: prefer first noun phrase, fall back to first 4 words
+      let label = extractTopicLabel(curr.text);
 
       if (label.length > 3 && label.length < 40) {
-        transitions.push({
-          startMs: Math.round(curr.start * 1000),
-          label: capitalizeFirst(label),
-        });
+        // Avoid duplicate transitions within 5s
+        if (!transitions.some((t) => Math.abs(t.startMs - Math.round(curr.start * 1000)) < 5000)) {
+          transitions.push({
+            startMs: Math.round(curr.start * 1000),
+            label: capitalizeFirst(label),
+          });
+        }
       }
     }
   }
 
-  return transitions.slice(0, 5);
+  return transitions.slice(0, 6);
 }
 
+/** Extract a clean topic label from a segment's text */
+function extractTopicLabel(text: string): string {
+  // Strip transition words from the start
+  let clean = text
+    .replace(/^(?:so|now|but|however|anyway|alright|okay|next|and|then)\s+/i, "")
+    .replace(/^(?:let me|let's|here's|here is|this is)\s+/i, "")
+    .replace(/^(?:the (?:next|real|big|main|key) (?:thing|question|point) is)\s*/i, "");
+
+  // Take first meaningful phrase (up to 4 words or first punctuation)
+  const words = clean.split(/\s+/).slice(0, 4);
+  return words.join(" ").replace(/[.,!?:;]+$/, "");
+}
+
+/**
+ * Fill gaps in the overlay timeline with contextual key-point overlays.
+ * Adaptive density: shorter videos get fewer gap-fillers, longer videos get more.
+ */
 function fillGaps(
   overlays: OverlayElement[],
   segments: TranscriptSegment[],
@@ -590,7 +809,9 @@ function fillGaps(
 ): void {
   overlays.sort((a, b) => a.startMs - b.startMs);
 
-  const maxGapMs = 5000;
+  // Adaptive gap threshold based on video length
+  // Short (<30s): 8s gaps OK, Long (>5m): 4s gaps filled
+  const maxGapMs = duration < 30 ? 8000 : duration < 120 ? 6000 : 4000;
   const durationMs = duration * 1000;
 
   let lastEnd = 0;
@@ -607,18 +828,34 @@ function fillGaps(
     gaps.push({ start: lastEnd + 500, end: durationMs - 4500 });
   }
 
+  // Score candidate segments for gap filling (prefer engaging content)
   let gapAlternator = 0;
   for (const gap of gaps) {
-    const nearSeg = segments.find(
+    const candidateSegs = segments.filter(
       (s) => s.start * 1000 >= gap.start && s.start * 1000 <= gap.end
     );
-    if (nearSeg) {
-      const text = nearSeg.text.split(/[.,!?]/).filter((s) => s.trim().length > 5)[0];
+
+    // Pick the most engaging segment for the gap filler
+    let bestSeg: TranscriptSegment | null = null;
+    let bestScore = -1;
+    for (const seg of candidateSegs) {
+      const score = scoreEngagement(seg.text);
+      if (score > bestScore) {
+        bestScore = score;
+        bestSeg = seg;
+      }
+    }
+
+    // Fallback: first segment in the gap
+    if (!bestSeg && candidateSegs.length > 0) bestSeg = candidateSegs[0];
+
+    if (bestSeg) {
+      const text = bestSeg.text.split(/[.,!?]/).filter((s) => s.trim().length > 5)[0];
       if (text) {
         overlays.push({
           type: "key-point",
-          startMs: Math.round(nearSeg.start * 1000),
-          endMs: Math.round(nearSeg.start * 1000) + 3500,
+          startMs: Math.round(bestSeg.start * 1000),
+          endMs: Math.round(bestSeg.start * 1000) + 3500,
           data: { label: "Key Insight", text: text.trim().substring(0, 50) },
           position: gapAlternator % 2 === 0 ? "top-right" : "top-left",
         });
@@ -628,6 +865,9 @@ function fillGaps(
   }
 }
 
+/** Overlay types that are background UI, not competing for content slots */
+const BACKGROUND_OVERLAY_TYPES = new Set<OverlayType>(["progress-bar"]);
+
 function resolveOverlaps(overlays: OverlayElement[]): OverlayElement[] {
   overlays.sort((a, b) => a.startMs - b.startMs);
 
@@ -635,8 +875,18 @@ function resolveOverlaps(overlays: OverlayElement[]): OverlayElement[] {
   const result: OverlayElement[] = [];
 
   for (const ov of overlays) {
+    // Background overlays (progress-bar) always pass — they don't compete for slots
+    if (BACKGROUND_OVERLAY_TYPES.has(ov.type)) {
+      result.push(ov);
+      continue;
+    }
+
+    // Count only content overlays (not background) for overlap limit
     const activeCount = result.filter(
-      (r) => r.startMs <= ov.startMs && r.endMs >= ov.startMs
+      (r) =>
+        !BACKGROUND_OVERLAY_TYPES.has(r.type) &&
+        r.startMs <= ov.startMs &&
+        r.endMs >= ov.startMs
     ).length;
 
     if (activeCount < maxSimultaneous) {

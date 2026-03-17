@@ -34,6 +34,7 @@ export { editVideo, type EditOptions, type EditResult } from "./editor.js";
 export { probeVideo, computeMatchedEncoding, getFormatDimensions, type VideoProbeResult } from "./video-probe.js";
 export {
   groupWords,
+  filterWords,
   parseWhisperXWords,
   generateCaptionOverlay,
   createWordCaptions,
@@ -61,3 +62,17 @@ export {
   type EditStyleElements,
   type EditStyleAnimations,
 } from "./edit-styles.js";
+
+// Edit preview
+export { generateEditPreview, type EditPreviewOptions } from "./preview-edit.js";
+
+// Component system
+export {
+  type ComponentRenderer,
+  type ComponentOutput,
+  type ComponentContext,
+  type ComponentTiming,
+  type ComponentDependency,
+} from "./components/types.js";
+export { registry as componentRegistry } from "./components/registry.js";
+export { assembleOverlayPage, type AssembleResult } from "./components/assembler.js";

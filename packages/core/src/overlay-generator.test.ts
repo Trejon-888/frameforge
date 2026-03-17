@@ -74,15 +74,16 @@ describe("overlay-generator.generateOverlayTimeline", () => {
     expect(cta!.startMs).toBeGreaterThan(45000);
   });
 
-  it("does not exceed 3 simultaneous overlays", () => {
+  it("does not exceed 3 simultaneous content overlays", () => {
     const overlays = generateOverlayTimeline({
       segments: SAMPLE_SEGMENTS,
       duration: 51,
       style,
     });
-    // Check at each overlay start time
-    for (const ov of overlays) {
-      const simultaneousCount = overlays.filter(
+    // Background overlays (progress-bar) don't count toward the content limit
+    const contentOverlays = overlays.filter((o) => o.type !== "progress-bar");
+    for (const ov of contentOverlays) {
+      const simultaneousCount = contentOverlays.filter(
         (o) => o.startMs <= ov.startMs && o.endMs >= ov.startMs
       ).length;
       expect(simultaneousCount).toBeLessThanOrEqual(3);

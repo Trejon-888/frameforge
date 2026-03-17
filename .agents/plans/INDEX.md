@@ -1,6 +1,6 @@
 # Plans Index
 
-**Last Updated:** 2026-03-16
+**Last Updated:** 2026-03-17
 
 ---
 
@@ -10,7 +10,7 @@
 |--------|-------|
 | Active | 3 |
 | Pending | 0 |
-| Completed | 10 |
+| Completed | 11 |
 
 ---
 
@@ -38,3 +38,4 @@
 | [Studio PRD](completed/frameforge-studio-prd.md) | 2026-03-15 | Reference PRD, Phase 1+2 done |
 | [Product Stress Test](completed/product-stress-test.md) | 2026-03-16 | 20+ tests, 2 critical bugs fixed, all pass |
 | [Competitive Benchmark](completed/competitive-benchmark-v4.md) | 2026-03-16 | 10 videos, 7 technologies, demo reel |
+| [Component System — Motion Graphics](completed/component-system-motion-graphics.md) | 2026-03-17 | 8 GSAP/Canvas renderers, content intelligence, preview-edit CLI |
