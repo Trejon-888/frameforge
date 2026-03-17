@@ -9,7 +9,8 @@
 
 | Plan | Status | Notes |
 |------|--------|-------|
-| — | — | All 4 phases complete. |
+| [Video Editing Engine v2](plans/active/video-editing-engine-v2.md) | Phase A complete | Transparent overlay compositing pipeline, scaled sizing |
+| [Social Media Launch](plans/active/social-media-launch.md) | On Hold | Waiting for testing week (~March 22) |
 
 ---
 
@@ -24,6 +25,26 @@
 ---
 
 ## Session Log
+
+### Session 9 — 2026-03-16
+- **Context:** Critical fix — video editing output was choppy (frame-by-frame) with undersized overlays
+- **Root Cause:** v1 editor embedded `<video>` element in browser HTML, then Puppeteer captured it frame-by-frame. Browser video seeking is not frame-accurate → choppy playback. Overlay/caption font sizes were too small for video.
+- **Iteration 1 — Architecture Rewrite:**
+  1. Source video NEVER touches the browser — FFmpeg handles it natively (smooth, frame-accurate)
+  2. Only the overlay/caption layer is rendered in Puppeteer as transparent PNG frames (`omitBackground: true`)
+  3. FFmpeg's `overlay` filter composites transparent frames on top of source video
+  4. All overlay/caption sizes proportionally scaled to video resolution (base: 1080p)
+- **Iteration 2 — Quality & Efficiency Audit (12 fixes):**
+  - `--quality` flag was declared but never wired up — now maps to FFmpeg preset + CRF offsets
+  - `Math.random()` in overlay placement → deterministic alternation
+  - Gradient only worked for bottom captions → now adapts to all positions
+  - WhisperX temp dir never cleaned up → added finally block
+  - FFmpegPipeline silently dropped errors on early exit → tracks process state, rejects writes
+  - Removed unused imports, redundant regex, verbose type patterns
+  - `computeMatchedEncoding()` now accepts speed param (fast/balanced/slow/lossless)
+  - 3 new tests for encoding speed presets
+- **Stats:** 181 tests passing (+3 new), build succeeds, 0 regressions
+- **Next:** Real-world test with actual video files, validate smooth playback
 
 ### Session 8 — 2026-03-16
 - **Context:** Remotion competitive benchmark + video quality iterations + stress testing

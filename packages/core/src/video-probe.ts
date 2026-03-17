@@ -198,8 +198,14 @@ export async function probeVideo(filePath: string): Promise<VideoProbeResult> {
 
 /**
  * Compute encoding settings that match or exceed source quality.
+ *
+ * @param speed - Encoding speed: "fast" (preview), "balanced" (default), "slow" (final), "lossless"
+ *   Adjusts CRF relative to the source-matched baseline.
  */
-export function computeMatchedEncoding(probe: VideoProbeResult): {
+export function computeMatchedEncoding(
+  probe: VideoProbeResult,
+  speed: "fast" | "balanced" | "slow" | "lossless" = "balanced"
+): {
   crf: number;
   preset: string;
   maxrate: string;
@@ -208,16 +214,33 @@ export function computeMatchedEncoding(probe: VideoProbeResult): {
   audioBitrate: string;
 } {
   // CRF based on source bitrate — higher bitrate sources get lower CRF
-  let crf: number;
+  let baseCrf: number;
   if (probe.videoBitrate > 10000) {
-    crf = 15; // Very high quality source
+    baseCrf = 15; // Very high quality source
   } else if (probe.videoBitrate > 5000) {
-    crf = 17;
+    baseCrf = 17;
   } else if (probe.videoBitrate > 2000) {
-    crf = 19;
+    baseCrf = 19;
   } else {
-    crf = 21; // Lower quality source — no need to exceed
+    baseCrf = 21; // Lower quality source — no need to exceed
   }
+
+  // Adjust CRF based on encoding speed
+  const speedOffsets: Record<string, number> = {
+    fast: 4,       // Higher CRF = faster, lower quality preview
+    balanced: 0,   // Source-matched baseline
+    slow: -2,      // Lower CRF = higher quality final output
+    lossless: -baseCrf, // CRF 0 = lossless
+  };
+  const crf = Math.max(0, baseCrf + (speedOffsets[speed] ?? 0));
+
+  // Preset mapped from speed
+  const presetMap: Record<string, string> = {
+    fast: "ultrafast",
+    balanced: "medium",
+    slow: "slow",
+    lossless: "medium",
+  };
 
   // Maxrate = 1.5x source bitrate to allow headroom
   const maxrate = `${Math.round(probe.videoBitrate * 1.5)}k`;
@@ -228,7 +251,7 @@ export function computeMatchedEncoding(probe: VideoProbeResult): {
 
   return {
     crf,
-    preset: "slow", // Best quality for final output
+    preset: presetMap[speed] || "medium",
     maxrate,
     bufsize,
     pixelFormat: probe.pixelFormat,

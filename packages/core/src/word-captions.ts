@@ -6,6 +6,9 @@
  *
  * Designed for modern short-form content where each word group appears
  * and disappears rapidly with visual emphasis on the currently-spoken word.
+ *
+ * Font sizes are designed to be LARGE and readable — scaled to the video resolution.
+ * Base reference: 80px at 1080p (minimum dimension).
  */
 
 export interface WordTiming {
@@ -42,7 +45,7 @@ export interface CaptionStyleConfig {
 
 const DEFAULT_CONFIG: CaptionStyleConfig = {
   preset: "pop-in",
-  fontSize: 64,
+  fontSize: 80,
   fontFamily: "'Inter', system-ui, sans-serif",
   primaryColor: "#ffffff",
   accentColor: "#f97316",
@@ -162,6 +165,9 @@ export function parseWhisperXWords(json: string | object): WordTiming[] {
 /**
  * Generate the HTML/CSS/JS for a caption overlay.
  * This produces a self-contained script block that can be injected into any page.
+ *
+ * Designed for transparent overlay compositing — no background colors on the
+ * container, only on individual word elements where the preset requires it.
  */
 export function generateCaptionOverlay(
   groups: CaptionGroup[],
@@ -171,7 +177,7 @@ export function generateCaptionOverlay(
   const groupsJSON = JSON.stringify(groups);
 
   // Position CSS
-  const positionCSS = getPositionCSS(cfg.position);
+  const positionCSS = getPositionCSS(cfg.position, cfg.fontSize);
 
   // Generate preset-specific styles and animation logic
   const { styles, animationLogic } = getPresetCode(cfg);
@@ -179,14 +185,6 @@ export function generateCaptionOverlay(
   return `
 (function() {
   // === WORD-LEVEL CAPTION ENGINE ===
-
-  // Inject Google Fonts if needed
-  if (!document.querySelector('link[href*="fonts.googleapis.com"]')) {
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap';
-    document.head.appendChild(link);
-  }
 
   // Create styles
   var styleEl = document.createElement('style');
@@ -196,8 +194,8 @@ export function generateCaptionOverlay(
       ${positionCSS}
       left: 50%;
       transform: translateX(-50%);
-      width: 90%;
-      max-width: 1200px;
+      width: 85%;
+      max-width: 1600px;
       text-align: center;
       z-index: 9999;
       pointer-events: none;
@@ -217,10 +215,10 @@ export function generateCaptionOverlay(
     .ff-word {
       display: inline-block;
       font-size: ${cfg.fontSize}px;
-      font-weight: 800;
+      font-weight: 900;
       color: ${cfg.primaryColor};
-      line-height: 1.2;
-      margin: 0 4px;
+      line-height: 1.25;
+      margin: 0 ${Math.round(cfg.fontSize * 0.08)}px;
       transition: all 0.1s ease;
     }
 
@@ -298,22 +296,26 @@ export function createWordCaptions(
 // === Internal helpers ===
 
 function cleanWord(w: string): string {
-  return w.trim().replace(/^\s+|\s+$/g, "");
+  return w.trim();
 }
 
 function endsWithPunctuation(word: string): boolean {
   return /[.,!?;:—–]$/.test(word);
 }
 
-function getPositionCSS(position: "bottom" | "center" | "top"): string {
+function getPositionCSS(position: "bottom" | "center" | "top", fontSize: number): string {
+  // Generous spacing from edges — scaled to font size
+  const bottomOffset = Math.round(fontSize * 1.8);
+  const topOffset = Math.round(fontSize * 1.2);
+
   switch (position) {
     case "top":
-      return "top: 80px;";
+      return `top: ${topOffset}px;`;
     case "center":
-      return "top: 50%; transform: translate(-50%, -50%);";
+      return `top: 50%; transform: translate(-50%, -50%);`;
     case "bottom":
     default:
-      return "bottom: 120px;";
+      return `bottom: ${bottomOffset}px;`;
   }
 }
 
@@ -321,12 +323,16 @@ function getPresetCode(cfg: CaptionStyleConfig): {
   styles: string;
   animationLogic: string;
 } {
+  // Computed sizes based on the configured font size
+  const shadowSize = Math.max(3, Math.round(cfg.fontSize * 0.04));
+  const strokeShadow = `${shadowSize}px ${shadowSize}px 0 #000, -${shadowSize}px -${shadowSize}px 0 #000, ${shadowSize}px -${shadowSize}px 0 #000, -${shadowSize}px ${shadowSize}px 0 #000, 0 ${shadowSize}px 0 #000, 0 -${shadowSize}px 0 #000, ${shadowSize}px 0 0 #000, -${shadowSize}px 0 0 #000`;
+
   switch (cfg.preset) {
     case "pop-in":
       return {
         styles: `
           .ff-word {
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            text-shadow: ${strokeShadow};
             transform: scale(0.5);
             opacity: 0;
           }
@@ -335,11 +341,11 @@ function getPresetCode(cfg: CaptionStyleConfig): {
           }
           .ff-word.speaking {
             color: ${cfg.accentColor};
-            transform: scale(1.15);
+            transform: scale(1.2);
           }
           @keyframes ff-pop-word {
             0% { transform: scale(0.5); opacity: 0; }
-            60% { transform: scale(1.1); opacity: 1; }
+            60% { transform: scale(1.12); opacity: 1; }
             100% { transform: scale(1); opacity: 1; }
           }
         `,
@@ -362,7 +368,7 @@ function getPresetCode(cfg: CaptionStyleConfig): {
       return {
         styles: `
           .ff-word {
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            text-shadow: ${strokeShadow};
             opacity: 0.4;
             transition: all 0.12s ease;
           }
@@ -376,7 +382,7 @@ function getPresetCode(cfg: CaptionStyleConfig): {
           .ff-word.speaking {
             opacity: 1;
             color: ${cfg.accentColor};
-            transform: scale(1.1);
+            transform: scale(1.15);
           }
         `,
         animationLogic: `
@@ -402,9 +408,9 @@ function getPresetCode(cfg: CaptionStyleConfig): {
       return {
         styles: `
           .ff-word {
-            text-shadow: 1px 1px 0 #000;
-            padding: 2px 6px;
-            border-radius: 4px;
+            text-shadow: ${strokeShadow};
+            padding: ${Math.round(cfg.fontSize * 0.06)}px ${Math.round(cfg.fontSize * 0.12)}px;
+            border-radius: ${Math.round(cfg.fontSize * 0.1)}px;
             transition: all 0.1s ease;
           }
           .ff-caption-group.active .ff-word {
@@ -414,8 +420,8 @@ function getPresetCode(cfg: CaptionStyleConfig): {
             background: ${cfg.accentColor};
             color: #000;
             text-shadow: none;
-            transform: scale(1.05);
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+            transform: scale(1.08);
+            box-shadow: ${Math.round(cfg.fontSize * 0.08)}px ${Math.round(cfg.fontSize * 0.08)}px 0 rgba(0,0,0,0.3);
           }
         `,
         animationLogic: `
@@ -436,13 +442,13 @@ function getPresetCode(cfg: CaptionStyleConfig): {
       return {
         styles: `
           .ff-word {
-            font-weight: 600;
-            font-size: ${Math.round(cfg.fontSize * 0.85)}px;
-            opacity: 0.9;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+            font-weight: 700;
+            font-size: ${Math.round(cfg.fontSize * 0.9)}px;
+            opacity: 0.95;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.4);
           }
           .ff-caption-group.active .ff-word {
-            opacity: 0.9;
+            opacity: 0.95;
           }
         `,
         animationLogic: `
@@ -459,11 +465,11 @@ function getPresetCode(cfg: CaptionStyleConfig): {
             transform: translate(-50%, -50%) !important;
           }
           .ff-word {
-            font-size: ${Math.round(cfg.fontSize * 1.4)}px;
+            font-size: ${Math.round(cfg.fontSize * 1.5)}px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: -2px;
-            text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+            letter-spacing: -${Math.round(cfg.fontSize * 0.03)}px;
+            text-shadow: ${shadowSize + 1}px ${shadowSize + 1}px 0 #000, -${shadowSize + 1}px -${shadowSize + 1}px 0 #000, ${shadowSize + 1}px -${shadowSize + 1}px 0 #000, -${shadowSize + 1}px ${shadowSize + 1}px 0 #000;
             transform: scale(0.8);
             opacity: 0;
           }

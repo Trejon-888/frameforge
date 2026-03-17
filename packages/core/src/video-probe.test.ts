@@ -24,7 +24,7 @@ const MOCK_PROBE: VideoProbeResult = {
 };
 
 describe("video-probe.computeMatchedEncoding", () => {
-  it("sets CRF based on source bitrate", () => {
+  it("sets CRF based on source bitrate (balanced)", () => {
     const highBitrate = { ...MOCK_PROBE, videoBitrate: 15000 };
     expect(computeMatchedEncoding(highBitrate).crf).toBe(15);
 
@@ -48,8 +48,27 @@ describe("video-probe.computeMatchedEncoding", () => {
     expect(computeMatchedEncoding(highAudio).audioBitrate).toBe("320k");
   });
 
-  it("uses slow preset for best quality", () => {
-    expect(computeMatchedEncoding(MOCK_PROBE).preset).toBe("slow");
+  it("defaults to balanced preset (medium)", () => {
+    expect(computeMatchedEncoding(MOCK_PROBE).preset).toBe("medium");
+  });
+
+  it("fast speed increases CRF and uses ultrafast preset", () => {
+    // MOCK_PROBE has videoBitrate=5000 → baseCrf=19, fast offset +4 = 23
+    const result = computeMatchedEncoding(MOCK_PROBE, "fast");
+    expect(result.crf).toBe(23);
+    expect(result.preset).toBe("ultrafast");
+  });
+
+  it("slow speed decreases CRF and uses slow preset", () => {
+    // MOCK_PROBE baseCrf=19, slow offset -2 = 17
+    const result = computeMatchedEncoding(MOCK_PROBE, "slow");
+    expect(result.crf).toBe(17);
+    expect(result.preset).toBe("slow");
+  });
+
+  it("lossless speed sets CRF to 0", () => {
+    const result = computeMatchedEncoding(MOCK_PROBE, "lossless");
+    expect(result.crf).toBe(0);
   });
 });
 

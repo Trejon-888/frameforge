@@ -1,27 +1,43 @@
 /**
  * Video Editor — Main Orchestrator
  *
- * Pipeline: Source Video → Transcribe → Analyze → Generate Overlay → Render → Mux Audio
+ * ARCHITECTURE (v2 — fixed):
+ * 1. Probe source video with ffprobe
+ * 2. Transcribe with WhisperX (word-level timestamps)
+ * 3. Analyze transcript → generate overlay timeline
+ * 4. Generate overlay-only HTML (transparent background, NO video element)
+ * 5. Render overlay as transparent PNG frames via Puppeteer
+ * 6. Use FFmpeg's overlay filter to composite transparent frames ON TOP of source video
+ * 7. FFmpeg handles source video natively (smooth, frame-accurate playback)
  *
- * This is the engine behind `frameforge edit`. It automates the entire
- * video editing workflow: probing the source, transcribing with WhisperX,
- * analyzing content for overlay placement, generating styled HTML overlays,
- * rendering the composite, and re-muxing original audio.
+ * KEY INSIGHT: The source video NEVER touches the browser. FFmpeg decodes it
+ * natively, which gives us smooth playback. Only the overlay/captions are
+ * rendered in the browser as transparent frames.
  */
 
-import { resolve, dirname, basename, join } from "node:path";
-import { readFile, writeFile, mkdir, unlink } from "node:fs/promises";
+import { resolve, join } from "node:path";
+import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { tmpdir } from "node:os";
 
 import { probeVideo, computeMatchedEncoding, getFormatDimensions, type VideoProbeResult } from "./video-probe.js";
-import { parseWhisperXWords, groupWords, generateCaptionOverlay, type CaptionStyleConfig, type CaptionPreset } from "./word-captions.js";
+import { parseWhisperXWords, groupWords, generateCaptionOverlay, type WordTiming, type CaptionStyleConfig, type CaptionPreset } from "./word-captions.js";
 import { getStylePreset, createCustomStyle, type EditStyle } from "./edit-styles.js";
 import { generateOverlayTimeline, generateOverlayHTML, type TranscriptSegment } from "./overlay-generator.js";
-import { render } from "./renderer.js";
+import { captureFrames } from "./frame-capture.js";
+import { compositeVideo } from "./ffmpeg.js";
 
 const execFileAsync = promisify(execFile);
+
+// === Encoding speed presets ===
+
+const ENCODING_SPEED_PRESETS = {
+  fast:     { preset: "ultrafast", crfOffset: 4 },   // Preview — fast encode, larger file
+  balanced: { preset: "medium",    crfOffset: 0 },   // Default — good balance
+  slow:     { preset: "slow",      crfOffset: -2 },   // Final output — best quality
+  lossless: { preset: "medium",    crfOffset: -18 },  // Archival — near-lossless
+} as const;
 
 // === Types ===
 
@@ -71,6 +87,10 @@ export interface EditResult {
 
 /**
  * Edit a video with auto-generated captions and overlays.
+ *
+ * Uses a transparent overlay compositing pipeline:
+ * - Overlay layer rendered as transparent PNGs via Puppeteer
+ * - FFmpeg composites overlays on source video natively (smooth playback)
  */
 export async function editVideo(options: EditOptions): Promise<EditResult> {
   const startTime = Date.now();
@@ -91,7 +111,7 @@ export async function editVideo(options: EditOptions): Promise<EditResult> {
 
   // === Stage 3: Get or create word-level timings ===
   progress("transcribe", "Getting word-level transcription...");
-  let words = await getWordTimings(inputPath, options, progress);
+  const words = await getWordTimings(inputPath, options, progress);
   progress("transcribe", `Got ${words.length} word timings`);
 
   // Build sentence-level segments for overlay analysis
@@ -124,68 +144,99 @@ export async function editVideo(options: EditOptions): Promise<EditResult> {
       speakerName: options.speakerName,
       speakerTitle: options.speakerTitle,
       style,
+      width: dims.width,
+      height: dims.height,
     });
     overlayCount = overlays.length;
-    overlayScript = generateOverlayHTML(overlays, style);
+    overlayScript = generateOverlayHTML(overlays, style, dims.width, dims.height);
     progress("overlays", `Generated ${overlayCount} overlay elements`);
   }
 
   // === Stage 7: Generate caption overlay ===
   progress("captions", "Generating caption overlay...");
+  const captionPosition = options.captionPosition || "bottom";
   const captionConfig: Partial<CaptionStyleConfig> = {
     preset: options.captionPreset || "pop-in",
-    fontSize: Math.round(dims.height > dims.width ? 56 : 48), // Larger for vertical
+    fontSize: scaleFontSize(80, dims.width, dims.height),
     fontFamily: style.typography.captionFont,
     primaryColor: style.colors.text,
     accentColor: style.colors.primary,
-    position: options.captionPosition || "bottom",
+    position: captionPosition,
     maxWordsPerGroup: maxWords,
   };
   const captionScript = generateCaptionOverlay(captionGroups, captionConfig);
 
-  // === Stage 8: Build composite HTML ===
-  progress("build", "Building composite HTML...");
+  // === Stage 8: Build transparent overlay HTML (NO video element) ===
+  progress("build", "Building overlay layer...");
   const tmpDir = join(tmpdir(), `frameforge-edit-${Date.now()}`);
   await mkdir(tmpDir, { recursive: true });
 
   const htmlPath = join(tmpDir, "overlay.html");
-  const compositeHTML = buildCompositeHTML(
-    inputPath,
+  const overlayHTML = buildOverlayOnlyHTML(
     dims.width,
     dims.height,
-    probe,
     captionScript,
     overlayScript,
-    style
+    style,
+    captionPosition
   );
-  await writeFile(htmlPath, compositeHTML, "utf-8");
+  await writeFile(htmlPath, overlayHTML, "utf-8");
 
-  // === Stage 9: Render composite ===
-  progress("render", "Rendering composite (this takes a while)...");
+  // === Stage 9: Composite — render overlay + merge with source video ===
+  const speed = options.encodingSpeed || "balanced";
+  const speedPreset = ENCODING_SPEED_PRESETS[speed] || ENCODING_SPEED_PRESETS.balanced;
+  const encoding = computeMatchedEncoding(probe, speed);
 
-  const encoding = computeMatchedEncoding(probe);
-  const noAudioOutput = join(tmpDir, "rendered-no-audio.mp4");
+  progress("render", `Starting composite render (${speed} quality)...`);
 
-  await render({
-    input: htmlPath,
-    output: noAudioOutput,
-    duration: probe.duration,
-    fps: probe.fps,
+  // Start FFmpeg composite pipeline:
+  // Input 0 = source video (decoded natively by FFmpeg — smooth & frame-accurate)
+  // Input 1 = transparent overlay PNGs (piped from Puppeteer)
+  const pipeline = await compositeVideo({
+    sourceVideo: inputPath,
     width: dims.width,
     height: dims.height,
+    fps: probe.fps,
+    output: outputPath,
+    crf: encoding.crf,
+    preset: speedPreset.preset,
+    maxrate: encoding.maxrate,
+    bufsize: encoding.bufsize,
+    audioBitrate: encoding.audioBitrate,
+    pixelFormat: "yuv420p",
+  });
+
+  // Capture transparent overlay frames and pipe to FFmpeg
+  await captureFrames({
+    manifest: {
+      version: "1.0",
+      canvas: {
+        width: dims.width,
+        height: dims.height,
+        fps: probe.fps,
+        duration: probe.duration,
+        background: "transparent",
+      },
+      entry: htmlPath,
+      audio: [],
+      render: { codec: "h264", quality: "high", pixelFormat: "yuv420p", output: outputPath },
+    },
+    entryPath: htmlPath,
+    transparentBackground: true,
+    onFrame: async (frameData) => {
+      await pipeline.writeFrame(frameData);
+    },
     onProgress: (current, total) => {
       progress("render", `Frame ${current}/${total} (${Math.round((current / total) * 100)}%)`);
     },
   });
 
-  // === Stage 10: Re-mux original audio ===
-  progress("audio", "Re-muxing original audio...");
-  await remuxAudio(noAudioOutput, inputPath, outputPath, probe);
+  // Finalize encoding
+  await pipeline.finalize();
 
-  // === Stage 11: Cleanup ===
+  // === Stage 10: Cleanup temp files ===
   try {
-    await unlink(htmlPath);
-    await unlink(noAudioOutput);
+    await rm(tmpDir, { recursive: true, force: true });
   } catch {
     // Cleanup is best-effort
   }
@@ -205,11 +256,21 @@ export async function editVideo(options: EditOptions): Promise<EditResult> {
 
 // === Internal Functions ===
 
+/**
+ * Scale a base font size proportionally to the video dimensions.
+ * Reference: 1080px is the base dimension.
+ */
+function scaleFontSize(baseSize: number, width: number, height: number): number {
+  const referenceDim = 1080;
+  const scaleDim = Math.min(width, height);
+  return Math.round(baseSize * (scaleDim / referenceDim));
+}
+
 async function getWordTimings(
   videoPath: string,
   options: EditOptions,
   progress: (stage: string, detail: string) => void
-): Promise<import("./word-captions.js").WordTiming[]> {
+): Promise<WordTiming[]> {
   // Option 1: Pre-existing word timings JSON
   if (options.wordTimingsPath) {
     const json = await readFile(resolve(options.wordTimingsPath), "utf-8");
@@ -221,7 +282,6 @@ async function getWordTimings(
     const { parseSRT } = await import("./subtitles.js");
     const srtContent = await readFile(resolve(options.srtPath), "utf-8");
     const entries = parseSRT(srtContent);
-    // Convert SRT entries to approximate word timings
     return srtToWordTimings(entries);
   }
 
@@ -232,8 +292,8 @@ async function getWordTimings(
 
 function srtToWordTimings(
   entries: Array<{ startMs: number; endMs: number; text: string }>
-): import("./word-captions.js").WordTiming[] {
-  const words: import("./word-captions.js").WordTiming[] = [];
+): WordTiming[] {
+  const words: WordTiming[] = [];
 
   for (const entry of entries) {
     const entryWords = entry.text.split(/\s+/).filter((w) => w.length > 0);
@@ -246,7 +306,7 @@ function srtToWordTimings(
         word: entryWords[i],
         start: (entry.startMs + i * wordDuration) / 1000,
         end: (entry.startMs + (i + 1) * wordDuration) / 1000,
-        confidence: 0.8, // Lower confidence for estimated timings
+        confidence: 0.8,
       });
     }
   }
@@ -257,76 +317,81 @@ function srtToWordTimings(
 async function transcribeWithWhisperX(
   videoPath: string,
   progress: (stage: string, detail: string) => void
-): Promise<import("./word-captions.js").WordTiming[]> {
+): Promise<WordTiming[]> {
   const tmpDir = join(tmpdir(), `frameforge-whisper-${Date.now()}`);
   await mkdir(tmpDir, { recursive: true });
 
-  // Extract audio first
-  const audioPath = join(tmpDir, "audio.wav");
-  progress("transcribe", "Extracting audio...");
-
   try {
-    await execFileAsync("ffmpeg", [
-      "-y", "-i", videoPath,
-      "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
-      audioPath,
-    ]);
-  } catch (err: any) {
-    throw new Error(
-      `Failed to extract audio from video: ${err.message}\n` +
-        `Make sure FFmpeg is installed.`
-    );
-  }
+    // Extract audio first
+    const audioPath = join(tmpDir, "audio.wav");
+    progress("transcribe", "Extracting audio...");
 
-  // Try WhisperX first, fall back to faster-whisper
-  progress("transcribe", "Running speech recognition...");
-
-  try {
-    // Try whisperx
-    const outputJson = join(tmpDir, "audio.json");
-    await execFileAsync("whisperx", [
-      audioPath,
-      "--model", "base",
-      "--output_format", "json",
-      "--output_dir", tmpDir,
-      "--word_timestamps", "True",
-    ], { timeout: 300000 }); // 5 minute timeout
-
-    const jsonContent = await readFile(outputJson, "utf-8");
-    const data = JSON.parse(jsonContent);
-    return parseWhisperXWords(data);
-  } catch {
-    // WhisperX not available, try faster-whisper
     try {
-      const outputJson = join(tmpDir, "transcription.json");
-      await execFileAsync("faster-whisper", [
+      await execFileAsync("ffmpeg", [
+        "-y", "-i", videoPath,
+        "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
+        audioPath,
+      ]);
+    } catch (err: any) {
+      throw new Error(
+        `Failed to extract audio from video: ${err.message}\n` +
+          `Make sure FFmpeg is installed.`
+      );
+    }
+
+    // Try WhisperX first, fall back to faster-whisper
+    progress("transcribe", "Running speech recognition...");
+
+    try {
+      const outputJson = join(tmpDir, "audio.json");
+      await execFileAsync("whisperx", [
         audioPath,
         "--model", "base",
         "--output_format", "json",
-        "--word_timestamps",
         "--output_dir", tmpDir,
+        "--word_timestamps", "True",
       ], { timeout: 300000 });
 
       const jsonContent = await readFile(outputJson, "utf-8");
-      return parseWhisperXWords(jsonContent);
+      const data = JSON.parse(jsonContent);
+      return parseWhisperXWords(data);
     } catch {
-      throw new Error(
-        `No speech recognition tool found.\n` +
-          `Install WhisperX: pip install whisperx\n` +
-          `Or provide word timings with --word-timings <path>\n` +
-          `Or provide an SRT file with --srt <path>`
-      );
+      try {
+        const outputJson = join(tmpDir, "transcription.json");
+        await execFileAsync("faster-whisper", [
+          audioPath,
+          "--model", "base",
+          "--output_format", "json",
+          "--word_timestamps",
+          "--output_dir", tmpDir,
+        ], { timeout: 300000 });
+
+        const jsonContent = await readFile(outputJson, "utf-8");
+        return parseWhisperXWords(jsonContent);
+      } catch {
+        throw new Error(
+          `No speech recognition tool found.\n` +
+            `Install WhisperX: pip install whisperx\n` +
+            `Or provide word timings with --word-timings <path>\n` +
+            `Or provide an SRT file with --srt <path>`
+        );
+      }
+    }
+  } finally {
+    // Always clean up whisper temp files
+    try {
+      await rm(tmpDir, { recursive: true, force: true });
+    } catch {
+      // best-effort
     }
   }
 }
 
-function wordsToSegments(
-  words: import("./word-captions.js").WordTiming[]
-): TranscriptSegment[] {
+function wordsToSegments(words: WordTiming[]): TranscriptSegment[] {
   if (words.length === 0) return [];
 
   const segments: TranscriptSegment[] = [];
-  let currentWords: typeof words = [];
+  let currentWords: WordTiming[] = [];
 
   for (let i = 0; i < words.length; i++) {
     currentWords.push(words[i]);
@@ -334,7 +399,6 @@ function wordsToSegments(
     const isLast = i === words.length - 1;
     const nextWord = isLast ? null : words[i + 1];
 
-    // Break into segments at sentence boundaries or long pauses
     const shouldBreak =
       isLast ||
       (nextWord && nextWord.start - words[i].end > 0.8) ||
@@ -353,17 +417,48 @@ function wordsToSegments(
   return segments;
 }
 
-function buildCompositeHTML(
-  videoPath: string,
+/**
+ * Build HTML that contains ONLY the overlay/caption layers.
+ * NO <video> element — the source video is handled by FFmpeg.
+ * Background is transparent so only overlay elements are visible.
+ *
+ * Readability gradients are rendered for whichever position captions appear.
+ */
+function buildOverlayOnlyHTML(
   width: number,
   height: number,
-  probe: VideoProbeResult,
   captionScript: string,
   overlayScript: string,
-  style: EditStyle
+  style: EditStyle,
+  captionPosition: "bottom" | "center" | "top"
 ): string {
-  // Normalize path for file:// URL (handle Windows backslashes)
-  const normalizedPath = videoPath.replace(/\\/g, "/");
+  // Build gradient CSS based on caption position
+  const gradients: string[] = [];
+
+  if (captionPosition === "bottom" || captionPosition === "center") {
+    gradients.push(`
+    .gradient-bottom {
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      height: ${Math.round(height * 0.30)}px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+      z-index: 5; pointer-events: none;
+    }`);
+  }
+
+  if (captionPosition === "top" || captionPosition === "center") {
+    gradients.push(`
+    .gradient-top {
+      position: fixed; top: 0; left: 0; width: 100%;
+      height: ${Math.round(height * 0.25)}px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.15) 60%, transparent 100%);
+      z-index: 5; pointer-events: none;
+    }`);
+  }
+
+  const gradientDivs = [
+    captionPosition === "bottom" || captionPosition === "center" ? '<div class="gradient-bottom"></div>' : '',
+    captionPosition === "top" || captionPosition === "center" ? '<div class="gradient-top"></div>' : '',
+  ].filter(Boolean).join("\n  ");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -376,35 +471,13 @@ function buildCompositeHTML(
       width: ${width}px;
       height: ${height}px;
       overflow: hidden;
-      background: #000;
+      background: transparent;
     }
-    video#source {
-      position: absolute;
-      top: 0; left: 0;
-      width: ${width}px;
-      height: ${height}px;
-      object-fit: cover;
-      z-index: 0;
-    }
-    /* Gradient overlays for readability */
-    .gradient-top {
-      position: fixed; top: 0; left: 0; width: 100%;
-      height: ${Math.round(height * 0.2)}px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 100%);
-      z-index: 5; pointer-events: none;
-    }
-    .gradient-bottom {
-      position: fixed; bottom: 0; left: 0; width: 100%;
-      height: ${Math.round(height * 0.25)}px;
-      background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 100%);
-      z-index: 5; pointer-events: none;
-    }
+    ${gradients.join("")}
   </style>
 </head>
 <body>
-  <video id="source" src="${normalizedPath}" muted></video>
-  <div class="gradient-top"></div>
-  <div class="gradient-bottom"></div>
+  ${gradientDivs}
 
   <script>
     ${overlayScript}
@@ -414,42 +487,4 @@ function buildCompositeHTML(
   </script>
 </body>
 </html>`;
-}
-
-async function remuxAudio(
-  renderedVideo: string,
-  sourceVideo: string,
-  outputPath: string,
-  probe: VideoProbeResult
-): Promise<void> {
-  await mkdir(dirname(outputPath), { recursive: true });
-
-  if (!probe.hasAudio) {
-    // No audio — just copy
-    const { copyFile } = await import("node:fs/promises");
-    await copyFile(renderedVideo, outputPath);
-    return;
-  }
-
-  const encoding = computeMatchedEncoding(probe);
-
-  try {
-    await execFileAsync("ffmpeg", [
-      "-y",
-      "-i", renderedVideo,       // Rendered video (no audio)
-      "-i", sourceVideo,          // Source video (for audio)
-      "-map", "0:v",              // Video from rendered
-      "-map", "1:a",              // Audio from source
-      "-c:v", "copy",             // Don't re-encode video
-      "-c:a", "aac",
-      "-b:a", encoding.audioBitrate,
-      "-shortest",
-      outputPath,
-    ]);
-  } catch (err: any) {
-    throw new Error(
-      `Failed to mux audio: ${err.message}\n` +
-        `The rendered video is at: ${renderedVideo}`
-    );
-  }
 }

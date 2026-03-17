@@ -8,7 +8,7 @@
 
 | Status | Count |
 |--------|-------|
-| Active | 1 |
+| Active | 3 |
 | Pending | 0 |
 | Completed | 10 |
 
@@ -18,6 +18,8 @@
 
 | Plan | Started | Status | Notes |
 |------|---------|--------|-------|
+| [Video Editing Engine v2](active/video-editing-engine-v2.md) | 2026-03-16 | Phase A complete | Transparent overlay compositing, scaled sizing, encoding speed |
+| [Video Editing Test](active/video-editing-test.md) | 2026-03-16 | Pending | Real footage + captions + motion graphics test |
 | [Social Media Launch](active/social-media-launch.md) | 2026-03-15 | On Hold | Content ready, posting after testing week (~March 22) |
 
 ---

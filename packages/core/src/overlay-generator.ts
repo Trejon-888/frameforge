@@ -9,6 +9,9 @@
  * - Maximum 3 overlays visible simultaneously
  * - Overlays must not overlap the caption area
  * - Each overlay: enter (0.3s) + display (2-8s) + exit (0.3s)
+ *
+ * All sizes are proportionally scaled to the video dimensions.
+ * Reference: 1080px minimum dimension = 1.0x scale.
  */
 
 import { type EditStyle } from "./edit-styles.js";
@@ -52,6 +55,10 @@ export interface OverlayGeneratorOptions {
   speakerTitle?: string;
   /** Style preset (for color/element decisions) */
   style: EditStyle;
+  /** Output video width (for scaling) */
+  width?: number;
+  /** Output video height (for scaling) */
+  height?: number;
 }
 
 // === Main Generator ===
@@ -62,10 +69,8 @@ export interface OverlayGeneratorOptions {
 export function generateOverlayTimeline(
   options: OverlayGeneratorOptions
 ): OverlayElement[] {
-  const { segments, duration, speakerName, speakerTitle, style } = options;
+  const { segments, duration, speakerName, speakerTitle } = options;
   const overlays: OverlayElement[] = [];
-
-  const fullText = segments.map((s) => s.text).join(" ");
 
   // 1. Hook card — first 3-5 seconds, summarizes the video
   const hookText = extractHook(segments);
@@ -165,13 +170,21 @@ export function generateOverlayTimeline(
 
 /**
  * Generate the HTML for all overlay elements.
+ * Sizes are scaled proportionally to video dimensions.
  */
 export function generateOverlayHTML(
   overlays: OverlayElement[],
-  style: EditStyle
+  style: EditStyle,
+  width?: number,
+  height?: number
 ): string {
   const { colors, typography, elements, animations } = style;
   const overlaysJSON = JSON.stringify(overlays);
+
+  // Scale factor based on video dimensions (reference: 1080p)
+  const refDim = 1080;
+  const scaleDim = Math.min(width ?? 1920, height ?? 1080);
+  const s = scaleDim / refDim; // scale multiplier
 
   return `
 (function() {
@@ -195,116 +208,116 @@ export function generateOverlayHTML(
       transform: translate(0, 0) !important;
     }
 
-    /* Hook Card */
+    /* Hook Card — large, prominent, centered */
     .ff-hook-card {
-      top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px);
+      top: ${Math.round(100 * s)}px; left: 50%; transform: translateX(-50%) translateY(-20px);
       background: ${colors.primary};
-      border: ${elements.borderWidth}px solid #000;
-      border-radius: ${elements.borderRadius}px;
-      padding: 16px 32px;
+      border: ${Math.max(2, Math.round(elements.borderWidth * 1.5))}px solid #000;
+      border-radius: ${Math.round(elements.borderRadius * s)}px;
+      padding: ${Math.round(24 * s)}px ${Math.round(48 * s)}px;
       box-shadow: ${elements.shadowStyle};
       font-family: ${typography.heading};
-      font-size: 28px; font-weight: 800;
+      font-size: ${Math.round(36 * s)}px; font-weight: 800;
       color: #000; text-align: center;
-      max-width: 85%;
+      max-width: 80%;
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: ${Math.round(3 * s)}px;
     }
     .ff-hook-card.visible { transform: translateX(-50%) translateY(0); }
 
-    /* Lower Third */
+    /* Lower Third — name + title bar */
     .ff-lower-third {
-      bottom: 320px; left: 48px;
+      bottom: ${Math.round(360 * s)}px; left: ${Math.round(60 * s)}px;
       transform: translateX(-30px);
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: ${Math.round(16 * s)}px;
     }
     .ff-lt-bar {
-      width: 5px; height: 64px;
+      width: ${Math.round(6 * s)}px; height: ${Math.round(80 * s)}px;
       background: ${colors.primary};
-      border: ${elements.borderWidth}px solid #000;
+      border: ${Math.max(1, elements.borderWidth)}px solid #000;
     }
     .ff-lt-name {
       font-family: ${typography.heading};
-      font-size: 36px; font-weight: 900;
+      font-size: ${Math.round(44 * s)}px; font-weight: 900;
       color: ${colors.text};
-      text-shadow: 2px 2px 0 #000;
+      text-shadow: 3px 3px 0 #000;
     }
     .ff-lt-title {
       font-family: ${typography.body};
-      font-size: 18px; font-weight: 600;
+      font-size: ${Math.round(22 * s)}px; font-weight: 600;
       color: ${colors.primary};
-      text-shadow: 1px 1px 0 #000;
-      margin-top: 2px;
+      text-shadow: 2px 2px 0 #000;
+      margin-top: ${Math.round(4 * s)}px;
     }
 
-    /* Key Point */
+    /* Key Point — info cards */
     .ff-key-point {
       background: ${colors.background};
-      border: ${elements.borderWidth}px solid #000;
-      border-radius: ${elements.borderRadius}px;
-      padding: 16px 24px;
-      box-shadow: 4px 4px 0 ${colors.primary};
-      max-width: 400px;
+      border: ${Math.max(2, Math.round(elements.borderWidth * 1.5))}px solid #000;
+      border-radius: ${Math.round(elements.borderRadius * s)}px;
+      padding: ${Math.round(24 * s)}px ${Math.round(36 * s)}px;
+      box-shadow: ${Math.round(6 * s)}px ${Math.round(6 * s)}px 0 ${colors.primary};
+      max-width: ${Math.round(480 * s)}px;
     }
-    .ff-key-point.pos-top-right { top: 120px; right: 48px; transform: translateX(30px); }
-    .ff-key-point.pos-top-left { top: 120px; left: 48px; transform: translateX(-30px); }
+    .ff-key-point.pos-top-right { top: ${Math.round(140 * s)}px; right: ${Math.round(60 * s)}px; transform: translateX(30px); }
+    .ff-key-point.pos-top-left { top: ${Math.round(140 * s)}px; left: ${Math.round(60 * s)}px; transform: translateX(-30px); }
     .ff-kp-label {
       font-family: ${typography.body};
-      font-size: 12px; font-weight: 700;
+      font-size: ${Math.round(16 * s)}px; font-weight: 700;
       color: ${colors.primary};
-      text-transform: uppercase; letter-spacing: 3px;
-      margin-bottom: 4px;
+      text-transform: uppercase; letter-spacing: ${Math.round(4 * s)}px;
+      margin-bottom: ${Math.round(8 * s)}px;
     }
     .ff-kp-text {
       font-family: ${typography.heading};
-      font-size: 26px; font-weight: 800;
+      font-size: ${Math.round(32 * s)}px; font-weight: 800;
       color: ${colors.text};
       line-height: 1.2;
     }
 
-    /* Stat Callout */
+    /* Stat Callout — prominent number displays */
     .ff-stat-callout {
-      top: 120px; left: 48px;
-      display: flex; gap: 12px;
+      top: ${Math.round(140 * s)}px; left: ${Math.round(60 * s)}px;
+      display: flex; gap: ${Math.round(16 * s)}px;
       transform: translateY(-20px);
     }
     .ff-stat-box {
       background: ${colors.primary};
-      border: ${elements.borderWidth}px solid #000;
-      border-radius: ${Math.round(elements.borderRadius * 0.8)}px;
-      padding: 12px 20px;
+      border: ${Math.max(2, Math.round(elements.borderWidth * 1.5))}px solid #000;
+      border-radius: ${Math.round(elements.borderRadius * 0.8 * s)}px;
+      padding: ${Math.round(18 * s)}px ${Math.round(28 * s)}px;
       box-shadow: ${elements.shadowStyle};
       text-align: center;
     }
     .ff-stat-num {
       font-family: 'Space Mono', ${typography.heading};
-      font-size: 36px; font-weight: 900; color: #000;
+      font-size: ${Math.round(48 * s)}px; font-weight: 900; color: #000;
     }
     .ff-stat-label {
       font-family: ${typography.body};
-      font-size: 11px; font-weight: 700;
+      font-size: ${Math.round(14 * s)}px; font-weight: 700;
       color: ${colors.background};
-      text-transform: uppercase; letter-spacing: 1px;
-      margin-top: 2px;
+      text-transform: uppercase; letter-spacing: ${Math.round(2 * s)}px;
+      margin-top: ${Math.round(4 * s)}px;
     }
 
-    /* Chapter Marker */
+    /* Chapter Marker — topic transition pill */
     .ff-chapter-marker {
-      top: 60px; left: 50%;
+      top: ${Math.round(70 * s)}px; left: 50%;
       transform: translateX(-50%) translateY(-15px);
       background: ${colors.background};
-      border: ${elements.borderWidth}px solid ${colors.primary};
+      border: ${Math.max(2, Math.round(elements.borderWidth * 1.5))}px solid ${colors.primary};
       border-radius: 100px;
-      padding: 8px 24px;
+      padding: ${Math.round(12 * s)}px ${Math.round(32 * s)}px;
       font-family: ${typography.body};
-      font-size: 14px; font-weight: 700;
+      font-size: ${Math.round(18 * s)}px; font-weight: 700;
       color: ${colors.primary};
       text-transform: uppercase;
-      letter-spacing: 3px;
+      letter-spacing: ${Math.round(4 * s)}px;
     }
     .ff-chapter-marker.visible { transform: translateX(-50%) translateY(0); }
 
-    /* CTA Card */
+    /* CTA Card — call to action */
     .ff-cta-card {
       top: 50%; left: 50%;
       transform: translate(-50%, -50%) scale(0.9);
@@ -313,28 +326,28 @@ export function generateOverlayHTML(
     .ff-cta-card.visible { transform: translate(-50%, -50%) scale(1); }
     .ff-cta-text {
       font-family: ${typography.heading};
-      font-size: 48px; font-weight: 900;
+      font-size: ${Math.round(60 * s)}px; font-weight: 900;
       color: ${colors.text};
-      text-shadow: 2px 2px 0 #000;
-      margin-bottom: 16px;
+      text-shadow: 3px 3px 0 #000;
+      margin-bottom: ${Math.round(20 * s)}px;
     }
     .ff-cta-sub {
       font-family: ${typography.body};
-      font-size: 24px; font-weight: 600;
+      font-size: ${Math.round(30 * s)}px; font-weight: 600;
       color: ${colors.primary};
-      text-shadow: 1px 1px 0 #000;
+      text-shadow: 2px 2px 0 #000;
     }
     .ff-cta-btn {
       display: inline-block;
       background: ${colors.primary};
       color: #000;
-      border: ${elements.borderWidth}px solid #000;
-      border-radius: ${elements.borderRadius}px;
-      padding: 14px 36px;
+      border: ${Math.max(2, elements.borderWidth)}px solid #000;
+      border-radius: ${Math.round(elements.borderRadius * s)}px;
+      padding: ${Math.round(18 * s)}px ${Math.round(48 * s)}px;
       font-family: ${typography.heading};
-      font-size: 22px; font-weight: 800;
+      font-size: ${Math.round(28 * s)}px; font-weight: 800;
       box-shadow: ${elements.shadowStyle};
-      margin-top: 20px;
+      margin-top: ${Math.round(24 * s)}px;
     }
   \`;
   document.head.appendChild(styleEl);
@@ -453,7 +466,7 @@ function findIntroduction(
       if (pattern.test(seg.text)) {
         return {
           startMs: Math.round(seg.start * 1000),
-          endMs: Math.round(seg.end * 1000) + 2000, // Show for 2s extra
+          endMs: Math.round(seg.end * 1000) + 2000,
         };
       }
     }
@@ -483,11 +496,9 @@ function extractKeyPoints(segments: TranscriptSegment[]): KeyPoint[] {
     for (const { pattern, label } of keyPatterns) {
       const match = seg.text.match(pattern);
       if (match) {
-        // Avoid duplicates (same time range)
         const startMs = Math.round(seg.start * 1000);
         if (points.some((p) => Math.abs(p.startMs - startMs) < 3000)) continue;
 
-        // Extract concise key point text
         let text = match[1] || match[0];
         text = text.replace(/[.,!?]+$/, "").trim();
         if (text.length > 40) {
@@ -500,12 +511,12 @@ function extractKeyPoints(segments: TranscriptSegment[]): KeyPoint[] {
           label,
           text: capitalizeFirst(text),
         });
-        break; // One pattern match per segment
+        break;
       }
     }
   }
 
-  return points.slice(0, 6); // Max 6 key points
+  return points.slice(0, 6);
 }
 
 interface StatResult {
@@ -530,7 +541,6 @@ function extractStats(segments: TranscriptSegment[]): StatResult[] {
 
       if (Object.keys(data).length > 0) {
         const startMs = Math.round(seg.start * 1000);
-        // Don't overlap with existing stats
         if (!stats.some((s) => Math.abs(s.startMs - startMs) < 5000)) {
           stats.push({
             startMs,
@@ -542,7 +552,7 @@ function extractStats(segments: TranscriptSegment[]): StatResult[] {
     }
   }
 
-  return stats.slice(0, 4); // Max 4 stat callouts
+  return stats.slice(0, 4);
 }
 
 interface TopicTransition {
@@ -554,9 +564,6 @@ function detectTopicTransitions(
   segments: TranscriptSegment[]
 ): TopicTransition[] {
   const transitions: TopicTransition[] = [];
-  const transitionPatterns = [
-    { pattern: /(?:so|now|next|also|but|however|moving on)/i, minGap: 1.5 },
-  ];
 
   for (let i = 1; i < segments.length; i++) {
     const prev = segments[i - 1];
@@ -565,7 +572,6 @@ function detectTopicTransitions(
 
     // Significant pause between segments
     if (gap > 1.0) {
-      // Extract topic label from start of next segment
       const words = curr.text.split(/\s+/).slice(0, 4);
       const label = words.join(" ").replace(/[.,!?]+$/, "");
 
@@ -578,7 +584,7 @@ function detectTopicTransitions(
     }
   }
 
-  return transitions.slice(0, 5); // Max 5 chapter markers
+  return transitions.slice(0, 5);
 }
 
 function fillGaps(
@@ -586,13 +592,11 @@ function fillGaps(
   segments: TranscriptSegment[],
   duration: number
 ): void {
-  // Sort by start time
   overlays.sort((a, b) => a.startMs - b.startMs);
 
   const maxGapMs = 5000;
   const durationMs = duration * 1000;
 
-  // Check for gaps longer than maxGapMs
   let lastEnd = 0;
   const gaps: Array<{ start: number; end: number }> = [];
 
@@ -603,12 +607,11 @@ function fillGaps(
     lastEnd = Math.max(lastEnd, ov.endMs);
   }
 
-  // Check gap at the end
   if (durationMs - lastEnd > maxGapMs) {
     gaps.push({ start: lastEnd + 500, end: durationMs - 4500 });
   }
 
-  // Fill gaps with contextual overlays from nearby segments
+  let gapAlternator = 0;
   for (const gap of gaps) {
     const nearSeg = segments.find(
       (s) => s.start * 1000 >= gap.start && s.start * 1000 <= gap.end
@@ -621,8 +624,9 @@ function fillGaps(
           startMs: Math.round(nearSeg.start * 1000),
           endMs: Math.round(nearSeg.start * 1000) + 3500,
           data: { label: "Key Insight", text: text.trim().substring(0, 50) },
-          position: Math.random() > 0.5 ? "top-right" : "top-left",
+          position: gapAlternator % 2 === 0 ? "top-right" : "top-left",
         });
+        gapAlternator++;
       }
     }
   }
@@ -635,7 +639,6 @@ function resolveOverlaps(overlays: OverlayElement[]): OverlayElement[] {
   const result: OverlayElement[] = [];
 
   for (const ov of overlays) {
-    // Count how many overlays are active at this overlay's start time
     const activeCount = result.filter(
       (r) => r.startMs <= ov.startMs && r.endMs >= ov.startMs
     ).length;
@@ -643,7 +646,6 @@ function resolveOverlaps(overlays: OverlayElement[]): OverlayElement[] {
     if (activeCount < maxSimultaneous) {
       result.push(ov);
     }
-    // Drop overlay if too many are already active
   }
 
   return result;

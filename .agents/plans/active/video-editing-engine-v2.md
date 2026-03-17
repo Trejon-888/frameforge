@@ -11,11 +11,13 @@
 
 FrameForge's first video editing test (real footage + overlays + captions) exposed critical quality gaps:
 
-1. **Captions show full sentences** — 30+ words displayed for 8+ seconds. Modern short-form content shows 2-4 words at a time with active word highlighting.
-2. **Overlays are too sparse** — Only 5 overlay elements across 50 seconds of video. Professional edits have something happening every 2-3 seconds.
-3. **Video quality degrades** — Output bitrate/resolution doesn't match input. The render pipeline re-encodes at generic CRF 23, losing quality.
+1. **Captions show full sentences** — 30+ words displayed for 8+ seconds. Modern short-form content shows 2-4 words at a time with active word highlighting. **FIXED:** Word-level grouping (2-4 words per group).
+2. **Overlays are too sparse** — Only 5 overlay elements across 50 seconds of video. Professional edits have something happening every 2-3 seconds. **FIXED:** Auto-generated overlay timeline with density rules.
+3. **Video quality degrades** — Output bitrate/resolution doesn't match input. The render pipeline re-encodes at generic CRF 23, losing quality. **FIXED:** Quality-matched encoding via ffprobe + source-matched CRF.
 4. **No multi-format support** — Can't easily switch between landscape (1920x1080), vertical (1080x1920), and square (1080x1080) from the same source.
-5. **Subtitle engine is too basic** — No word-level timing, no animation, no style presets, just plain text on a dark box.
+5. **Subtitle engine is too basic** — No word-level timing, no animation, no style presets, just plain text on a dark box. **FIXED:** 5 caption animation presets with resolution-scaled sizing.
+6. **Video plays frame-by-frame (CHOPPY)** — v1 embedded source video in browser HTML, causing Puppeteer to seek video per frame. Browser video seeking is NOT frame-accurate. **FIXED:** Source video now handled natively by FFmpeg; only overlay layer rendered in browser as transparent PNGs.
+7. **Overlays too small** — Font sizes and padding were designed for desktop viewing, not video. **FIXED:** All sizes proportionally scaled to video resolution (base reference: 1080p).
 
 ---
 
@@ -34,14 +36,18 @@ FrameForge's first video editing test (real footage + overlays + captions) expos
 
 ## Architecture
 
-### Current Pipeline (v1)
+### v1 Pipeline (BROKEN — choppy video)
 ```
-Source Video → Manual HTML overlay → FrameForge render → FFmpeg re-encode → Re-mux audio
+Source Video → Embed <video> in HTML → Puppeteer captures frame-by-frame → FFmpeg encode → Re-mux audio
 ```
 
-**Problems:** Every step is manual. Captions are hand-written. Overlays are hand-timed. Quality settings are hardcoded.
+**Why v1 failed:**
+- Browser video element seeking is NOT frame-accurate → choppy playback
+- Source video decoded through browser → quality loss
+- Overlays rendered at too-small sizes
+- Every frame required browser video seek + repaint → slow and janky
 
-### Target Pipeline (v2)
+### v2 Pipeline (FIXED — smooth, native video)
 ```
 Source Video
     ↓
@@ -53,10 +59,17 @@ Auto-generate overlay timeline (captions + motion graphics)
     ↓
 Apply style preset (Neo-Brutalist, Minimal, Corporate, etc.)
     ↓
-FrameForge render (quality-matched encoding)
+Render ONLY overlay layer as transparent PNG frames (Puppeteer)
+    ↓
+FFmpeg composites transparent overlay ON TOP of source video (native, smooth)
     ↓
 Output in requested format(s)
 ```
+
+**Key architectural insight:** The source video NEVER touches the browser.
+FFmpeg decodes and processes it natively — frame-accurate, smooth playback.
+Only the overlay/caption layer is rendered in the browser as transparent PNGs.
+FFmpeg's `overlay` filter composites them together.
 
 ---
 
@@ -309,10 +322,11 @@ frameforge edit video.mp4 --preview-frame 150 --output preview.png
 1. Probe source video (ffprobe)
 2. Extract audio → transcribe with WhisperX (word-level)
 3. Analyze transcript → generate overlay timeline
-4. Apply style preset → generate HTML overlay page
-5. Render composite (video + overlays) with FrameForge
-6. Re-mux original audio
-7. Output final video
+4. Apply style preset → generate **transparent overlay-only** HTML page (no video element)
+5. Render overlay as **transparent PNG frames** via Puppeteer (`omitBackground: true`)
+6. FFmpeg composites transparent frames **on top of source video** via `overlay` filter
+7. Audio copied from source (no re-encoding)
+8. Output final video with smooth, native playback
 
 ---
 
@@ -329,9 +343,10 @@ frameforge edit video.mp4 --preview-frame 150 --output preview.png
 ## Implementation Phases
 
 ### Phase A: Foundation (Week 1)
-- [ ] F1: Word-level caption engine
-- [ ] F2: Quality-matched encoding (ffprobe + CRF matching)
-- [ ] F6: `frameforge edit` CLI command (basic pipeline)
+- [x] F1: Word-level caption engine (5 presets, scaled sizing)
+- [x] F2: Quality-matched encoding (ffprobe + CRF matching)
+- [x] F6: `frameforge edit` CLI command (transparent overlay compositing pipeline)
+- [x] **CRITICAL FIX:** Transparent overlay architecture — source video handled by FFmpeg natively, not browser
 
 ### Phase B: Intelligence (Week 2)
 - [ ] F4: Automated overlay timeline (content analysis)

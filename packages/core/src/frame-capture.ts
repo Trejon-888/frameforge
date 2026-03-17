@@ -15,6 +15,8 @@ export interface FrameCaptureOptions {
   frameTimeout?: number;
   /** Enable GPU acceleration for complex 3D scenes. Default: false */
   gpu?: boolean;
+  /** Capture with transparent background (for overlay compositing). Default: false */
+  transparentBackground?: boolean;
 }
 
 /**
@@ -25,7 +27,7 @@ export interface FrameCaptureOptions {
 export async function captureFrames(
   options: FrameCaptureOptions
 ): Promise<void> {
-  const { manifest, entryPath, onFrame, onProgress, frameTimeout = 10000, gpu = false } = options;
+  const { manifest, entryPath, onFrame, onProgress, frameTimeout = 10000, gpu = false, transparentBackground = false } = options;
   const { width, height, fps, duration } = manifest.canvas;
   const totalFrames = Math.ceil(fps * duration);
 
@@ -82,8 +84,13 @@ export async function captureFrames(
     const entryUrl = pathToFileURL(resolve(entryPath)).href;
     await page.goto(entryUrl, { waitUntil: "networkidle0", timeout: 30000 });
 
-    // Set background color — only as fallback if page doesn't define its own
-    if (manifest.canvas.background) {
+    // Set background color — skip for transparent mode (overlay compositing)
+    if (transparentBackground) {
+      await page.evaluate(() => {
+        document.body.style.background = "transparent";
+        document.documentElement.style.background = "transparent";
+      });
+    } else if (manifest.canvas.background) {
       await page.evaluate(
         (bg: string) => {
           const bodyBg = window.getComputedStyle(document.body).backgroundColor;
@@ -154,10 +161,11 @@ export async function captureFrames(
         );
 
         // Capture screenshot as raw PNG buffer
+        // For overlay compositing, omitBackground=true captures with alpha channel
         const screenshot = await withTimeout(
           page.screenshot({
             type: "png",
-            omitBackground: false,
+            omitBackground: transparentBackground,
             encoding: "binary",
           }),
           frameTimeout,
