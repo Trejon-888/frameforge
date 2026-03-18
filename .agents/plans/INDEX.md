@@ -10,7 +10,7 @@
 |--------|-------|
 | Active | 3 |
 | Pending | 0 |
-| Completed | 11 |
+| Completed | 12 |
 
 ---
 
@@ -39,3 +39,4 @@
 | [Product Stress Test](completed/product-stress-test.md) | 2026-03-16 | 20+ tests, 2 critical bugs fixed, all pass |
 | [Competitive Benchmark](completed/competitive-benchmark-v4.md) | 2026-03-16 | 10 videos, 7 technologies, demo reel |
 | [Component System — Motion Graphics](completed/component-system-motion-graphics.md) | 2026-03-17 | 8 GSAP/Canvas renderers, content intelligence, preview-edit CLI |
+| [Cinema System + Edit Agent Contract](completed/cinema-system-edit-agent-contract.md) | 2026-03-17 | Cinema renderers, poster-modernist style, model-agnostic edit agent architecture |

@@ -53,14 +53,23 @@ describe("overlay-generator.generateOverlayTimeline", () => {
     expect(lt!.data.name).toBe("Enrique");
   });
 
-  it("detects stats from transcript (50 plus partners)", () => {
+  it("generates concept illustrations instead of text-label stat/key-point cards", () => {
     const overlays = generateOverlayTimeline({
       segments: SAMPLE_SEGMENTS,
       duration: 51,
       style,
     });
-    const stat = overlays.find((o) => o.type === "stat-callout");
-    expect(stat).toBeDefined();
+    // No raw text-label stat-callout or key-point overlays — replaced by concept illustrations
+    const textLabels = overlays.filter(
+      (o) => o.type === "stat-callout" || o.type === "key-point"
+    );
+    expect(textLabels.length).toBe(0);
+
+    // Concept illustrations should be present for relevant content
+    const illustrations = overlays.filter((o) =>
+      String(o.type).startsWith("illustration-")
+    );
+    expect(illustrations.length).toBeGreaterThan(0);
   });
 
   it("generates CTA card near the end", () => {

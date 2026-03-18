@@ -1,7 +1,7 @@
 # Session Handover
 
 **Project:** FrameForge
-**Current Status:** Component system live, Semantic Illustration System next
+**Current Status:** Cinema renderer system live, model-agnostic Edit Agent Contract shipped
 
 ---
 
@@ -9,36 +9,55 @@
 
 | Plan | Status | Notes |
 |------|--------|-------|
-| [Video Editing Engine v2](plans/active/video-editing-engine-v2.md) | Phase B complete | Component system shipped |
-| [Video Editing Test](plans/active/video-editing-test.md) | In Progress | Blocked: need Semantic Illustration System first |
+| [Video Editing Engine v2](plans/active/video-editing-engine-v2.md) | Complete | Cinema system + edit agent contract shipped |
+| [Video Editing Test](plans/active/video-editing-test.md) | In Progress | agent-latest.mp4 rendered, review quality |
 | [Social Media Launch](plans/active/social-media-launch.md) | On Hold | Waiting for testing week (~March 22) |
 
 ---
 
 ## What's Next
 
-**#1 PRIORITY: Semantic Illustration System**
-User feedback: text-label overlays (glass-callout, kinetic-title) add no value — they repeat what the speaker says. Need animated mini-UI illustrations that SHOW the concept:
-- `social-feed.ts` — AI social manager dashboard (posts appear with live counts)
-- `crm-calendar.ts` — Calendar with booking slots filling in automatically
-- `ai-workflow.ts` — Flowchart with data particles flowing through nodes
-- `stat-counter.ts` — Large bold number with spring physics counting up
-- `pipeline-board.ts` — Kanban with deal cards moving through stages
-- `concept-extractor.ts` — Maps transcript keywords to visual concept types
-- Replace `key-point` + `stat-callout` in overlay-generator with illustration overlays
-- Re-render `reframed-9x16.mp4` (at `C:\Users\enriq\Videos\Claude Creatives Video\clips\reframed\clip-01-cloud-code-creates-all-my-visual-content\reframed-9x16.mp4`)
+**#1 PRIORITY: Review agent-latest.mp4 and iterate**
+- Check timing of 6 overlays on clip-06
+- Adjust overlay-decisions.json as needed (no code changes required — just edit the JSON)
+- Try on other clips with different content types
 
-**#2: Other**
-1. Smart cropping strategies (fit/fill/smart) — currently only letterbox/pad
+**#2: Agent overlay preview command**
+- `frameforge preview-overlays video.mp4 --overlays decisions.json` — renders one frame per overlay (fast, no full render needed)
+- Lets agents iterate on overlay decisions without waiting for full render
+
+**#3: Soft launch prep (~March 22)**
+- npm publish preparation
+- EDIT-AGENT-CONTRACT.md quality review
+- Example overlay decisions for different video types
+
+**#4: Other**
+1. Smart cropping strategies (fit/fill/smart)
 2. Template system
 3. Render preview server (hot-reload)
-3. Render preview server (hot-reload)
 4. Remote/cloud rendering (Docker image)
-5. npm publish preparation
 
 ---
 
 ## Session Log
+
+### Session 11 — 2026-03-17
+- **Context:** Cinema renderer system, poster-modernist style, Edit Agent Contract architecture
+- **Completed:**
+  - Cinema renderer system: `cinema/shared.ts`, `base-browser.ts`, `base-standalone.ts`, 8 subclass renderers
+  - CSS custom property token system — all renderers auto-adapt to any `EditStyle` via `--ff-*` vars
+  - `poster-modernist` style preset (cream/cobalt/sharp corners/linear easing/no shadows)
+  - `.agents/DESIGN-SYSTEM.md` — plain-text spec for AI agents, source of truth for styles
+  - **CRITICAL ARCHITECTURE PIVOT:** Removed `@anthropic-ai/sdk`. FrameForge never calls AI.
+  - `edit-agent.ts` — types only: `AgentOverlayDecision`, `AgentTranscript`, validation utils
+  - `assembleAgentOverlayPage()` — assembles raw HTML/CSS/JS from any AI agent
+  - `editVideoWithOverlays()` + `extractTranscript()` — new pipeline functions
+  - CLI: `extract-transcript` + `render-overlays` commands; `.env` auto-loader
+  - `.agents/EDIT-AGENT-CONTRACT.md` — full agent spec: 9 techniques, GSAP contract, examples, portrait/landscape rules
+  - Rendered `agent-latest.mp4` with 6 creative overlays on clip-06
+- **Key architectural decision:** FrameForge is a rendering engine. AI is external. Any model reads EDIT-AGENT-CONTRACT.md, writes overlay-decisions.json, FrameForge renders it. Claude/GPT/Gemini/local models all work.
+- **Stats:** 238 tests pass, clean build
+- **Next:** Review agent-latest.mp4, iterate on overlays if needed, build preview-overlays command
 
 ### Session 10 — 2026-03-17
 - **Context:** Component system implementation — replace CSS-transition overlays with GSAP/Canvas/Spring components

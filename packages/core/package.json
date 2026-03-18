@@ -17,7 +17,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "preview:portrait": "node dist/cli.js preview-edit --srt ../../examples/video-edit/captions.srt --word-timings ../../examples/video-edit/transcript.json --style bold-dark --caption-style bold-center --brand-color '#7c6cfc' --width 1440 --height 2560 -d 120 -o ../../examples/video-edit/output/preview-portrait.html && start ../../examples/video-edit/output/preview-portrait.html",
+    "preview:landscape": "node dist/cli.js preview-edit --srt ../../examples/video-edit/captions.srt --word-timings ../../examples/video-edit/transcript.json --style bold-dark --caption-style bold-center --brand-color '#7c6cfc' --width 1920 --height 1080 -d 120 -o ../../examples/video-edit/output/preview-landscape.html && start ../../examples/video-edit/output/preview-landscape.html",
+    "render:test": "node dist/cli.js edit \"C:/Users/enriq/Videos/Claude Creatives Video/clips/reframed/clip-06-content-is-only-half-without-client-pipeline/reframed-9x16.mp4\" --srt \"C:/Users/enriq/Videos/Claude Creatives Video/clips/reframed/clip-06-content-is-only-half-without-client-pipeline/reframed-9x16_whisperx.srt\" --style bold-dark --caption-style bold-center --brand-color '#7c6cfc' --quality fast -o ../../examples/video-edit/output/test-latest.mp4",
+    "transcript:extract": "node dist/cli.js extract-transcript \"C:/Users/enriq/Videos/Claude Creatives Video/clips/reframed/clip-06-content-is-only-half-without-client-pipeline/reframed-9x16.mp4\" --srt \"C:/Users/enriq/Videos/Claude Creatives Video/clips/reframed/clip-06-content-is-only-half-without-client-pipeline/reframed-9x16_whisperx.srt\" -o ../../examples/video-edit/transcript-agent.json",
+    "agent:render": "node dist/cli.js render-overlays \"C:/Users/enriq/Videos/Claude Creatives Video/clips/reframed/clip-06-content-is-only-half-without-client-pipeline/reframed-9x16.mp4\" --overlays ../../examples/video-edit/overlay-decisions.json --srt \"C:/Users/enriq/Videos/Claude Creatives Video/clips/reframed/clip-06-content-is-only-half-without-client-pipeline/reframed-9x16_whisperx.srt\" --caption-style bold-center --caption-position bottom --quality fast -o ../../examples/video-edit/output/agent-latest.mp4"
   },
   "dependencies": {
     "chalk": "^5.3.0",

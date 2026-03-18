@@ -10,15 +10,18 @@
 
 import { type OverlayElement } from "../overlay-generator.js";
 import { type EditStyle } from "../edit-styles.js";
+import { type AgentOverlayDecision } from "../edit-agent.js";
 import {
   type ComponentDependency,
   type ComponentContext,
   type ComponentTiming,
+  GSAP_CDN,
 } from "./types.js";
 import { registry } from "./registry.js";
 
-/** Maps old overlay types to new component renderer types */
+/** Maps overlay types to component renderer types */
 const OVERLAY_TO_COMPONENT: Record<string, string> = {
+  // Original overlay types
   "hook-card": "kinetic-title",
   "lower-third": "animated-lower-third",
   "key-point": "glass-callout",
@@ -27,6 +30,15 @@ const OVERLAY_TO_COMPONENT: Record<string, string> = {
   "cta-card": "cta-reveal",
   "particle-burst": "particle-burst",
   "progress-bar": "progress-bar",
+  // Concept illustration types (direct 1:1 mapping)
+  "illustration-crm-calendar": "crm-calendar",
+  "illustration-social-feed": "social-feed",
+  "illustration-ai-workflow": "ai-workflow",
+  "illustration-stat-counter": "stat-counter",
+  "illustration-pipeline-board": "pipeline-board",
+  "illustration-inbox-send": "inbox-send",
+  "illustration-dashboard": "dashboard",
+  "illustration-code-terminal": "code-terminal",
 };
 
 export interface AssembleResult {
@@ -154,4 +166,98 @@ ${componentBlocks}
 })();`;
 
   return { script, dependencies };
+}
+
+/**
+ * Assemble agent-generated overlays into a page script.
+ *
+ * Unlike the component registry system, agent overlays carry their own HTML/CSS/JS.
+ * We replace the __ID__ placeholder with a unique instance ID per overlay.
+ * CSS is NOT deduplicated across instances (each has unique classes).
+ */
+export function assembleAgentOverlayPage(
+  decisions: AgentOverlayDecision[],
+  width: number,
+  height: number
+): AssembleResult {
+  const instances = decisions.map((d, i) => {
+    const id = `ff-ag-${i}`;
+    const css = d.css.replace(/__ID__/g, id);
+    const html = d.html.replace(/__ID__/g, id);
+    const initJs = d.initJs.replace(/__ID__/g, id);
+    return {
+      id,
+      css,
+      html,
+      initJs,
+      startMs: d.startMs,
+      endMs: d.startMs + d.durationMs,
+    };
+  });
+
+  const allCss = instances.map((i) => i.css).join("\n");
+
+  // Each root container is a fixed full-canvas transparent overlay
+  const allHtml = instances
+    .map(
+      (inst) =>
+        `<div id="${inst.id}" style="display:none; position:fixed; top:0; left:0; width:${width}px; height:${height}px; pointer-events:none; z-index:90; overflow:hidden;">${inst.html}</div>`
+    )
+    .join("");
+
+  // updateJs scrubs the GSAP timeline — this is the standard timing contract
+  const updateJs = `if (el._tl) el._tl.time(localT / 1000);`;
+
+  const componentBlocks = instances
+    .map(
+      (inst) => `  (function() {
+    var el = document.getElementById(${JSON.stringify(inst.id)});
+    if (!el) return;
+    try {
+      ${inst.initJs}
+    } catch(e) { console.error('[FrameForge] Agent overlay ${inst.id} init error:', e); }
+    comps.push({ el: el, start: ${inst.startMs}, end: ${inst.endMs}, update: function(el, localT) {
+      try {
+        ${updateJs}
+      } catch(e) { if (!el._err) { el._err = true; console.error('[FrameForge] Agent overlay ${inst.id} update error:', e); } }
+    }});
+  })();`
+    )
+    .join("\n");
+
+  const script = `(function() {
+  // === AGENT OVERLAY SYSTEM ===
+  var styleEl = document.createElement('style');
+  styleEl.textContent = ${JSON.stringify(allCss)};
+  document.head.appendChild(styleEl);
+
+  var container = document.createElement('div');
+  container.id = 'ff-agent-overlays';
+  container.innerHTML = ${JSON.stringify(allHtml)};
+  document.body.appendChild(container);
+
+  var comps = [];
+${componentBlocks}
+
+  function update() {
+    var t = window.__frameforge ? window.__frameforge.currentTimeMs : performance.now();
+    for (var i = 0; i < comps.length; i++) {
+      var c = comps[i];
+      var active = t >= c.start && t <= c.end;
+      if (active) {
+        if (c.el.style.display === 'none') c.el.style.display = '';
+        c.update(c.el, t - c.start);
+      } else {
+        if (c.el.style.display !== 'none') {
+          c.el.style.display = 'none';
+          if (c.el._tl) c.el._tl.time(0);
+        }
+      }
+    }
+    requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+})();`;
+
+  return { script, dependencies: [GSAP_CDN] };
 }

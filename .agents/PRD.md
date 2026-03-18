@@ -80,8 +80,11 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Caption animation presets | 5 styles: pop-in, karaoke, highlight, minimal, bold-center | P0 | Implemented |
 | Transparent overlay compositing | Overlay PNGs rendered in browser, composited by FFmpeg natively | P0 | Implemented |
 | Quality-matched encoding | CRF + bitrate matched to source via ffprobe, 4 speed presets | P0 | Implemented |
-| Style preset system | 4 presets (neo-brutalist, clean-minimal, corporate, bold-dark) | P1 | Implemented |
+| Style preset system | 5 presets: neo-brutalist, clean-minimal, corporate, bold-dark, poster-modernist | P1 | Implemented |
 | Auto overlay timeline | Content analysis → hook cards, lower thirds, key points, stats, CTAs | P1 | Implemented |
+| Cinema renderer system | Abstract base classes for 8 concept illustration renderers, CSS custom property token system | P1 | Implemented |
+| DESIGN-SYSTEM.md | Plain-text agent-readable style spec (source of truth for AI agents) | P1 | Implemented |
+| Edit Agent Contract | model-agnostic agentic editing: extract-transcript → agent → render-overlays | P1 | Implemented |
 | Multi-format output | landscape, vertical, square, source with FFmpeg scale+pad | P1 | Implemented |
 | Smart cropping (fill/smart) | Face/subject-aware cropping for format changes | P2 | Planned |
 
@@ -125,6 +128,10 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Style preset system | Phase 5 Video Edit | 2026-03-16 | 4 presets with colors, typography, elements, animations |
 | Auto overlay timeline | Phase 5 Video Edit | 2026-03-16 | Content analysis: hooks, stats, key points, chapters, CTAs |
 | Multi-format output | Phase 5 Video Edit | 2026-03-16 | landscape/vertical/square/source with FFmpeg scale+pad |
+| Cinema renderer system | Session 11 | 2026-03-17 | Abstract CinemaBrowserRenderer + CinemaStandaloneRenderer, 8 subclasses, CSS var tokens |
+| Poster Modernist style | Session 11 | 2026-03-17 | cream/cobalt/sharp, all renderers auto-adapt via --ff-* custom properties |
+| DESIGN-SYSTEM.md | Session 11 | 2026-03-17 | Plain-text agent spec for all styles, components, layout rules |
+| Edit Agent Contract | Session 11 | 2026-03-17 | extract-transcript + render-overlays commands, EDIT-AGENT-CONTRACT.md, zero AI coupling in core |
 
 ---
 

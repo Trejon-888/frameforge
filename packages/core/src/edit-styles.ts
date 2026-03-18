@@ -12,6 +12,12 @@ export interface EditStyleColors {
   background: string;
   text: string;
   textAlt: string;
+  /** Card / panel surface background */
+  surface: string;
+  /** Border / divider color */
+  border: string;
+  /** Labels, metadata, very muted text */
+  muted: string;
 }
 
 export interface EditStyleTypography {
@@ -36,6 +42,8 @@ export interface EditStyleAnimations {
 
 export interface EditStyle {
   name: string;
+  /** "dark" or "light" — drives cinema renderer token selection */
+  theme: "dark" | "light";
   colors: EditStyleColors;
   typography: EditStyleTypography;
   elements: EditStyleElements;
@@ -45,12 +53,16 @@ export interface EditStyle {
 export const STYLE_PRESETS: Record<string, EditStyle> = {
   "neo-brutalist": {
     name: "Neo-Brutalist",
+    theme: "dark",
     colors: {
       primary: "#f97316",
       secondary: "#171e19",
       background: "#171e19",
       text: "#ffffff",
       textAlt: "#b7c6c2",
+      surface: "rgba(255,255,255,0.05)",
+      border: "rgba(255,255,255,0.12)",
+      muted: "rgba(255,255,255,0.35)",
     },
     typography: {
       heading: "'Cabinet Grotesk', 'Inter', system-ui",
@@ -74,12 +86,16 @@ export const STYLE_PRESETS: Record<string, EditStyle> = {
 
   "clean-minimal": {
     name: "Clean Minimal",
+    theme: "light",
     colors: {
       primary: "#3b82f6",
       secondary: "#f1f5f9",
       background: "#ffffff",
       text: "#1e293b",
       textAlt: "#64748b",
+      surface: "#f8fafc",
+      border: "#e2e8f0",
+      muted: "#94a3b8",
     },
     typography: {
       heading: "'Inter', system-ui",
@@ -103,12 +119,16 @@ export const STYLE_PRESETS: Record<string, EditStyle> = {
 
   corporate: {
     name: "Corporate",
+    theme: "light",
     colors: {
       primary: "#0f172a",
       secondary: "#2563eb",
       background: "#ffffff",
       text: "#0f172a",
       textAlt: "#475569",
+      surface: "#f8fafc",
+      border: "#e2e8f0",
+      muted: "#94a3b8",
     },
     typography: {
       heading: "'Plus Jakarta Sans', 'Inter', system-ui",
@@ -132,12 +152,16 @@ export const STYLE_PRESETS: Record<string, EditStyle> = {
 
   "bold-dark": {
     name: "Bold Dark",
+    theme: "dark",
     colors: {
       primary: "#e94560",
       secondary: "#6366f1",
       background: "#0a0a0a",
       text: "#ffffff",
       textAlt: "#a1a1aa",
+      surface: "rgba(255,255,255,0.05)",
+      border: "rgba(255,255,255,0.12)",
+      muted: "rgba(255,255,255,0.35)",
     },
     typography: {
       heading: "'Space Grotesk', 'Inter', system-ui",
@@ -156,6 +180,46 @@ export const STYLE_PRESETS: Record<string, EditStyle> = {
       enterCurve: "cubic-bezier(0.34, 1.56, 0.64, 1)",
       exitCurve: "ease-in",
       defaultDuration: 0.35,
+    },
+  },
+
+  /**
+   * Poster Modernist — Reality-First design system.
+   * Cream background, cobalt blue accent, jet black type.
+   * Zero border-radius, no shadows, no gradients.
+   * Fast linear transitions (0.3s). Strict grid. Authority through restraint.
+   */
+  "poster-modernist": {
+    name: "Poster Modernist",
+    theme: "light",
+    colors: {
+      primary: "#1351AA",      // Cobalt Blue
+      secondary: "#141414",    // Jet Black (used as strong contrast accent)
+      background: "#E3E2DE",   // Cream
+      text: "#141414",         // Jet Black
+      textAlt: "#444343",      // Deep Gray
+      surface: "#F5F5F2",      // Off-white card surface
+      border: "#C7C7C7",       // Light Gray dividers
+      muted: "#7A7A7A",        // Gray for labels / metadata
+    },
+    typography: {
+      heading: "'Inter', 'DM Sans', system-ui",
+      body: "'Inter', system-ui",
+      captionFont: "'Inter', system-ui",
+      // Inter at 900 weight with tight tracking approximates General Sans / Aileron
+      googleFontsUrl:
+        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap",
+    },
+    elements: {
+      borderWidth: 1,
+      borderRadius: 0,         // Zero radius — defining characteristic
+      shadowStyle: "none",     // No shadows — flat color blocks only
+      cornerStyle: "sharp",
+    },
+    animations: {
+      enterCurve: "power2.out", // No bounce — editorial gravity
+      exitCurve: "linear",
+      defaultDuration: 0.3,
     },
   },
 };

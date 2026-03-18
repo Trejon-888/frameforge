@@ -13,6 +13,7 @@
 | ADR-003 | Frames piped to FFmpeg stdin (no temp PNGs) | 2026-03-15 | Avoids disk I/O bottleneck, no cleanup needed, works on systems with limited storage | — |
 | ADR-004 | Python SDK calls Node renderer via subprocess | 2026-03-15 | Python generates HTML + manifest, rendering stays in Node/Puppeteer where it's native; avoids maintaining two renderers | — |
 | ADR-005 | tsup for building, vitest for testing | 2026-03-15 | Fast, modern, good ESM support; matches the project's Node 20+ target | — |
+| ADR-006 | Edit agent is model-agnostic — FrameForge never calls AI APIs | 2026-03-17 | FrameForge philosophy: framework-agnostic rendering. Embedding Anthropic SDK contradicts this. Agent reads EDIT-AGENT-CONTRACT.md, writes overlay-decisions.json, FrameForge renders it. Any model works. | Supersedes: any design where FrameForge calls an AI API internally |
 
 ---
 

@@ -1,0 +1,1106 @@
+{
+  "durationSec": 57.887347,
+  "width": 1080,
+  "height": 1920,
+  "orientation": "portrait",
+  "phrases": [
+    {
+      "startSec": 0.031,
+      "endSec": 2.718,
+      "startMs": 31,
+      "endMs": 2718,
+      "text": "Little pause in the video before we go into showing the next thing."
+    },
+    {
+      "startSec": 3.02,
+      "endSec": 3.261,
+      "startMs": 3020,
+      "endMs": 3261,
+      "text": "I mean,"
+    },
+    {
+      "startSec": 3.301,
+      "endSec": 5.607,
+      "startMs": 3301,
+      "endMs": 5607,
+      "text": "you know that by the end of this video,"
+    },
+    {
+      "startSec": 5.647,
+      "endSec": 10.542,
+      "startMs": 5647,
+      "endMs": 10542,
+      "text": "you will be able to create all of your content from one conversation with Cloud Code."
+    },
+    {
+      "startSec": 10.704,
+      "endSec": 13.01,
+      "startMs": 10704,
+      "endMs": 13010,
+      "text": "But here's what I realized building this."
+    },
+    {
+      "startSec": 13.074,
+      "endSec": 13.355,
+      "startMs": 13074,
+      "endMs": 13355,
+      "text": "I mean,"
+    },
+    {
+      "startSec": 13.396,
+      "endSec": 16.9,
+      "startMs": 13396,
+      "endMs": 16900,
+      "text": "the content side is only half of the system."
+    },
+    {
+      "startSec": 17.001,
+      "endSec": 23.413,
+      "startMs": 17001,
+      "endMs": 23413,
+      "text": "Because what's the point of creating all of this content if you don't have an actual pipeline bringing you clients?"
+    },
+    {
+      "startSec": 23.753,
+      "endSec": 26.297,
+      "startMs": 23753,
+      "endMs": 26297,
+      "text": "That's the reason we built the iX system,"
+    },
+    {
+      "startSec": 26.557,
+      "endSec": 27.239,
+      "startMs": 26557,
+      "endMs": 27239,
+      "text": "the other half."
+    },
+    {
+      "startSec": 27.539,
+      "endSec": 32.368,
+      "startMs": 27539,
+      "endMs": 32368,
+      "text": "This is an AI client acquisition system that allows you to find your target buyer,"
+    },
+    {
+      "startSec": 32.648,
+      "endSec": 34.932,
+      "startMs": 32648,
+      "endMs": 34932,
+      "text": "writes your entire outreach copy,"
+    },
+    {
+      "startSec": 34.911,
+      "endSec": 44.536,
+      "startMs": 34911,
+      "endMs": 44536,
+      "text": "It has AI agents in the back and handling the entire conversations and books appointments directly into your calendar without you touching anything."
+    },
+    {
+      "startSec": 44.798,
+      "endSec": 51.996,
+      "startMs": 44798,
+      "endMs": 51996,
+      "text": "And this is the exact same system that has been used by private equity firms managing over $4 billion in assets,"
+    },
+    {
+      "startSec": 52.677,
+      "endSec": 53.621,
+      "startMs": 52677,
+      "endMs": 53621,
+      "text": "M&A advisories,"
+    },
+    {
+      "startSec": 54.021,
+      "endSec": 57.932,
+      "startMs": 54021,
+      "endMs": 57932,
+      "text": "and 20 plus of our partners across our network."
+    }
+  ],
+  "words": [
+    {
+      "word": "Little",
+      "startMs": 31,
+      "endMs": 312,
+      "confidence": 0.8
+    },
+    {
+      "word": "pause",
+      "startMs": 332,
+      "endMs": 533,
+      "confidence": 0.8
+    },
+    {
+      "word": "in",
+      "startMs": 553,
+      "endMs": 613,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 653,
+      "endMs": 713,
+      "confidence": 0.8
+    },
+    {
+      "word": "video",
+      "startMs": 733,
+      "endMs": 974,
+      "confidence": 0.8
+    },
+    {
+      "word": "before",
+      "startMs": 1014,
+      "endMs": 1235,
+      "confidence": 0.8
+    },
+    {
+      "word": "we",
+      "startMs": 1274,
+      "endMs": 1395,
+      "confidence": 0.8
+    },
+    {
+      "word": "go",
+      "startMs": 1415,
+      "endMs": 1556,
+      "confidence": 0.8
+    },
+    {
+      "word": "into",
+      "startMs": 1576,
+      "endMs": 1756,
+      "confidence": 0.8
+    },
+    {
+      "word": "showing",
+      "startMs": 1837,
+      "endMs": 2096,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 2137,
+      "endMs": 2217,
+      "confidence": 0.8
+    },
+    {
+      "word": "next",
+      "startMs": 2258,
+      "endMs": 2438,
+      "confidence": 0.8
+    },
+    {
+      "word": "thing.",
+      "startMs": 2499,
+      "endMs": 2718,
+      "confidence": 0.8
+    },
+    {
+      "word": "I",
+      "startMs": 3020,
+      "endMs": 3060,
+      "confidence": 0.8
+    },
+    {
+      "word": "mean,",
+      "startMs": 3100,
+      "endMs": 3261,
+      "confidence": 0.8
+    },
+    {
+      "word": "you",
+      "startMs": 3301,
+      "endMs": 3802,
+      "confidence": 0.8
+    },
+    {
+      "word": "know",
+      "startMs": 3903,
+      "endMs": 4144,
+      "confidence": 0.8
+    },
+    {
+      "word": "that",
+      "startMs": 4184,
+      "endMs": 4464,
+      "confidence": 0.8
+    },
+    {
+      "word": "by",
+      "startMs": 4585,
+      "endMs": 4684,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 4724,
+      "endMs": 4825,
+      "confidence": 0.8
+    },
+    {
+      "word": "end",
+      "startMs": 4865,
+      "endMs": 4945,
+      "confidence": 0.8
+    },
+    {
+      "word": "of",
+      "startMs": 4966,
+      "endMs": 5025,
+      "confidence": 0.8
+    },
+    {
+      "word": "this",
+      "startMs": 5067,
+      "endMs": 5187,
+      "confidence": 0.8
+    },
+    {
+      "word": "video,",
+      "startMs": 5227,
+      "endMs": 5607,
+      "confidence": 0.8
+    },
+    {
+      "word": "you",
+      "startMs": 5647,
+      "endMs": 5748,
+      "confidence": 0.8
+    },
+    {
+      "word": "will",
+      "startMs": 5788,
+      "endMs": 5929,
+      "confidence": 0.8
+    },
+    {
+      "word": "be",
+      "startMs": 5969,
+      "endMs": 6070,
+      "confidence": 0.8
+    },
+    {
+      "word": "able",
+      "startMs": 6230,
+      "endMs": 6410,
+      "confidence": 0.8
+    },
+    {
+      "word": "to",
+      "startMs": 6471,
+      "endMs": 6551,
+      "confidence": 0.8
+    },
+    {
+      "word": "create",
+      "startMs": 6591,
+      "endMs": 6852,
+      "confidence": 0.8
+    },
+    {
+      "word": "all",
+      "startMs": 7173,
+      "endMs": 7312,
+      "confidence": 0.8
+    },
+    {
+      "word": "of",
+      "startMs": 7354,
+      "endMs": 7394,
+      "confidence": 0.8
+    },
+    {
+      "word": "your",
+      "startMs": 7453,
+      "endMs": 7594,
+      "confidence": 0.8
+    },
+    {
+      "word": "content",
+      "startMs": 7695,
+      "endMs": 8135,
+      "confidence": 0.8
+    },
+    {
+      "word": "from",
+      "startMs": 8657,
+      "endMs": 8778,
+      "confidence": 0.8
+    },
+    {
+      "word": "one",
+      "startMs": 8897,
+      "endMs": 9019,
+      "confidence": 0.8
+    },
+    {
+      "word": "conversation",
+      "startMs": 9058,
+      "endMs": 9680,
+      "confidence": 0.8
+    },
+    {
+      "word": "with",
+      "startMs": 9760,
+      "endMs": 9861,
+      "confidence": 0.8
+    },
+    {
+      "word": "Cloud",
+      "startMs": 9961,
+      "endMs": 10221,
+      "confidence": 0.8
+    },
+    {
+      "word": "Code.",
+      "startMs": 10282,
+      "endMs": 10542,
+      "confidence": 0.8
+    },
+    {
+      "word": "But",
+      "startMs": 10704,
+      "endMs": 10784,
+      "confidence": 0.8
+    },
+    {
+      "word": "here's",
+      "startMs": 10864,
+      "endMs": 11085,
+      "confidence": 0.8
+    },
+    {
+      "word": "what",
+      "startMs": 11125,
+      "endMs": 11266,
+      "confidence": 0.8
+    },
+    {
+      "word": "I",
+      "startMs": 11305,
+      "endMs": 11606,
+      "confidence": 0.8
+    },
+    {
+      "word": "realized",
+      "startMs": 11686,
+      "endMs": 12189,
+      "confidence": 0.8
+    },
+    {
+      "word": "building",
+      "startMs": 12269,
+      "endMs": 12589,
+      "confidence": 0.8
+    },
+    {
+      "word": "this.",
+      "startMs": 12630,
+      "endMs": 13010,
+      "confidence": 0.8
+    },
+    {
+      "word": "I",
+      "startMs": 13074,
+      "endMs": 13175,
+      "confidence": 0.8
+    },
+    {
+      "word": "mean,",
+      "startMs": 13195,
+      "endMs": 13355,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 13396,
+      "endMs": 13455,
+      "confidence": 0.8
+    },
+    {
+      "word": "content",
+      "startMs": 13555,
+      "endMs": 14016,
+      "confidence": 0.8
+    },
+    {
+      "word": "side",
+      "startMs": 14076,
+      "endMs": 14457,
+      "confidence": 0.8
+    },
+    {
+      "word": "is",
+      "startMs": 14477,
+      "endMs": 14858,
+      "confidence": 0.8
+    },
+    {
+      "word": "only",
+      "startMs": 14878,
+      "endMs": 15458,
+      "confidence": 0.8
+    },
+    {
+      "word": "half",
+      "startMs": 15478,
+      "endMs": 16079,
+      "confidence": 0.8
+    },
+    {
+      "word": "of",
+      "startMs": 16260,
+      "endMs": 16320,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 16341,
+      "endMs": 16501,
+      "confidence": 0.8
+    },
+    {
+      "word": "system.",
+      "startMs": 16561,
+      "endMs": 16900,
+      "confidence": 0.8
+    },
+    {
+      "word": "Because",
+      "startMs": 17001,
+      "endMs": 17242,
+      "confidence": 0.8
+    },
+    {
+      "word": "what's",
+      "startMs": 17341,
+      "endMs": 17562,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 17623,
+      "endMs": 17722,
+      "confidence": 0.8
+    },
+    {
+      "word": "point",
+      "startMs": 17843,
+      "endMs": 18103,
+      "confidence": 0.8
+    },
+    {
+      "word": "of",
+      "startMs": 18164,
+      "endMs": 18224,
+      "confidence": 0.8
+    },
+    {
+      "word": "creating",
+      "startMs": 18303,
+      "endMs": 18603,
+      "confidence": 0.8
+    },
+    {
+      "word": "all",
+      "startMs": 18643,
+      "endMs": 19125,
+      "confidence": 0.8
+    },
+    {
+      "word": "of",
+      "startMs": 19164,
+      "endMs": 19204,
+      "confidence": 0.8
+    },
+    {
+      "word": "this",
+      "startMs": 19225,
+      "endMs": 19425,
+      "confidence": 0.8
+    },
+    {
+      "word": "content",
+      "startMs": 19506,
+      "endMs": 19966,
+      "confidence": 0.8
+    },
+    {
+      "word": "if",
+      "startMs": 20227,
+      "endMs": 20286,
+      "confidence": 0.8
+    },
+    {
+      "word": "you",
+      "startMs": 20306,
+      "endMs": 20387,
+      "confidence": 0.8
+    },
+    {
+      "word": "don't",
+      "startMs": 20407,
+      "endMs": 20547,
+      "confidence": 0.8
+    },
+    {
+      "word": "have",
+      "startMs": 20588,
+      "endMs": 20687,
+      "confidence": 0.8
+    },
+    {
+      "word": "an",
+      "startMs": 20728,
+      "endMs": 20768,
+      "confidence": 0.8
+    },
+    {
+      "word": "actual",
+      "startMs": 20968,
+      "endMs": 21268,
+      "confidence": 0.8
+    },
+    {
+      "word": "pipeline",
+      "startMs": 21388,
+      "endMs": 22010,
+      "confidence": 0.8
+    },
+    {
+      "word": "bringing",
+      "startMs": 22431,
+      "endMs": 22710,
+      "confidence": 0.8
+    },
+    {
+      "word": "you",
+      "startMs": 22751,
+      "endMs": 22871,
+      "confidence": 0.8
+    },
+    {
+      "word": "clients?",
+      "startMs": 22952,
+      "endMs": 23413,
+      "confidence": 0.8
+    },
+    {
+      "word": "That's",
+      "startMs": 23753,
+      "endMs": 23972,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 24114,
+      "endMs": 24213,
+      "confidence": 0.8
+    },
+    {
+      "word": "reason",
+      "startMs": 24274,
+      "endMs": 24553,
+      "confidence": 0.8
+    },
+    {
+      "word": "we",
+      "startMs": 24614,
+      "endMs": 24754,
+      "confidence": 0.8
+    },
+    {
+      "word": "built",
+      "startMs": 24815,
+      "endMs": 25074,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 25275,
+      "endMs": 25416,
+      "confidence": 0.8
+    },
+    {
+      "word": "iX",
+      "startMs": 25615,
+      "endMs": 25836,
+      "confidence": 0.8
+    },
+    {
+      "word": "system,",
+      "startMs": 25876,
+      "endMs": 26297,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 26557,
+      "endMs": 26678,
+      "confidence": 0.8
+    },
+    {
+      "word": "other",
+      "startMs": 26737,
+      "endMs": 26937,
+      "confidence": 0.8
+    },
+    {
+      "word": "half.",
+      "startMs": 26998,
+      "endMs": 27239,
+      "confidence": 0.8
+    },
+    {
+      "word": "This",
+      "startMs": 27539,
+      "endMs": 27699,
+      "confidence": 0.8
+    },
+    {
+      "word": "is",
+      "startMs": 27760,
+      "endMs": 27820,
+      "confidence": 0.8
+    },
+    {
+      "word": "an",
+      "startMs": 27879,
+      "endMs": 27920,
+      "confidence": 0.8
+    },
+    {
+      "word": "AI",
+      "startMs": 28140,
+      "endMs": 28400,
+      "confidence": 0.8
+    },
+    {
+      "word": "client",
+      "startMs": 28420,
+      "endMs": 28782,
+      "confidence": 0.8
+    },
+    {
+      "word": "acquisition",
+      "startMs": 28882,
+      "endMs": 29362,
+      "confidence": 0.8
+    },
+    {
+      "word": "system",
+      "startMs": 29402,
+      "endMs": 29742,
+      "confidence": 0.8
+    },
+    {
+      "word": "that",
+      "startMs": 29823,
+      "endMs": 29963,
+      "confidence": 0.8
+    },
+    {
+      "word": "allows",
+      "startMs": 30004,
+      "endMs": 30303,
+      "confidence": 0.8
+    },
+    {
+      "word": "you",
+      "startMs": 30364,
+      "endMs": 30463,
+      "confidence": 0.8
+    },
+    {
+      "word": "to",
+      "startMs": 30524,
+      "endMs": 30625,
+      "confidence": 0.8
+    },
+    {
+      "word": "find",
+      "startMs": 30765,
+      "endMs": 31126,
+      "confidence": 0.8
+    },
+    {
+      "word": "your",
+      "startMs": 31166,
+      "endMs": 31405,
+      "confidence": 0.8
+    },
+    {
+      "word": "target",
+      "startMs": 31525,
+      "endMs": 31926,
+      "confidence": 0.8
+    },
+    {
+      "word": "buyer,",
+      "startMs": 31986,
+      "endMs": 32368,
+      "confidence": 0.8
+    },
+    {
+      "word": "writes",
+      "startMs": 32648,
+      "endMs": 32969,
+      "confidence": 0.8
+    },
+    {
+      "word": "your",
+      "startMs": 33109,
+      "endMs": 33249,
+      "confidence": 0.8
+    },
+    {
+      "word": "entire",
+      "startMs": 33308,
+      "endMs": 33710,
+      "confidence": 0.8
+    },
+    {
+      "word": "outreach",
+      "startMs": 34009,
+      "endMs": 34310,
+      "confidence": 0.8
+    },
+    {
+      "word": "copy,",
+      "startMs": 34390,
+      "endMs": 34932,
+      "confidence": 0.8
+    },
+    {
+      "word": "It",
+      "startMs": 34911,
+      "endMs": 35152,
+      "confidence": 0.8
+    },
+    {
+      "word": "has",
+      "startMs": 35213,
+      "endMs": 35393,
+      "confidence": 0.8
+    },
+    {
+      "word": "AI",
+      "startMs": 35412,
+      "endMs": 35453,
+      "confidence": 0.8
+    },
+    {
+      "word": "agents",
+      "startMs": 35613,
+      "endMs": 36195,
+      "confidence": 0.8
+    },
+    {
+      "word": "in",
+      "startMs": 36256,
+      "endMs": 36316,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 36335,
+      "endMs": 36415,
+      "confidence": 0.8
+    },
+    {
+      "word": "back",
+      "startMs": 36456,
+      "endMs": 36676,
+      "confidence": 0.8
+    },
+    {
+      "word": "and",
+      "startMs": 36737,
+      "endMs": 36796,
+      "confidence": 0.8
+    },
+    {
+      "word": "handling",
+      "startMs": 36877,
+      "endMs": 37317,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 37338,
+      "endMs": 37459,
+      "confidence": 0.8
+    },
+    {
+      "word": "entire",
+      "startMs": 37539,
+      "endMs": 37920,
+      "confidence": 0.8
+    },
+    {
+      "word": "conversations",
+      "startMs": 37979,
+      "endMs": 38741,
+      "confidence": 0.8
+    },
+    {
+      "word": "and",
+      "startMs": 39143,
+      "endMs": 39243,
+      "confidence": 0.8
+    },
+    {
+      "word": "books",
+      "startMs": 39363,
+      "endMs": 39643,
+      "confidence": 0.8
+    },
+    {
+      "word": "appointments",
+      "startMs": 39744,
+      "endMs": 40246,
+      "confidence": 0.8
+    },
+    {
+      "word": "directly",
+      "startMs": 40326,
+      "endMs": 40868,
+      "confidence": 0.8
+    },
+    {
+      "word": "into",
+      "startMs": 40887,
+      "endMs": 41368,
+      "confidence": 0.8
+    },
+    {
+      "word": "your",
+      "startMs": 41408,
+      "endMs": 41569,
+      "confidence": 0.8
+    },
+    {
+      "word": "calendar",
+      "startMs": 41630,
+      "endMs": 42131,
+      "confidence": 0.8
+    },
+    {
+      "word": "without",
+      "startMs": 42531,
+      "endMs": 42893,
+      "confidence": 0.8
+    },
+    {
+      "word": "you",
+      "startMs": 43012,
+      "endMs": 43133,
+      "confidence": 0.8
+    },
+    {
+      "word": "touching",
+      "startMs": 43152,
+      "endMs": 43615,
+      "confidence": 0.8
+    },
+    {
+      "word": "anything.",
+      "startMs": 43655,
+      "endMs": 44536,
+      "confidence": 0.8
+    },
+    {
+      "word": "And",
+      "startMs": 44798,
+      "endMs": 44878,
+      "confidence": 0.8
+    },
+    {
+      "word": "this",
+      "startMs": 44938,
+      "endMs": 45079,
+      "confidence": 0.8
+    },
+    {
+      "word": "is",
+      "startMs": 45139,
+      "endMs": 45198,
+      "confidence": 0.8
+    },
+    {
+      "word": "the",
+      "startMs": 45259,
+      "endMs": 45338,
+      "confidence": 0.8
+    },
+    {
+      "word": "exact",
+      "startMs": 45539,
+      "endMs": 45759,
+      "confidence": 0.8
+    },
+    {
+      "word": "same",
+      "startMs": 45780,
+      "endMs": 45981,
+      "confidence": 0.8
+    },
+    {
+      "word": "system",
+      "startMs": 46040,
+      "endMs": 46301,
+      "confidence": 0.8
+    },
+    {
+      "word": "that",
+      "startMs": 46341,
+      "endMs": 46481,
+      "confidence": 0.8
+    },
+    {
+      "word": "has",
+      "startMs": 46582,
+      "endMs": 46823,
+      "confidence": 0.8
+    },
+    {
+      "word": "been",
+      "startMs": 46883,
+      "endMs": 47043,
+      "confidence": 0.8
+    },
+    {
+      "word": "used",
+      "startMs": 47204,
+      "endMs": 47384,
+      "confidence": 0.8
+    },
+    {
+      "word": "by",
+      "startMs": 47484,
+      "endMs": 47645,
+      "confidence": 0.8
+    },
+    {
+      "word": "private",
+      "startMs": 47685,
+      "endMs": 48186,
+      "confidence": 0.8
+    },
+    {
+      "word": "equity",
+      "startMs": 48347,
+      "endMs": 48648,
+      "confidence": 0.8
+    },
+    {
+      "word": "firms",
+      "startMs": 48707,
+      "endMs": 49048,
+      "confidence": 0.8
+    },
+    {
+      "word": "managing",
+      "startMs": 49490,
+      "endMs": 49911,
+      "confidence": 0.8
+    },
+    {
+      "word": "over",
+      "startMs": 49951,
+      "endMs": 50332,
+      "confidence": 0.8
+    },
+    {
+      "word": "$4",
+      "startMs": 50351,
+      "endMs": 50692,
+      "confidence": 0.8
+    },
+    {
+      "word": "billion",
+      "startMs": 50753,
+      "endMs": 51173,
+      "confidence": 0.8
+    },
+    {
+      "word": "in",
+      "startMs": 51314,
+      "endMs": 51395,
+      "confidence": 0.8
+    },
+    {
+      "word": "assets,",
+      "startMs": 51595,
+      "endMs": 51996,
+      "confidence": 0.8
+    },
+    {
+      "word": "M&A",
+      "startMs": 52677,
+      "endMs": 52918,
+      "confidence": 0.8
+    },
+    {
+      "word": "advisories,",
+      "startMs": 52959,
+      "endMs": 53621,
+      "confidence": 0.8
+    },
+    {
+      "word": "and",
+      "startMs": 54021,
+      "endMs": 54101,
+      "confidence": 0.8
+    },
+    {
+      "word": "20",
+      "startMs": 54121,
+      "endMs": 54523,
+      "confidence": 0.8
+    },
+    {
+      "word": "plus",
+      "startMs": 54582,
+      "endMs": 54884,
+      "confidence": 0.8
+    },
+    {
+      "word": "of",
+      "startMs": 55003,
+      "endMs": 55064,
+      "confidence": 0.8
+    },
+    {
+      "word": "our",
+      "startMs": 55085,
+      "endMs": 55384,
+      "confidence": 0.8
+    },
+    {
+      "word": "partners",
+      "startMs": 55526,
+      "endMs": 55987,
+      "confidence": 0.8
+    },
+    {
+      "word": "across",
+      "startMs": 56347,
+      "endMs": 56728,
+      "confidence": 0.8
+    },
+    {
+      "word": "our",
+      "startMs": 57070,
+      "endMs": 57189,
+      "confidence": 0.8
+    },
+    {
+      "word": "network.",
+      "startMs": 57270,
+      "endMs": 57932,
+      "confidence": 0.8
+    }
+  ]
+}

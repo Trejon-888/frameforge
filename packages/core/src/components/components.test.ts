@@ -26,8 +26,9 @@ const style = getStylePreset("neo-brutalist");
 // === Registry Tests ===
 
 describe("components.registry", () => {
-  it("has all 8 built-in renderers registered", () => {
+  it("has all 16 built-in renderers registered", () => {
     const types = registry.list();
+    // Original 8
     expect(types).toContain("kinetic-title");
     expect(types).toContain("animated-lower-third");
     expect(types).toContain("number-counter");
@@ -36,7 +37,16 @@ describe("components.registry", () => {
     expect(types).toContain("progress-bar");
     expect(types).toContain("cta-reveal");
     expect(types).toContain("chapter-wipe");
-    expect(types.length).toBe(8);
+    // Concept illustrations (8 new)
+    expect(types).toContain("crm-calendar");
+    expect(types).toContain("social-feed");
+    expect(types).toContain("ai-workflow");
+    expect(types).toContain("stat-counter");
+    expect(types).toContain("pipeline-board");
+    expect(types).toContain("inbox-send");
+    expect(types).toContain("dashboard");
+    expect(types).toContain("code-terminal");
+    expect(types.length).toBe(16);
   });
 
   it("get() returns renderer for known type", () => {

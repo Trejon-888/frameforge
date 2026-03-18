@@ -28,8 +28,9 @@ import { generateOverlayTimeline, type TranscriptSegment } from "./overlay-gener
 import { captureFrames } from "./frame-capture.js";
 import { compositeVideo } from "./ffmpeg.js";
 import "./components/init.js";
-import { assembleOverlayPage } from "./components/assembler.js";
+import { assembleOverlayPage, assembleAgentOverlayPage } from "./components/assembler.js";
 import { type ComponentDependency } from "./components/types.js";
+import { validateOverlayDecisions, buildAgentTranscript, type AgentOverlayDecision } from "./edit-agent.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -172,103 +173,157 @@ export async function editVideo(options: EditOptions): Promise<EditResult> {
   };
   const captionScript = generateCaptionOverlay(captionGroups, captionConfig);
 
-  // === Stage 8: Build transparent overlay HTML (NO video element) ===
-  progress("build", "Building overlay layer...");
-  const tmpDir = join(tmpdir(), `frameforge-edit-${Date.now()}`);
-  await mkdir(tmpDir, { recursive: true });
-
-  const htmlPath = join(tmpDir, "overlay.html");
-  const overlayHTML = buildOverlayOnlyHTML(
-    dims.width,
-    dims.height,
-    captionScript,
-    overlayScript,
-    style,
-    captionPosition,
-    overlayDeps
-  );
-  await writeFile(htmlPath, overlayHTML, "utf-8");
-
-  // === Stage 9: Composite — render overlay + merge with source video ===
-  const speed = options.encodingSpeed || "balanced";
-  const speedPreset = ENCODING_SPEED_PRESETS[speed] || ENCODING_SPEED_PRESETS.balanced;
-  const encoding = computeMatchedEncoding(probe, speed);
-
-  progress("render", `Starting composite render (${speed} quality)...`);
-
-  // Start FFmpeg composite pipeline:
-  // Input 0 = source video (decoded natively by FFmpeg — smooth & frame-accurate)
-  // Input 1 = transparent overlay PNGs (piped from Puppeteer)
-  const pipeline = await compositeVideo({
-    sourceVideo: inputPath,
-    width: dims.width,
-    height: dims.height,
-    fps: probe.fps,
-    output: outputPath,
-    crf: encoding.crf,
-    preset: speedPreset.preset,
-    maxrate: encoding.maxrate,
-    bufsize: encoding.bufsize,
-    audioBitrate: encoding.audioBitrate,
-    pixelFormat: "yuv420p",
-  });
-
-  // Capture transparent overlay frames and pipe to FFmpeg
-  await captureFrames({
-    manifest: {
-      version: "1.0",
-      canvas: {
-        width: dims.width,
-        height: dims.height,
-        fps: probe.fps,
-        duration: probe.duration,
-        background: "transparent",
-      },
-      entry: htmlPath,
-      audio: [],
-      render: { codec: "h264", quality: "high", pixelFormat: "yuv420p", output: outputPath },
-    },
-    entryPath: htmlPath,
-    transparentBackground: true,
-    onFrame: async (frameData) => {
-      await pipeline.writeFrame(frameData);
-    },
-    onProgress: (current, total) => {
-      progress("render", `Frame ${current}/${total} (${Math.round((current / total) * 100)}%)`);
-    },
-  });
-
-  // Finalize encoding
-  await pipeline.finalize();
-
-  // === Stage 10: Validate output ===
-  try {
-    const outputStat = await stat(outputPath);
-    if (outputStat.size < 1000) {
-      progress("warn", `Output file is suspiciously small (${outputStat.size} bytes) — encoding may have failed`);
-    }
-  } catch {
-    // stat failure means file doesn't exist — pipeline.finalize should have thrown
-  }
-
-  // === Stage 11: Cleanup temp files ===
-  try {
-    await rm(tmpDir, { recursive: true, force: true });
-  } catch {
-    // Cleanup is best-effort
-  }
-
-  const durationMs = Date.now() - startTime;
-  progress("done", `Completed in ${(durationMs / 1000).toFixed(1)}s`);
-
-  return {
+  // === Stage 8+9: Build HTML and composite ===
+  return compositeOverlayVideo({
+    inputPath,
     outputPath,
     probe,
+    dims,
+    captionScript,
+    overlayScript,
+    overlayDeps,
+    style,
+    captionPosition,
+    encodingSpeed: options.encodingSpeed || "balanced",
+    startTime,
     wordCount: words.length,
     captionGroupCount: captionGroups.length,
     overlayCount,
-    durationMs,
+    progress,
+  });
+}
+
+// ============================================================
+// Agent Overlay Rendering — model-agnostic
+// ============================================================
+
+export interface EditWithOverlaysOptions {
+  /** Path to source video file */
+  input: string;
+  /** Output file path */
+  output: string;
+  /**
+   * Path to overlay decisions JSON — produced by any AI agent.
+   * Must be an array of AgentOverlayDecision objects.
+   * See EDIT-AGENT-CONTRACT.md for the full specification.
+   */
+  overlaysPath: string;
+  /** Caption animation preset */
+  captionPreset?: CaptionPreset;
+  /** Output format */
+  format?: "landscape" | "vertical" | "square" | "source";
+  /** Encoding speed */
+  encodingSpeed?: "fast" | "balanced" | "slow" | "lossless";
+  /** Path to existing SRT file (skip transcription) */
+  srtPath?: string;
+  /** Path to existing WhisperX word-level JSON (skip transcription) */
+  wordTimingsPath?: string;
+  /** Max words per caption group */
+  maxWordsPerGroup?: number;
+  /** Caption position */
+  captionPosition?: "bottom" | "center" | "top";
+  /** Skip captions entirely */
+  captionsOnly?: boolean;
+  /** Style preset for captions (does not affect agent overlays) */
+  style?: string;
+  /** Brand color for captions */
+  brandColor?: string;
+  /** Progress callback */
+  onProgress?: (stage: string, detail: string) => void;
+}
+
+/**
+ * Render a video with agent-produced overlays.
+ *
+ * The agent (any model) has already done the creative work and written
+ * overlay-decisions.json. This function renders it. No AI calls here.
+ *
+ * See EDIT-AGENT-CONTRACT.md for how to produce the overlays JSON.
+ */
+export async function editVideoWithOverlays(options: EditWithOverlaysOptions): Promise<EditResult> {
+  const startTime = Date.now();
+  const progress = options.onProgress || (() => {});
+
+  const inputPath = resolve(options.input);
+  const outputPath = resolve(options.output);
+
+  // Stage 1: Probe
+  progress("probe", "Analyzing source video...");
+  const probe = await probeVideo(inputPath);
+  progress("probe", `Source: ${probe.width}x${probe.height} @ ${probe.fps}fps, ${Math.round(probe.duration)}s`);
+
+  // Stage 2: Dimensions
+  const format = options.format || "source";
+  const dims = getFormatDimensions(format, probe.width, probe.height);
+  progress("format", `Output format: ${dims.width}x${dims.height}`);
+
+  // Stage 3: Load agent overlay decisions
+  progress("overlays", `Loading overlay decisions from ${options.overlaysPath}...`);
+  const rawJson = await readFile(resolve(options.overlaysPath), "utf-8");
+  const rawDecisions = JSON.parse(rawJson);
+  const decisions = validateOverlayDecisions(rawDecisions, probe.duration * 1000);
+  progress("overlays", `Loaded ${decisions.length} overlay decisions`);
+
+  // Stage 4: Word timings (for captions)
+  let words: WordTiming[] = [];
+  if (!options.captionsOnly || options.srtPath || options.wordTimingsPath) {
+    progress("transcribe", "Getting word-level transcription...");
+    words = await getWordTimings(inputPath, options as any, progress);
+    progress("transcribe", `Got ${words.length} word timings`);
+  }
+
+  // Stage 5: Caption groups
+  const maxWords = options.maxWordsPerGroup ?? 4;
+  const captionGroups = groupWords(words, maxWords);
+
+  // Stage 6: Style (for captions only — agent overlays are self-styled)
+  let style: EditStyle;
+  if (options.brandColor) {
+    style = createCustomStyle(options.style || "bold-dark", { brandColor: options.brandColor });
+  } else {
+    style = getStylePreset(options.style || "bold-dark");
+  }
+
+  // Stage 7: Assemble agent overlays
+  let overlayScript = "";
+  let overlayDeps: ComponentDependency[] = [];
+  if (!options.captionsOnly && decisions.length > 0) {
+    const assembled = assembleAgentOverlayPage(decisions, dims.width, dims.height);
+    overlayScript = assembled.script;
+    overlayDeps = assembled.dependencies;
+  }
+
+  // Stage 8: Captions
+  const captionPosition = options.captionPosition || "bottom";
+  const captionConfig: Partial<CaptionStyleConfig> = {
+    preset: options.captionPreset || "pop-in",
+    fontSize: scaleFontSize(80, dims.width, dims.height),
+    fontFamily: style.typography.captionFont,
+    primaryColor: style.colors.text,
+    accentColor: style.colors.primary,
+    position: captionPosition,
+    maxWordsPerGroup: maxWords,
   };
+  const captionScript = generateCaptionOverlay(captionGroups, captionConfig);
+
+  // Stage 9: Build HTML + composite
+  return compositeOverlayVideo({
+    inputPath,
+    outputPath,
+    probe,
+    dims,
+    captionScript,
+    overlayScript,
+    overlayDeps,
+    style,
+    captionPosition,
+    encodingSpeed: options.encodingSpeed || "balanced",
+    startTime,
+    wordCount: words.length,
+    captionGroupCount: captionGroups.length,
+    overlayCount: decisions.length,
+    progress,
+  });
 }
 
 // === Internal Functions ===
@@ -516,4 +571,125 @@ ${depScripts}
   </script>
 </body>
 </html>`;
+}
+
+/** Shared composite pipeline used by editVideo + editVideoWithOverlays */
+async function compositeOverlayVideo(args: {
+  inputPath: string;
+  outputPath: string;
+  probe: import("./video-probe.js").VideoProbeResult;
+  dims: { width: number; height: number };
+  captionScript: string;
+  overlayScript: string;
+  overlayDeps: ComponentDependency[];
+  style: EditStyle;
+  captionPosition: "bottom" | "center" | "top";
+  encodingSpeed: string;
+  startTime: number;
+  wordCount: number;
+  captionGroupCount: number;
+  overlayCount: number;
+  progress: (stage: string, detail: string) => void;
+}): Promise<EditResult> {
+  const { inputPath, outputPath, probe, dims, captionScript, overlayScript, overlayDeps, style, captionPosition, encodingSpeed, startTime, wordCount, captionGroupCount, overlayCount, progress } = args;
+
+  progress("build", "Building overlay layer...");
+  const tmpDir = join(tmpdir(), `frameforge-edit-${Date.now()}`);
+  await mkdir(tmpDir, { recursive: true });
+
+  const htmlPath = join(tmpDir, "overlay.html");
+  const overlayHTML = buildOverlayOnlyHTML(
+    dims.width,
+    dims.height,
+    captionScript,
+    overlayScript,
+    style,
+    captionPosition,
+    overlayDeps
+  );
+  await writeFile(htmlPath, overlayHTML, "utf-8");
+
+  const speed = (ENCODING_SPEED_PRESETS as any)[encodingSpeed] ? encodingSpeed as keyof typeof ENCODING_SPEED_PRESETS : "balanced";
+  const speedPreset = ENCODING_SPEED_PRESETS[speed];
+  const encoding = computeMatchedEncoding(probe, speed as any);
+
+  progress("render", `Starting composite render (${speed} quality)...`);
+
+  const pipeline = await compositeVideo({
+    sourceVideo: inputPath,
+    width: dims.width,
+    height: dims.height,
+    fps: probe.fps,
+    output: outputPath,
+    crf: encoding.crf,
+    preset: speedPreset.preset,
+    maxrate: encoding.maxrate,
+    bufsize: encoding.bufsize,
+    audioBitrate: encoding.audioBitrate,
+    pixelFormat: "yuv420p",
+  });
+
+  await captureFrames({
+    manifest: {
+      version: "1.0",
+      canvas: { width: dims.width, height: dims.height, fps: probe.fps, duration: probe.duration, background: "transparent" },
+      entry: htmlPath,
+      audio: [],
+      render: { codec: "h264", quality: "high", pixelFormat: "yuv420p", output: outputPath },
+    },
+    entryPath: htmlPath,
+    transparentBackground: true,
+    onFrame: async (frameData) => { await pipeline.writeFrame(frameData); },
+    onProgress: (current, total) => {
+      progress("render", `Frame ${current}/${total} (${Math.round((current / total) * 100)}%)`);
+    },
+  });
+
+  await pipeline.finalize();
+
+  try {
+    const s = await stat(outputPath);
+    if (s.size < 1000) progress("warn", `Output suspiciously small (${s.size}B)`);
+  } catch { /* file missing — finalize already threw */ }
+
+  try { await rm(tmpDir, { recursive: true, force: true }); } catch { /* best-effort */ }
+
+  const durationMs = Date.now() - startTime;
+  progress("done", `Completed in ${(durationMs / 1000).toFixed(1)}s`);
+
+  return { outputPath, probe, wordCount, captionGroupCount, overlayCount, durationMs };
+}
+
+// ============================================================
+// Transcript Extraction — standalone command
+// ============================================================
+
+export interface ExtractTranscriptOptions {
+  input: string;
+  output: string;
+  srtPath?: string;
+  wordTimingsPath?: string;
+  onProgress?: (stage: string, detail: string) => void;
+}
+
+/**
+ * Extract a transcript from a video file and write it as AgentTranscript JSON.
+ * This is what AI agents receive as input when making overlay decisions.
+ */
+export async function extractTranscript(options: ExtractTranscriptOptions): Promise<void> {
+  const progress = options.onProgress || (() => {});
+  const inputPath = resolve(options.input);
+  const outputPath = resolve(options.output);
+
+  progress("probe", "Probing video...");
+  const probe = await probeVideo(inputPath);
+  const dims = getFormatDimensions("source", probe.width, probe.height);
+
+  progress("transcribe", "Getting word timings...");
+  const words = await getWordTimings(inputPath, { input: inputPath, output: outputPath, srtPath: options.srtPath, wordTimingsPath: options.wordTimingsPath }, progress);
+
+  const transcript = buildAgentTranscript(words, probe.duration, dims.width, dims.height);
+
+  await writeFile(outputPath, JSON.stringify(transcript, null, 2), "utf-8");
+  progress("done", `Transcript written to ${outputPath} (${transcript.phrases.length} phrases, ${words.length} words)`);
 }

@@ -2,11 +2,29 @@ import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
 import { render } from "./renderer.js";
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { readFileSync, existsSync } from "node:fs";
+import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Load .env from cwd if present (no external dependency)
+(function loadDotenv() {
+  const envPath = join(process.cwd(), ".env");
+  if (!existsSync(envPath)) return;
+  try {
+    const lines = readFileSync(envPath, "utf-8").split(/\r?\n/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
+      if (key && !(key in process.env)) process.env[key] = val;
+    }
+  } catch { /* best-effort */ }
+})();
 
 function getVersion(): string {
   try {
@@ -325,7 +343,7 @@ program
   .description("Edit a video with auto-generated captions and motion graphics")
   .argument("<input>", "Path to source video file")
   .option("-o, --output <path>", "Output file path", "./edited.mp4")
-  .option("-s, --style <preset>", "Style preset (neo-brutalist, clean-minimal, corporate, bold-dark)", "neo-brutalist")
+  .option("-s, --style <preset>", "Style preset (neo-brutalist, clean-minimal, corporate, bold-dark, poster-modernist)", "neo-brutalist")
   .option("--caption-style <style>", "Caption style (pop-in, karaoke, highlight, minimal, bold-center)", "pop-in")
   .option("--format <format>", "Output format (landscape, vertical, square, source)", "source")
   .option("--brand-color <hex>", "Override primary brand color")
@@ -394,6 +412,134 @@ program
         );
       }
 
+      process.exit(1);
+    }
+  });
+
+program
+  .command("render-overlays")
+  .description(
+    "Render agent-produced overlay decisions onto a video.\n" +
+    "Any AI model (Claude, GPT, Gemini, local) can produce the overlays JSON.\n" +
+    "See EDIT-AGENT-CONTRACT.md for the overlay specification."
+  )
+  .argument("<input>", "Path to source video file")
+  .option("--overlays <path>", "Path to overlay decisions JSON (from AI agent)")
+  .option("-o, --output <path>", "Output file path", "./output-with-overlays.mp4")
+  .option("--srt <path>", "SRT file for captions")
+  .option("--word-timings <path>", "WhisperX word timings JSON for captions")
+  .option("--caption-style <style>", "Caption style (pop-in, karaoke, highlight, minimal, bold-center)", "pop-in")
+  .option("--caption-position <pos>", "Caption position (bottom, center, top)", "bottom")
+  .option("--max-words <n>", "Max words per caption group", parseInt, 4)
+  .option("--captions-only", "Skip overlays, only render captions")
+  .option("-s, --style <preset>", "Style for captions (bold-dark, poster-modernist, neo-brutalist)", "bold-dark")
+  .option("--brand-color <hex>", "Caption accent color")
+  .option("--format <format>", "Output format (landscape, vertical, square, source)", "source")
+  .option("--quality <speed>", "Encoding quality (fast, balanced, slow, lossless)", "balanced")
+  .action(async (input: string, opts) => {
+    const spinner = ora();
+
+    console.log(
+      chalk.bold("\n  FrameForge ") +
+        chalk.dim(`v${getVersion()} — render-overlays`) +
+        "\n"
+    );
+
+    if (!opts.overlays && !opts.captionsOnly) {
+      console.error(chalk.red("\n  Error: --overlays <path> is required (or use --captions-only).\n"));
+      console.error(
+        chalk.yellow(
+          "  Workflow:\n" +
+          "    1. frameforge extract-transcript video.mp4 -o transcript.json\n" +
+          "    2. Agent reads transcript.json + EDIT-AGENT-CONTRACT.md\n" +
+          "    3. Agent writes overlay-decisions.json\n" +
+          "    4. frameforge render-overlays video.mp4 --overlays overlay-decisions.json\n"
+        )
+      );
+      process.exit(1);
+    }
+
+    try {
+      spinner.start(chalk.dim("Rendering agent overlays..."));
+
+      const { editVideoWithOverlays } = await import("./editor.js");
+      const result = await editVideoWithOverlays({
+        input,
+        output: opts.output,
+        overlaysPath: opts.overlays || "",
+        srtPath: opts.srt,
+        wordTimingsPath: opts.wordTimings,
+        captionPreset: opts.captionStyle,
+        captionPosition: opts.captionPosition,
+        maxWordsPerGroup: opts.maxWords,
+        captionsOnly: opts.captionsOnly,
+        style: opts.style,
+        brandColor: opts.brandColor,
+        format: opts.format,
+        encodingSpeed: opts.quality,
+        onProgress: (stage, detail) => {
+          spinner.text = chalk.dim(`[${stage}] ${detail}`);
+        },
+      });
+
+      spinner.succeed(
+        chalk.green(`Rendered to ${result.outputPath}`) +
+          chalk.dim(
+            ` (${result.overlayCount} overlays, ${result.captionGroupCount} caption groups, ${(result.durationMs / 1000).toFixed(1)}s)`
+          )
+      );
+    } catch (err: any) {
+      spinner.fail(chalk.red("Render failed"));
+      console.error(chalk.red(`\n  ${err.message}\n`));
+      if (err.message.includes("ffprobe") || err.message.includes("FFmpeg")) {
+        console.error(chalk.yellow("  Hint: Install FFmpeg — https://ffmpeg.org/download.html\n"));
+      }
+      process.exit(1);
+    }
+  });
+
+program
+  .command("extract-transcript")
+  .description("Extract a transcript from a video — produces the JSON that AI agents read")
+  .argument("<input>", "Path to video file")
+  .option("-o, --output <path>", "Output JSON path", "./transcript.json")
+  .option("--srt <path>", "Use existing SRT instead of running speech recognition")
+  .option("--word-timings <path>", "Use existing WhisperX JSON instead of running speech recognition")
+  .action(async (input: string, opts) => {
+    const spinner = ora();
+
+    console.log(
+      chalk.bold("\n  FrameForge ") +
+        chalk.dim(`v${getVersion()} — extract-transcript`) +
+        "\n"
+    );
+
+    try {
+      spinner.start(chalk.dim("Extracting transcript..."));
+
+      const { extractTranscript } = await import("./editor.js");
+      await extractTranscript({
+        input,
+        output: opts.output,
+        srtPath: opts.srt,
+        wordTimingsPath: opts.wordTimings,
+        onProgress: (stage, detail) => {
+          spinner.text = chalk.dim(`[${stage}] ${detail}`);
+        },
+      });
+
+      spinner.succeed(
+        chalk.green(`Transcript saved to ${opts.output}`) +
+          chalk.dim(" — pass this to your AI agent with EDIT-AGENT-CONTRACT.md")
+      );
+    } catch (err: any) {
+      spinner.fail(chalk.red("Extraction failed"));
+      console.error(chalk.red(`\n  ${err.message}\n`));
+      if (err.message.includes("speech recognition")) {
+        console.error(
+          chalk.yellow("  Hint: Install WhisperX (pip install whisperx) or provide --srt <file>\n")
+        );
+      }
       process.exit(1);
     }
   });

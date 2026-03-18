@@ -1,21 +1,25 @@
 /**
  * Overlay Generator
  *
- * Analyzes a transcript and auto-generates a timeline of overlay elements
- * (hook cards, lower thirds, key points, stats, CTAs) with proper timing.
+ * Analyzes a transcript and auto-generates a timeline of overlay elements.
+ * Concept illustrations replace key-point/stat-callout text cards.
  *
  * Rules:
- * - Minimum 1 overlay every 5 seconds
  * - Maximum 3 overlays visible simultaneously
- * - Overlays must not overlap the caption area
- * - Each overlay: enter (0.3s) + display (2-8s) + exit (0.3s)
- *
- * All sizes are proportionally scaled to the video dimensions.
- * Reference: 1080px minimum dimension = 1.0x scale.
+ * - Concept illustrations: minimum 7.5s spacing, triggered by semantic concepts
+ * - No gap-filling with generic text cards
+ * - Each overlay: enter (0.3s) + display + exit (0.3s)
  */
 
 import { type EditStyle } from "./edit-styles.js";
 import { type WordTiming } from "./word-captions.js";
+import {
+  extractConceptIllustrations,
+  type TranscriptSegment,
+} from "./concept-extractor.js";
+
+// Re-export TranscriptSegment for backward compatibility
+export type { TranscriptSegment };
 
 // === Types ===
 
@@ -27,7 +31,15 @@ export type OverlayType =
   | "chapter-marker"
   | "cta-card"
   | "particle-burst"
-  | "progress-bar";
+  | "progress-bar"
+  | "illustration-crm-calendar"
+  | "illustration-social-feed"
+  | "illustration-ai-workflow"
+  | "illustration-stat-counter"
+  | "illustration-pipeline-board"
+  | "illustration-inbox-send"
+  | "illustration-dashboard"
+  | "illustration-code-terminal";
 
 export interface OverlayElement {
   type: OverlayType;
@@ -35,12 +47,6 @@ export interface OverlayElement {
   endMs: number;
   data: Record<string, string>;
   position: "top-left" | "top-right" | "top-center" | "bottom-left" | "bottom-right";
-}
-
-export interface TranscriptSegment {
-  start: number; // seconds
-  end: number; // seconds
-  text: string;
 }
 
 export interface OverlayGeneratorOptions {
@@ -100,36 +106,18 @@ export function generateOverlayTimeline(
     });
   }
 
-  // 3. Key points — detect important concepts
-  const keyPoints = extractKeyPoints(segments);
-  let kpPosition: "top-left" | "top-right" = "top-right";
-  for (const kp of keyPoints) {
-    // Don't overlap with hook card
-    if (kp.startMs < 5500) continue;
-
+  // 3. Concept illustrations — animated mini-UI demos of what's being discussed
+  //    Replaces key-point text cards and stat-callout number boxes.
+  //    Visual restraint: min 7.5s spacing, triggered only on real concept matches.
+  const illustrations = extractConceptIllustrations(segments, duration * 1000);
+  for (const ill of illustrations) {
+    if (ill.startMs < 5500) continue; // don't overlap hook card
     overlays.push({
-      type: "key-point",
-      startMs: kp.startMs,
-      endMs: kp.endMs,
-      data: {
-        label: kp.label,
-        text: kp.text,
-      },
-      position: kpPosition,
-    });
-    // Alternate sides
-    kpPosition = kpPosition === "top-right" ? "top-left" : "top-right";
-  }
-
-  // 4. Stat callouts — detect numbers and statistics
-  const stats = extractStats(segments);
-  for (const stat of stats) {
-    overlays.push({
-      type: "stat-callout",
-      startMs: stat.startMs,
-      endMs: stat.endMs,
-      data: stat.data,
-      position: "top-left",
+      type: `illustration-${ill.type}` as OverlayType,
+      startMs: ill.startMs,
+      endMs: ill.endMs,
+      data: ill.data,
+      position: ill.position,
     });
   }
 
@@ -183,10 +171,7 @@ export function generateOverlayTimeline(
     });
   }
 
-  // 9. Ensure minimum overlay density (1 per 5s)
-  fillGaps(overlays, segments, duration);
-
-  // 10. Remove overlaps (max 3 simultaneous)
+  // 9. Remove overlaps (max 3 simultaneous)
   return resolveOverlaps(overlays);
 }
 
