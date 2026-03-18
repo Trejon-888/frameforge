@@ -1,7 +1,7 @@
 # Session Handover
 
 **Project:** FrameForge
-**Current Status:** Cinema renderer system live, model-agnostic Edit Agent Contract shipped
+**Current Status:** Kinetic Orange white-canvas motion graphics v3 rendered — Canvas/SVG creative system live
 
 ---
 
@@ -40,6 +40,26 @@
 ---
 
 ## Session Log
+
+### Session 12 — 2026-03-18
+- **Context:** White canvas motion graphics video — user wanted ENTIRE video on white background with motion graphics supporting narration, captions at bottom
+- **Completed:**
+  - **White background architecture solved:** Use source video as render-overlays input (quality reference), add `background:#fff` div as overlay[0] — Puppeteer captures it as opaque white, FFmpeg composites to cover footage. No separate white-bg.mp4 needed.
+  - **Caption zone overlay:** Dark strip at bottom (0-55762ms) ensures caption readability on white; lower-third takes over at 55762ms
+  - **kinetic-white-v1:** First attempt — revealed pixelation bug from white-bg.mp4 quality reference
+  - **kinetic-white-v2 (12 overlays):** Correct white canvas approach. Full Kinetic Orange motion graphics: word-slam, stat-progress, chat-bubble, orange-strip, content-cards, platform-marquee, chat-thread, checklist, two-phase-system, lower-third
+  - **kinetic-white-v3 (17 overlays):** 5 Canvas/SVG creative additions:
+    - Dot grid pulse (Canvas, ambient full-video breathing orange matrix)
+    - Opening sine waveform (Canvas, 3-layer audio visualizer, 0-2700ms)
+    - SVG ring burst (SVG vector, 4 circles expanding via GSAP `attr:{r}`, 3200-8800ms)
+    - Neural network (Canvas, 26 drifting nodes + orange data pulses, 41500-53857ms)
+    - Closing sine waveform (Canvas, 4-layer bridge before lower third, 53700-55762ms)
+  - Faststart applied (movflags faststart) for mobile Safari streaming
+  - Served on local HTTP server port 9000
+- **Key architectural decision:** White canvas = overlay[0] with `background:#fff` — source video input for quality metadata, white canvas visually covers it in Puppeteer capture
+- **Kinetic Orange style spec:** `.agents/VISUAL-STYLES/kinetic-orange.md` — colors (#FF4D00/#000/#fff), Archivo Black + Space Mono, 2-3px borders, power4.out entries
+- **Stats:** v3 = 17 overlays, 67 caption groups, 2755 kb/s, 281s render time
+- **Next:** User wants v4 with even more visual density — explicit UI components, 3x the visuals
 
 ### Session 11 — 2026-03-17
 - **Context:** Cinema renderer system, poster-modernist style, Edit Agent Contract architecture

@@ -1,0 +1,92 @@
+[
+  {
+    "startMs": 0,
+    "durationMs": 2700,
+    "type": "kinetic-orange-header",
+    "rationale": "Scene: Opening hook — 'Cloud Code is going to change everything' | Timing: 0ms→2700ms | State: Full-width orange header, TOP zone | Effect: slide-down · hold · slide-up | Keyword: GOING",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-b{position:absolute;top:0;left:0;right:0;background:#FF4D00;border-bottom:3px solid #000;padding:40px 55px 35px;} .cls-__ID__-lbl{font-family:'Space Mono','Courier New',monospace;font-size:22px;color:#000;text-transform:uppercase;letter-spacing:-0.02em;opacity:.7;margin-bottom:10px;} .cls-__ID__-h{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:140px;color:#000;text-transform:uppercase;letter-spacing:-0.04em;line-height:.85;}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-b\"><div class=\"cls-__ID__-lbl\">↳ trending now</div><div class=\"cls-__ID__-h\">CLOUD CODE<br>IS GOING—</div></div></div>",
+    "initJs": "var b=el.querySelector('.cls-__ID__-b');el._tl=gsap.timeline({paused:true}).fromTo(b,{y:-400},{y:0,duration:0.32,ease:'power4.out'}).to({},{duration:2.0}).to(b,{y:-400,duration:0.28,ease:'power3.in'});"
+  },
+  {
+    "startMs": 2700,
+    "durationMs": 6600,
+    "type": "kinetic-orange-stat-card",
+    "rationale": "Scene: Authority claim — '#1 coding tool in 2026' | Timing: 2700ms→9300ms | State: Black stat card, BOTTOM-RIGHT corner | Effect: slide-from-right · hold · slide-out-right | Keyword: DOMINANCE",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-c{position:absolute;right:40px;bottom:220px;width:430px;background:#000;border-top:4px solid #FF4D00;border-left:4px solid #FF4D00;padding:28px 35px 32px;} .cls-__ID__-n{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:200px;color:#FF4D00;text-transform:uppercase;letter-spacing:-0.04em;line-height:.8;} .cls-__ID__-lbl{font-family:'Space Mono','Courier New',monospace;font-size:22px;color:#fff;text-transform:uppercase;letter-spacing:-0.02em;opacity:.9;margin-top:8px;line-height:1.3;}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-c\"><div class=\"cls-__ID__-n\">#1</div><div class=\"cls-__ID__-lbl\">CODING TOOL<br>· 2026 ·</div></div></div>",
+    "initJs": "var c=el.querySelector('.cls-__ID__-c');el._tl=gsap.timeline({paused:true}).fromTo(c,{x:1200},{x:0,duration:0.35,ease:'power4.out'}).to({},{duration:5.85}).to(c,{x:1200,duration:0.4,ease:'power3.in'});"
+  },
+  {
+    "startMs": 9300,
+    "durationMs": 3150,
+    "type": "kinetic-orange-pill-label",
+    "rationale": "Scene: Setup — 'Most people just use it as a chat tool' | Timing: 9300ms→12450ms | State: Orange pill, TOP-LEFT corner | Effect: fade-in · hold · fade-out | Keyword: CONTRAST",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-p{position:absolute;top:65px;left:60px;background:#FF4D00;border:2px solid #000;border-radius:9999px;padding:16px 36px;font-family:'Space Mono','Courier New',monospace;font-size:28px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:-0.02em;white-space:nowrap;}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-p\">MOST PEOPLE →</div></div>",
+    "initJs": "var p=el.querySelector('.cls-__ID__-p');el._tl=gsap.timeline({paused:true}).fromTo(p,{opacity:0,y:-20},{opacity:1,y:0,duration:0.25,ease:'power3.out'}).to({},{duration:2.65}).to(p,{opacity:0,y:-20,duration:0.25,ease:'power3.in'});"
+  },
+  {
+    "startMs": 12450,
+    "durationMs": 3200,
+    "type": "kinetic-orange-center-strip",
+    "rationale": "Scene: Pivot moment — 'But I did something different' | Timing: 12450ms→15650ms | State: Full-width orange strip, CENTER zone | Effect: slide-left · static · slide-left-out | Keyword: DISRUPTION",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-s{position:absolute;top:780px;left:0;right:0;background:#FF4D00;border-top:3px solid #000;border-bottom:3px solid #000;padding:38px 55px 42px;} .cls-__ID__-h{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:155px;color:#000;text-transform:uppercase;letter-spacing:-0.04em;line-height:.85;}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-s\"><div class=\"cls-__ID__-h\">SOMETHING<br>DIFFERENT.</div></div></div>",
+    "initJs": "var s=el.querySelector('.cls-__ID__-s');el._tl=gsap.timeline({paused:true}).fromTo(s,{x:-1200},{x:0,duration:0.38,ease:'power4.out'}).to({},{duration:2.44}).to(s,{x:-1200,duration:0.38,ease:'power3.in'});"
+  },
+  {
+    "startMs": 15900,
+    "durationMs": 8930,
+    "type": "kinetic-orange-content-list",
+    "rationale": "Scene: Content reveal — 'thumbnails, carousels, documents' | Timing: 15900ms→24830ms | State: Black list bar, TOP zone | Effect: slide-down · stagger-reveal · hold · slide-up | Keyword: ARSENAL",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-b{position:absolute;top:0;left:0;right:0;background:#000;border-bottom:3px solid #FF4D00;padding:35px 55px 30px;} .cls-__ID__-item{display:flex;align-items:center;gap:22px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.12);} .cls-__ID__-item:last-child{border-bottom:none;} .cls-__ID__-num{font-family:'Space Mono','Courier New',monospace;font-size:26px;font-weight:700;color:#FF4D00;min-width:56px;} .cls-__ID__-title{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:82px;color:#fff;text-transform:uppercase;letter-spacing:-0.04em;line-height:.88;} .cls-__ID__-sub{font-family:'Space Mono','Courier New',monospace;font-size:17px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:-0.01em;margin-top:4px;}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-b\"><div class=\"cls-__ID__-item\"><div class=\"cls-__ID__-num\">01</div><div><div class=\"cls-__ID__-title\">THUMBNAILS</div><div class=\"cls-__ID__-sub\">image generation</div></div></div><div class=\"cls-__ID__-item\"><div class=\"cls-__ID__-num\">02</div><div><div class=\"cls-__ID__-title\">CAROUSELS</div><div class=\"cls-__ID__-sub\">multi-slide content</div></div></div><div class=\"cls-__ID__-item\"><div class=\"cls-__ID__-num\">03</div><div><div class=\"cls-__ID__-title\">DOCUMENTS</div><div class=\"cls-__ID__-sub\">branded PDF + slides</div></div></div></div></div>",
+    "initJs": "var b=el.querySelector('.cls-__ID__-b');var items=el.querySelectorAll('.cls-__ID__-item');el._tl=gsap.timeline({paused:true}).fromTo(b,{y:-600},{y:0,duration:0.32,ease:'power4.out'}).fromTo(items,{x:-40,opacity:0},{x:0,opacity:1,duration:0.2,ease:'power3.out',stagger:0.45},'>+0.2').to({},{duration:6.5}).to(b,{y:-600,duration:0.46,ease:'power3.in'});"
+  },
+  {
+    "startMs": 24827,
+    "durationMs": 7400,
+    "type": "kinetic-orange-platform-marquee",
+    "rationale": "Scene: Scale proof — platforms where the content ships | Timing: 24827ms→32227ms | State: Dual-row CSS marquee, BOTTOM strip | Effect: slide-up · infinite-scroll · slide-down | Keyword: EVERYWHERE",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-strip{position:absolute;bottom:0;left:0;right:0;background:#000;border-top:3px solid #FF4D00;overflow:hidden;} .cls-__ID__-row1{display:flex;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,0.1);overflow:hidden;} .cls-__ID__-row2{display:flex;white-space:nowrap;overflow:hidden;} .cls-__ID__-r1t{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:50px;color:#FF4D00;text-transform:uppercase;letter-spacing:-0.02em;padding:14px 0;white-space:nowrap;animation:cls-__ID__-mq 5s linear infinite;} .cls-__ID__-r2t{font-family:'Space Mono','Courier New',monospace;font-size:20px;color:rgba(255,255,255,0.7);text-transform:uppercase;padding:10px 0;white-space:nowrap;animation:cls-__ID__-mq-r 9s linear infinite;} @keyframes cls-__ID__-mq{from{transform:translateX(0)}to{transform:translateX(-50%)}} @keyframes cls-__ID__-mq-r{from{transform:translateX(-50%)}to{transform:translateX(0)}}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-strip\"><div class=\"cls-__ID__-row1\"><div class=\"cls-__ID__-r1t\"> INSTAGRAM · TIKTOK · YOUTUBE · LINKEDIN · X · THREADS ·&nbsp; INSTAGRAM · TIKTOK · YOUTUBE · LINKEDIN · X · THREADS ·&nbsp;</div></div><div class=\"cls-__ID__-row2\"><div class=\"cls-__ID__-r2t\"> AI MADE THIS · 100% REAL · ZERO HOURS ·&nbsp; AI MADE THIS · 100% REAL · ZERO HOURS ·&nbsp;</div></div></div></div>",
+    "initJs": "var strip=el.querySelector('.cls-__ID__-strip');el._tl=gsap.timeline({paused:true}).fromTo(strip,{opacity:0,y:200},{opacity:1,y:0,duration:0.35,ease:'power3.out'}).to({},{duration:6.65}).to(strip,{opacity:0,y:200,duration:0.35,ease:'power3.in'});"
+  },
+  {
+    "startMs": 28850,
+    "durationMs": 2150,
+    "type": "kinetic-orange-wipe-reveal",
+    "rationale": "Scene: Magnitude punch — 'One conversation, one AI agent did all of this' | Timing: 28850ms→31000ms | State: Black venetian-wipe strip, CENTER zone | Effect: scaleY-wipe-open · hold · scaleY-wipe-close | Keyword: ONE",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-s{position:absolute;top:855px;left:0;right:0;background:#000;border-top:3px solid #FF4D00;border-bottom:3px solid #FF4D00;padding:28px 55px;display:flex;align-items:baseline;gap:36px;} .cls-__ID__-n{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:170px;color:#FF4D00;text-transform:uppercase;letter-spacing:-0.04em;line-height:.85;} .cls-__ID__-txt{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:88px;color:#fff;text-transform:uppercase;letter-spacing:-0.04em;line-height:.85;}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-s\"><div class=\"cls-__ID__-n\">ONE</div><div class=\"cls-__ID__-txt\">CONVERSATION.</div></div></div>",
+    "initJs": "var s=el.querySelector('.cls-__ID__-s');el._tl=gsap.timeline({paused:true}).fromTo(s,{scaleY:0,transformOrigin:'top center'},{scaleY:1,duration:0.35,ease:'power4.out'}).to({},{duration:1.45}).to(s,{scaleY:0,transformOrigin:'top center',duration:0.35,ease:'power2.in'});"
+  },
+  {
+    "startMs": 32500,
+    "durationMs": 8500,
+    "type": "kinetic-orange-proof-tags",
+    "rationale": "Scene: Proof cascade — listing what the AI actually created | Timing: 32500ms→41000ms | State: Orange bar with proof pills, TOP zone | Effect: slide-down · stagger-tags · hold · slide-up | Keyword: PROOF",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-b{position:absolute;top:0;left:0;right:0;background:#FF4D00;border-bottom:3px solid #000;padding:35px 55px 40px;} .cls-__ID__-h{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:105px;color:#000;text-transform:uppercase;letter-spacing:-0.04em;line-height:.85;margin-bottom:22px;} .cls-__ID__-tags{display:flex;flex-wrap:wrap;gap:14px;} .cls-__ID__-tag{font-family:'Space Mono','Courier New',monospace;font-size:20px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:-0.01em;border:2px solid #000;padding:10px 22px;white-space:nowrap;}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-b\"><div class=\"cls-__ID__-h\">AI MADE THIS →</div><div class=\"cls-__ID__-tags\"><div class=\"cls-__ID__-tag\">THUMBNAILS</div><div class=\"cls-__ID__-tag\">CAROUSELS</div><div class=\"cls-__ID__-tag\">DOCUMENTS</div><div class=\"cls-__ID__-tag\">SOCIAL COPY</div><div class=\"cls-__ID__-tag\">CODE</div></div></div></div>",
+    "initJs": "var b=el.querySelector('.cls-__ID__-b');var tags=el.querySelectorAll('.cls-__ID__-tag');el._tl=gsap.timeline({paused:true}).fromTo(b,{y:-600},{y:0,duration:0.32,ease:'power4.out'}).fromTo(tags,{opacity:0,x:-30},{opacity:1,x:0,duration:0.2,ease:'power3.out',stagger:0.45},'>+0.2').to({},{duration:5.0}).to(b,{y:-600,duration:0.45,ease:'power3.in'});"
+  },
+  {
+    "startMs": 41500,
+    "durationMs": 12357,
+    "type": "kinetic-orange-two-phase",
+    "rationale": "Scene: System reveal + payoff — step-by-step system → your own AI agent | Timing: 41500ms→53857ms | State: Phase1 orange top + Phase2 black bottom | Effect: slide-down · hold · slide-up-bot · exit-both | Keyword: SYSTEM",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-top{position:absolute;top:0;left:0;right:0;background:#FF4D00;border-bottom:3px solid #000;padding:35px 55px 30px;} .cls-__ID__-t-lbl{font-family:'Space Mono','Courier New',monospace;font-size:20px;color:#000;opacity:.7;text-transform:uppercase;letter-spacing:-0.02em;margin-bottom:8px;} .cls-__ID__-t-h{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:115px;color:#000;text-transform:uppercase;letter-spacing:-0.04em;line-height:.85;} .cls-__ID__-bot{position:absolute;bottom:0;left:0;right:0;background:#000;border-top:3px solid #FF4D00;padding:35px 55px 50px;} .cls-__ID__-b-lbl{font-family:'Space Mono','Courier New',monospace;font-size:20px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:-0.02em;margin-bottom:8px;} .cls-__ID__-b-h{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:120px;color:#fff;text-transform:uppercase;letter-spacing:-0.04em;line-height:.85;} .cls-__ID__-b-acc{color:#FF4D00;}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-top\"><div class=\"cls-__ID__-t-lbl\">↳ how it works</div><div class=\"cls-__ID__-t-h\">STEP-BY-STEP<br>SYSTEM</div></div><div class=\"cls-__ID__-bot\"><div class=\"cls-__ID__-b-lbl\">the result →</div><div class=\"cls-__ID__-b-h\">YOUR OWN<br><span class=\"cls-__ID__-b-acc\">AI AGENT</span></div></div></div>",
+    "initJs": "var top=el.querySelector('.cls-__ID__-top');var bot=el.querySelector('.cls-__ID__-bot');el._tl=gsap.timeline({paused:true}).fromTo(top,{y:-500},{y:0,duration:0.32,ease:'power4.out'}).to({},{duration:6.68}).fromTo(bot,{y:600},{y:0,duration:0.32,ease:'power4.out'}).to({},{duration:4.0}).to(top,{y:-500,duration:0.42,ease:'power3.in'}).to(bot,{y:600,duration:0.42,ease:'power3.in'},'<');"
+  },
+  {
+    "startMs": 55762,
+    "durationMs": 18099,
+    "type": "kinetic-orange-lower-third",
+    "rationale": "Scene: Identity close — speaker name + role for the full CTA section | Timing: 55762ms→73861ms | State: Black lower third, BOTTOM zone | Effect: slide-from-left · long-hold · fade-out | Keyword: IDENTITY",
+    "css": ".cls-__ID__-w{position:fixed;top:0;left:0;width:1080px;height:1920px;pointer-events:none;overflow:hidden;} .cls-__ID__-bar{position:absolute;bottom:0;left:0;right:0;background:#000;border-top:3px solid #FF4D00;padding:32px 55px 55px;} .cls-__ID__-name{font-family:'Archivo Black','Arial Black',Impact,sans-serif;font-size:105px;color:#fff;text-transform:uppercase;letter-spacing:-0.04em;line-height:.85;margin-bottom:12px;} .cls-__ID__-role{font-family:'Space Mono','Courier New',monospace;font-size:22px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:-0.02em;margin-bottom:18px;} .cls-__ID__-org{display:inline-block;background:#FF4D00;border:2px solid #000;padding:10px 26px;font-family:'Space Mono','Courier New',monospace;font-size:22px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:-0.01em;}",
+    "html": "<div class=\"cls-__ID__-w\"><div class=\"cls-__ID__-bar\"><div class=\"cls-__ID__-name\">ENRIQUE</div><div class=\"cls-__ID__-role\">BUSINESS DEV · AGENTIC SYSTEMS</div><div class=\"cls-__ID__-org\">@ INFINITE X</div></div></div>",
+    "initJs": "var bar=el.querySelector('.cls-__ID__-bar');el._tl=gsap.timeline({paused:true}).fromTo(bar,{x:-1200},{x:0,duration:0.38,ease:'power4.out'}).to({},{duration:17.36}).to(bar,{opacity:0,duration:0.35,ease:'power2.in'});"
+  }
+]
