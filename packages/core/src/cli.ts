@@ -499,6 +499,64 @@ program
   });
 
 program
+  .command("preview-overlays")
+  .description(
+    "Render a single frame for each overlay at its midpoint and output a static HTML preview page.\n" +
+    "Enables visual validation of overlay appearance in seconds rather than waiting for a full render."
+  )
+  .argument("<input>", "Path to source video file (used for dimensions)")
+  .option("--overlays <path>", "Path to overlay decisions JSON (required)")
+  .option("-o, --output <path>", "Output HTML file path", "./overlay-preview.html")
+  .action(async (input: string, opts) => {
+    const spinner = ora();
+
+    console.log(
+      chalk.bold("\n  FrameForge ") +
+        chalk.dim(`v${getVersion()} — preview-overlays`) +
+        "\n"
+    );
+
+    if (!opts.overlays) {
+      console.error(chalk.red("\n  Error: --overlays <path> is required.\n"));
+      console.error(
+        chalk.yellow(
+          "  Usage: frameforge preview-overlays video.mp4 --overlays overlay-decisions.json\n"
+        )
+      );
+      process.exit(1);
+    }
+
+    try {
+      spinner.start(chalk.dim("Loading overlays..."));
+
+      const { previewOverlays } = await import("./editor.js");
+      const result = await previewOverlays({
+        input,
+        overlaysPath: opts.overlays,
+        output: opts.output,
+        onProgress: (current, total) => {
+          spinner.text = chalk.dim(`Capturing overlay ${current}/${total}...`);
+        },
+      });
+
+      spinner.succeed(
+        chalk.green(`Preview saved to ${result.outputPath}`) +
+          chalk.dim(` (${result.overlayCount} overlays) — open in browser to review`)
+      );
+    } catch (err: any) {
+      spinner.fail(chalk.red("Preview failed"));
+      console.error(chalk.red(`\n  ${err.message}\n`));
+      if (err.message.includes("ffprobe") || err.message.includes("FFmpeg")) {
+        console.error(chalk.yellow("  Hint: Install FFmpeg — https://ffmpeg.org/download.html\n"));
+      }
+      if (err.message.includes("ENOENT") || err.message.includes("no such file") || err.message.includes("not found")) {
+        console.error(chalk.yellow("  Hint: Check that the video and overlays JSON paths are correct.\n"));
+      }
+      process.exit(1);
+    }
+  });
+
+program
   .command("extract-transcript")
   .description("Extract a transcript from a video — produces the JSON that AI agents read")
   .argument("<input>", "Path to video file")

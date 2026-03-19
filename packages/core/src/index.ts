@@ -30,7 +30,14 @@ export {
 } from "./subtitles.js";
 
 // Video editing engine
-export { editVideo, type EditOptions, type EditResult } from "./editor.js";
+export {
+  editVideo,
+  previewOverlays,
+  type EditOptions,
+  type EditResult,
+  type OverlayPreviewOptions,
+  type OverlayPreviewResult,
+} from "./editor.js";
 export { probeVideo, computeMatchedEncoding, getFormatDimensions, type VideoProbeResult } from "./video-probe.js";
 export {
   groupWords,
@@ -65,6 +72,28 @@ export {
 
 // Edit preview
 export { generateEditPreview, type EditPreviewOptions } from "./preview-edit.js";
+
+// Edit agent contract
+export {
+  buildAgentTranscript,
+  validateOverlayDecisions,
+  type AgentTranscript,
+  type AgentOverlayDecision,
+  type TranscriptPhrase,
+} from "./edit-agent.js";
+
+// Transcript intelligence — perception layer for agentic editing
+export {
+  analyzeTranscript,
+  formatIntelligenceForAgent,
+  type PausePoint,
+  type EnergyPoint,
+  type DetectedStat,
+  type EmphasisMoment,
+  type NarrativeSegment,
+  type ZoneRecommendation,
+  type TranscriptIntelligence,
+} from "./transcript-intelligence.js";
 
 // Component system
 export {

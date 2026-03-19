@@ -15,7 +15,7 @@
  * rendered in the browser as transparent frames.
  */
 
-import { resolve, join } from "node:path";
+import { resolve, join, dirname } from "node:path";
 import { readFile, writeFile, mkdir, rm, stat } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -658,6 +658,292 @@ async function compositeOverlayVideo(args: {
   progress("done", `Completed in ${(durationMs / 1000).toFixed(1)}s`);
 
   return { outputPath, probe, wordCount, captionGroupCount, overlayCount, durationMs };
+}
+
+// ============================================================
+// Overlay Preview — fast single-frame preview for each overlay
+// ============================================================
+
+export interface OverlayPreviewOptions {
+  /** Path to source video file (used for dimensions + fps) */
+  input: string;
+  /** Path to overlay-decisions.json */
+  overlaysPath: string;
+  /** Output HTML file path */
+  output?: string;
+  /** Progress callback */
+  onProgress?: (current: number, total: number) => void;
+}
+
+export interface OverlayPreviewResult {
+  outputPath: string;
+  frameCount: number;
+  overlayCount: number;
+}
+
+/**
+ * Render a single frame for each overlay at its midpoint timestamp and
+ * output a static self-contained HTML preview page.
+ *
+ * Enables fast visual validation of overlay appearance, timing, and
+ * positioning in seconds rather than waiting for a full render.
+ */
+export async function previewOverlays(options: OverlayPreviewOptions): Promise<OverlayPreviewResult> {
+  const inputPath = resolve(options.input);
+  const outputPath = resolve(options.output ?? "./overlay-preview.html");
+  const onProgress = options.onProgress || (() => {});
+
+  // Stage 1: Probe source video for dimensions + fps
+  const probe = await probeVideo(inputPath);
+  const dims = { width: probe.width, height: probe.height };
+
+  // Stage 2: Load + validate overlay decisions
+  const rawJson = await readFile(resolve(options.overlaysPath), "utf-8");
+  const rawDecisions = JSON.parse(rawJson);
+  const decisions = validateOverlayDecisions(rawDecisions, probe.duration * 1000);
+
+  if (decisions.length === 0) {
+    throw new Error("No valid overlay decisions found in the provided JSON file.");
+  }
+
+  // Stage 3: Assemble the overlay page (same as render-overlays)
+  const { script: overlayScript, dependencies: overlayDeps } = assembleAgentOverlayPage(
+    decisions,
+    dims.width,
+    dims.height
+  );
+
+  // Build the overlay HTML once (reused for each frame capture)
+  const overlayHTML = buildPreviewOverlayHTML(
+    dims.width,
+    dims.height,
+    overlayScript,
+    overlayDeps
+  );
+
+  // Stage 4: Capture one frame per overlay at its midpoint
+  const capturedFrames: Array<{ base64: string; decision: AgentOverlayDecision; index: number }> = [];
+
+  const tmpDir = join(tmpdir(), `frameforge-overlay-preview-${Date.now()}`);
+  await mkdir(tmpDir, { recursive: true });
+
+  try {
+    const htmlPath = join(tmpDir, "overlay-preview.html");
+    await writeFile(htmlPath, overlayHTML, "utf-8");
+
+    for (let i = 0; i < decisions.length; i++) {
+      const decision = decisions[i];
+      const midpointMs = decision.startMs + decision.durationMs / 2;
+
+      try {
+        const frameBuffer = await captureOverlayFrame({
+          htmlPath,
+          width: dims.width,
+          height: dims.height,
+          fps: probe.fps,
+          targetMs: midpointMs,
+        });
+
+        capturedFrames.push({
+          base64: frameBuffer.toString("base64"),
+          decision,
+          index: i,
+        });
+      } catch (err: any) {
+        console.warn(
+          `[FrameForge] Warning: Failed to capture frame for overlay[${i}] ` +
+          `(${decision.type} at ${decision.startMs}ms): ${err.message}`
+        );
+      }
+
+      onProgress(i + 1, decisions.length);
+    }
+
+    // Stage 5: Generate self-contained HTML preview
+    const cards = capturedFrames.map(({ base64, decision, index }) => {
+      const endMs = decision.startMs + decision.durationMs;
+      const escapedType = escapeHtml(decision.type);
+      const escapedRationale = escapeHtml(decision.rationale || "");
+      return `<div class="card">
+  <img src="data:image/png;base64,${base64}" />
+  <div class="meta">
+    <div class="meta-type">#${index} · ${escapedType}</div>
+    <div class="meta-timing">${decision.startMs}ms → ${endMs}ms (${decision.durationMs}ms)</div>
+    <div class="meta-rationale">${escapedRationale}</div>
+  </div>
+</div>`;
+    }).join("\n    ");
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { background: #0a0a0a; font-family: 'Inter', system-ui, sans-serif; color: #fff; margin: 0; padding: 24px; }
+    h1 { font-size: 18px; font-weight: 600; margin-bottom: 24px; color: #888; }
+    .grid { display: flex; flex-wrap: wrap; gap: 20px; }
+    .card { background: #1a1a1a; border-radius: 12px; overflow: hidden; max-width: 320px; }
+    .card img { width: 100%; display: block; }
+    .meta { padding: 12px 16px; }
+    .meta-type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #FF4D00; font-weight: 700; margin-bottom: 4px; }
+    .meta-timing { font-size: 12px; color: #666; margin-bottom: 6px; }
+    .meta-rationale { font-size: 13px; color: #aaa; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <h1>Overlay Preview — ${capturedFrames.length} overlays</h1>
+  <div class="grid">
+    ${cards}
+  </div>
+</body>
+</html>`;
+
+    await mkdir(dirname(outputPath), { recursive: true });
+    await writeFile(outputPath, html, "utf-8");
+  } finally {
+    try {
+      await rm(tmpDir, { recursive: true, force: true });
+    } catch { /* best-effort */ }
+  }
+
+  return {
+    outputPath,
+    frameCount: capturedFrames.length,
+    overlayCount: decisions.length,
+  };
+}
+
+/** Capture a single PNG frame of the overlay page at a specific virtual time (ms). */
+async function captureOverlayFrame(args: {
+  htmlPath: string;
+  width: number;
+  height: number;
+  fps: number;
+  targetMs: number;
+}): Promise<Buffer> {
+  const { htmlPath, width, height, fps, targetMs } = args;
+
+  // Compute how many frames to advance to reach targetMs
+  const targetFrame = Math.max(0, Math.round((targetMs / 1000) * fps));
+  const duration = Math.max(targetMs / 1000 + 1, 1);
+  const totalFrames = Math.ceil(fps * duration);
+
+  const { default: puppeteer } = await import("puppeteer");
+  const { pathToFileURL } = await import("node:url");
+  const { TIME_VIRTUALIZATION_SCRIPT } = await import("./time-virtualization.js");
+  const { PAGE_API_SCRIPT } = await import("./page-api.js");
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      `--window-size=${width},${height}`,
+      "--disable-gpu",
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+    ],
+  });
+
+  try {
+    const page = await browser.newPage();
+    await page.setViewport({ width, height, deviceScaleFactor: 1 });
+
+    await page.evaluateOnNewDocument(`
+      window.__FRAMEFORGE_FPS__ = ${fps};
+      window.__FRAMEFORGE_TOTAL_FRAMES__ = ${totalFrames};
+      window.__FRAMEFORGE_DURATION__ = ${duration};
+      window.__FRAMEFORGE_WIDTH__ = ${width};
+      window.__FRAMEFORGE_HEIGHT__ = ${height};
+    `);
+    await page.evaluateOnNewDocument(TIME_VIRTUALIZATION_SCRIPT);
+    await page.evaluateOnNewDocument(PAGE_API_SCRIPT);
+
+    const entryUrl = pathToFileURL(htmlPath).href;
+    await page.goto(entryUrl, { waitUntil: "networkidle0", timeout: 30000 });
+
+    // Set transparent background
+    await page.evaluate(() => {
+      document.body.style.background = "transparent";
+      document.documentElement.style.background = "transparent";
+    });
+
+    // Advance virtual time to the target frame
+    for (let f = 0; f <= targetFrame; f++) {
+      await page.evaluate(() => {
+        (window as any).__frameforge.advanceFrame();
+      });
+    }
+
+    // Yield to repaint
+    await page.evaluate(
+      () =>
+        new Promise<void>((r) => {
+          const raf = (window as any).__originalRAF;
+          if (raf) raf(r);
+          else Promise.resolve().then(r);
+        })
+    );
+
+    // Capture with transparent background
+    const screenshot = await page.screenshot({
+      type: "png",
+      omitBackground: true,
+      encoding: "binary",
+    });
+
+    return screenshot as Buffer;
+  } finally {
+    await browser.close();
+  }
+}
+
+/** Build the overlay-only HTML page for preview (transparent background, no captions). */
+function buildPreviewOverlayHTML(
+  width: number,
+  height: number,
+  overlayScript: string,
+  dependencies: import("./components/types.js").ComponentDependency[]
+): string {
+  const depScripts = dependencies
+    .map((dep) => {
+      if (dep.getInlineContent) {
+        return `  <script>${dep.getInlineContent()}<\/script>`;
+      }
+      return `  <script src="${dep.url}"><\/script>`;
+    })
+    .join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+${depScripts}
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: ${width}px;
+      height: ${height}px;
+      overflow: hidden;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    ${overlayScript}
+  </script>
+</body>
+</html>`;
+}
+
+/** Escape HTML special characters for safe inline embedding. */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // ============================================================
