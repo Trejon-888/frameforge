@@ -307,6 +307,9 @@ export async function compositeVideo(
     "-crf", String(crf),
     "-pix_fmt", pixFmt,
     "-preset", preset,
+    // Force I-frame every second — prevents long GOP chains that cause bitstream corruption
+    // with fast presets (ultrafast disables scene detection, leaving only 4-5 I-frames in 73s)
+    "-g", String(Math.round(options.fps)),
     // Audio encoding
     "-c:a", "aac",
   ];

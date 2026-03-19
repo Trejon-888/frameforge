@@ -14,6 +14,7 @@
 | ADR-004 | Python SDK calls Node renderer via subprocess | 2026-03-15 | Python generates HTML + manifest, rendering stays in Node/Puppeteer where it's native; avoids maintaining two renderers | — |
 | ADR-005 | tsup for building, vitest for testing | 2026-03-15 | Fast, modern, good ESM support; matches the project's Node 20+ target | — |
 | ADR-006 | Edit agent is model-agnostic — FrameForge never calls AI APIs | 2026-03-17 | FrameForge philosophy: framework-agnostic rendering. Embedding Anthropic SDK contradicts this. Agent reads EDIT-AGENT-CONTRACT.md, writes overlay-decisions.json, FrameForge renders it. Any model works. | Supersedes: any design where FrameForge calls an AI API internally |
+| ADR-007 | Always pass `-g fps` to libx264 in compositeVideo | 2026-03-18 | `ultrafast` preset disables scene-change detection, producing long GOP chains that corrupt bitstreams. Explicit keyframe interval every second ensures valid bitstream regardless of preset. Applies to all quality levels including `fast`. | — |
 
 ---
 
@@ -23,6 +24,7 @@
 
 | Problem | Root Cause | Solution | Session |
 |---------|-----------|----------|---------|
+| H.264 bitstream corruption ("Invalid NAL unit size -1713181357") | `ultrafast` preset disables scene detection → only 4 I-frames in 73s → long GOP P-frame chains produce invalid NAL headers. Confirmed: 4 I-frames (corrupt) vs 75 I-frames (clean) | Added `-g ${Math.round(fps)}` to `compositeVideo` in `ffmpeg.ts` — forces I-frame every second regardless of preset | Session 14 |
 | `__originalRAF` undefined in frame-capture | Variable scoped inside time-virtualization IIFE, not exposed on window | Added `window.__originalRAF = _originalRAF` at end of IIFE | Session 1 |
 | Output path resolves to CWD not manifest dir | `resolve(options.output)` uses CWD; CLI always set default `-o` value | Remove CLI default for `-o`; resolve output relative to `dirname(manifestPath)` in renderer | Session 1 |
 | npm install fails with EUNSUPPORTEDPROTOCOL | `workspace:*` in published package.json — pnpm workspace ref doesn't work on npm | Changed to `^0.1.0`, republished all packages at 0.1.1 | Session 7 |
@@ -51,6 +53,8 @@
 
 - **Even dimensions required:** H.264 requires width/height to be even numbers. The ffmpeg pipeline includes a `scale=trunc(iw/2)*2:trunc(ih/2)*2` filter as a safety net.
 - **PATH availability:** FFmpeg must be installed and in PATH. Error messages should guide the user to install it.
+- **`ultrafast` preset causes H.264 bitstream corruption on long videos:** `ultrafast` disables scene-change detection, producing only 4–5 I-frames in a 73s video (avg GOP = 18s). FFmpeg rate-control with such long P-frame chains produces invalid NAL unit headers (`-1713181357`). Fix: always pass `-g fps` (I-frame every second) in `compositeVideo`. Applied in Session 14. Never use `ultrafast` without `-g` on videos > 30s.
+- **`ultrafast` forces Constrained Baseline profile:** Disables CABAC, 8×8 DCT, B-frames. This halves compression efficiency — a 73s video encoded at CRF 23 / ultrafast was 33MB vs 14MB at CRF 19 / medium. Use `balanced` (medium preset) for production renders.
 
 ### Time Virtualization
 

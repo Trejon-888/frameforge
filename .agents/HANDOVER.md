@@ -17,10 +17,10 @@
 
 ## What's Next
 
-**#1 PRIORITY: Review agent-latest.mp4 and iterate**
-- Check timing of 6 overlays on clip-06
-- Adjust overlay-decisions.json as needed (no code changes required — just edit the JSON)
-- Try on other clips with different content types
+**#1 PRIORITY: Review kinetic-white-v4-clip01-v2.mp4**
+- Served at http://localhost:9000/kinetic-white-v4-clip01-v2.mp4
+- 24 overlays, 41 captions, 73.9s, 14MB, zero H.264 corruption (fixed)
+- If audio doesn't sync with overlay events, provide the portrait-crop source video → re-render in ~8 min
 
 **#2: Agent overlay preview command**
 - `frameforge preview-overlays video.mp4 --overlays decisions.json` — renders one frame per overlay (fast, no full render needed)
@@ -40,6 +40,32 @@
 ---
 
 ## Session Log
+
+### Session 14 — 2026-03-18
+- **Context:** H.264 bitstream corruption fix — v4 render (`kinetic-white-v4-clip01.mp4`) was corrupt after second "5" stat card
+- **Completed:**
+  - **Diagnosed root cause:** `--quality fast` → `ultrafast` preset → `Constrained Baseline` profile → only 4 I-frames in 73s (avg GOP = 18s). FFmpeg rate-control produces invalid NAL unit headers (`-1713181357`) with such long P-frame chains
+  - **Fix:** Added `-g ${Math.round(fps)}` to `compositeVideo` in `packages/core/src/ffmpeg.ts` — forces I-frame every second regardless of preset. One-line fix, applies to ALL future renders
+  - **Re-rendered:** `kinetic-white-v4-clip01-v2.mp4` — 73.9s, 14MB, zero H.264 errors, 75 I-frames/s (vs 4 in corrupt original)
+  - **Source note:** Original `clip01-split-v7.mp4` was in an empty directory (gone). Used `clip-01-v18.mp4` trimmed to 73.83s as source (same clip01 content, correct audio)
+- **Stats:** 24 overlays, 41 caption groups, 473s render time (balanced quality), 14MB, served at http://localhost:9000/kinetic-white-v4-clip01-v2.mp4
+- **Next:** Review v4-v2 quality; if audio sync feels off vs overlay events, provide the correct portrait-crop source video for one final re-render
+
+### Session 13 — 2026-03-18
+- **Context:** v4 — 3x visual density, explicit UI components
+- **Completed:**
+  - Designed and wrote `overlay-kinetic-white-v4-clip01.json` — 24 overlays (17 v3 + 7 new)
+  - **"THE OTHER HALF." word slam** (26300ms) — quick top-zone orange punch at pivot moment
+  - **Pipeline Board UI panel** (32000ms, 7200ms) — dark floating Kanban panel: Leads→Active→Closed, orange accent, "DEAL CLOSED" badge; appears as speaker describes AI client acquisition
+  - **CRM Calendar UI panel** (39200ms, 7000ms) — calendar grid with orange booked slots springing in; appears as speaker says "books appointments directly into your calendar"
+  - **$4B stat card** (50100ms, 5200ms) — right-side stat card slides from right, counts 0→$4B; appears when "$4 billion in assets" is mentioned
+  - **"20+ PARTNERS" top-zone stat** (54021ms, 4500ms) — large left-anchored stat with orange border-left, slides down
+  - **Orbital Canvas animation** (57000ms, 16833ms) — 5 rotating ellipses with drifting dots fill white canvas during entire outro section
+  - **CTA "FOLLOW @INFINITX" card** (62000ms, 10000ms) — centered full-width card with orange top border, "FOR AI SYSTEMS →"
+  - Render: 73.8s, 3.5 Mb/s, 31MB, served at http://localhost:9000/kinetic-white-v4-clip01.mp4
+- **Key decisions:** Pipeline board + Calendar panels use dark glassmorphism (rgba(6,8,14,0.96)) over white canvas — intentional contrast; ID-based selectors (document.getElementById('__ID__-...')) used since __ID__ ensures uniqueness post-replacement
+- **Stats:** 24 overlays, ~281s render time (fast quality), 31MB
+- **Next:** Review v4 quality; if good, v5 could add even more density or different clip
 
 ### Session 12 — 2026-03-18
 - **Context:** White canvas motion graphics video — user wanted ENTIRE video on white background with motion graphics supporting narration, captions at bottom
