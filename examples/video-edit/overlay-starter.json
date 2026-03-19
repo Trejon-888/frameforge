@@ -1,0 +1,38 @@
+[
+  {
+    "startMs": 1000,
+    "durationMs": 6000,
+    "type": "lower-third",
+    "rationale": "Establish speaker identity in the first seconds before they've said anything substantive",
+    "css": ".cls-__ID__-root { position: absolute; bottom: 15%; left: 0; width: 100%; padding: 0 60px; box-sizing: border-box; } .cls-__ID__-bar { display: flex; align-items: center; gap: 20px; } .cls-__ID__-accent { width: 6px; height: 70px; background: #FF4D00; flex-shrink: 0; } .cls-__ID__-text { display: flex; flex-direction: column; gap: 4px; } .cls-__ID__-name { font-family: 'Archivo Black', sans-serif; font-size: 52px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.02em; } .cls-__ID__-title { font-family: 'Space Mono', monospace; font-size: 28px; color: rgba(255,255,255,0.65); }",
+    "html": "<div class=\"cls-__ID__-root\"><div class=\"cls-__ID__-bar\"><div class=\"cls-__ID__-accent\"></div><div class=\"cls-__ID__-text\"><div class=\"cls-__ID__-name\">YOUR NAME</div><div class=\"cls-__ID__-title\">YOUR TITLE / BRAND</div></div></div></div>",
+    "initJs": "var root = el.querySelector('.cls-__ID__-root'); var accent = el.querySelector('.cls-__ID__-accent'); var name = el.querySelector('.cls-__ID__-name'); var title = el.querySelector('.cls-__ID__-title'); el._tl = gsap.timeline({ paused: true }); el._tl.set(root, { opacity: 0 }); el._tl.to(accent, { scaleY: 1, duration: 0.3, ease: 'power3.out' }, 0); el._tl.to(name, { opacity: 1, x: 0, duration: 0.4, ease: 'power3.out' }, 0.1); el._tl.to(title, { opacity: 1, x: 0, duration: 0.4, ease: 'power3.out' }, 0.2); el._tl.set(root, { opacity: 1 }, 0); el._tl.to(root, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 5.6);"
+  },
+  {
+    "startMs": 8500,
+    "durationMs": 5500,
+    "type": "hook-phrase",
+    "rationale": "Post-pause entry — the speaker just said something powerful. Kinetic phrase amplifies the thesis word by word.",
+    "css": ".cls-__ID__-root { position: absolute; top: 15%; left: 0; width: 100%; text-align: center; padding: 0 80px; box-sizing: border-box; } .cls-__ID__-line { font-family: 'Archivo Black', sans-serif; font-size: 88px; color: #FF4D00; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; } .cls-__ID__-word { display: inline-block; }",
+    "html": "<div class=\"cls-__ID__-root\"><div class=\"cls-__ID__-line\"><span class=\"cls-__ID__-word\">YOUR</span><span class=\"cls-__ID__-word\">KEY</span><span class=\"cls-__ID__-word\">PHRASE</span></div></div>",
+    "initJs": "var words = el.querySelectorAll('.cls-__ID__-word'); var root = el.querySelector('.cls-__ID__-root'); el._tl = gsap.timeline({ paused: true }); el._tl.set(words, { opacity: 0, y: 30 }); el._tl.to(words, { opacity: 1, y: 0, duration: 0.35, ease: 'power3.out', stagger: 0.1 }, 0); el._tl.to(root, { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' }, 5.1);"
+  },
+  {
+    "startMs": 20000,
+    "durationMs": 6000,
+    "type": "stat-reveal",
+    "rationale": "Speaker mentions a specific number — hero stat revealed with count-up animation and held for impact",
+    "css": ".cls-__ID__-root { position: absolute; top: 28%; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; } .cls-__ID__-number { font-family: 'Archivo Black', sans-serif; font-size: 160px; color: #ffffff; text-transform: uppercase; letter-spacing: -0.04em; line-height: 1; } .cls-__ID__-label { font-family: 'Space Mono', monospace; font-size: 30px; color: rgba(255,255,255,0.55); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; }",
+    "html": "<div class=\"cls-__ID__-root\"><div class=\"cls-__ID__-number\">0</div><div class=\"cls-__ID__-label\">YOUR STAT LABEL</div></div>",
+    "initJs": "var num = el.querySelector('.cls-__ID__-number'); var root = el.querySelector('.cls-__ID__-root'); var label = el.querySelector('.cls-__ID__-label'); el._tl = gsap.timeline({ paused: true }); el._tl.set(root, { opacity: 0, scale: 0.85 }); el._tl.to(root, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.4)' }, 0); el._tl.to(num, { textContent: 100, duration: 1.2, ease: 'power2.out', snap: { textContent: 1 }, onUpdate: function() { num.textContent = Math.round(+num.textContent) + '%'; } }, 0.2); el._tl.to(label, { opacity: 0.55, duration: 0.4 }, 0.6); el._tl.to(root, { opacity: 0, scale: 0.95, duration: 0.4, ease: 'power2.in' }, 5.6);"
+  },
+  {
+    "startMs": 35000,
+    "durationMs": 8000,
+    "type": "cta-card",
+    "rationale": "Final action card — appears when speaker gives the call to action. Direct and held long enough to be actionable.",
+    "css": ".cls-__ID__-root { position: absolute; top: 20%; left: 60px; right: 60px; border-top: 3px solid #FF4D00; padding: 40px; background: rgba(6,8,14,0.9); } .cls-__ID__-action { font-family: 'Archivo Black', sans-serif; font-size: 56px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.01em; } .cls-__ID__-sub { font-family: 'Space Mono', monospace; font-size: 28px; color: rgba(255,255,255,0.55); margin-top: 12px; } .cls-__ID__-arrow { color: #FF4D00; }",
+    "html": "<div class=\"cls-__ID__-root\"><div class=\"cls-__ID__-action\">FOLLOW FOR MORE <span class=\"cls-__ID__-arrow\">→</span></div><div class=\"cls-__ID__-sub\">@yourusername</div></div>",
+    "initJs": "var root = el.querySelector('.cls-__ID__-root'); var action = el.querySelector('.cls-__ID__-action'); var sub = el.querySelector('.cls-__ID__-sub'); el._tl = gsap.timeline({ paused: true }); el._tl.set(root, { opacity: 0, y: 30 }); el._tl.to(root, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0); el._tl.from(action, { opacity: 0, x: -20, duration: 0.4, ease: 'power3.out' }, 0.15); el._tl.from(sub, { opacity: 0, x: -20, duration: 0.4, ease: 'power3.out' }, 0.3); el._tl.to(root, { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' }, 7.6);"
+  }
+]

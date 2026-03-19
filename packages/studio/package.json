@@ -1,6 +1,6 @@
 {
   "name": "@frameforge/studio",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "FrameForge Studio — local preview UI with timeline scrubbing and hot-reload",
   "type": "module",
   "main": "./dist/index.js",
@@ -19,7 +19,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@frameforge/core": "^0.1.0",
+    "@frameforge/core": "^0.2.0",
     "puppeteer": "^23.0.0",
     "fastify": "^5.0.0",
     "@fastify/websocket": "^11.0.0",

@@ -1,7 +1,7 @@
 {
   "name": "@frameforge/core",
-  "version": "0.1.1",
-  "description": "FrameForge rendering engine — deterministic browser-to-video pipeline",
+  "version": "0.2.0",
+  "description": "FrameForge rendering engine — deterministic browser-to-video pipeline + AI-powered video editing",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -40,6 +40,7 @@
   },
   "keywords": [
     "video",
+    "video-editing",
     "rendering",
     "animation",
     "headless-chrome",
@@ -48,7 +49,12 @@
     "programmatic-video",
     "motion-graphics",
     "deterministic",
-    "frame-by-frame"
+    "frame-by-frame",
+    "captions",
+    "whisperx",
+    "overlays",
+    "ai-video",
+    "agent"
   ],
   "license": "MIT",
   "repository": {

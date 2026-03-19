@@ -87,6 +87,39 @@ scene.add(title, bar);
 await scene.render("./output.mp4");
 ```
 
+### Approach 4: Edit a Real Video with AI Overlays
+
+Use this when the user has source footage (a talking-head clip, testimonial, tutorial, etc.) and wants to add professional captions + motion graphics overlays.
+
+```bash
+# Step 1 — Extract enriched transcript (word timing, pauses, stats, energy curve)
+npx frameforge extract-transcript clip.mp4 -o transcript.json
+
+# Step 2 — You write overlay decisions as JSON (see Edit Agent Contract below)
+# Read .agents/EDIT-AGENT-CONTRACT.md for the full 5-phase editing loop
+
+# Step 3 — Preview overlays before full render (~30s vs 8-12min)
+npx frameforge preview-overlays clip.mp4 --overlays overlay-decisions.json -o preview.html
+# Open preview.html — one card per overlay showing midpoint frame
+
+# Step 4 — Full render
+npx frameforge render-overlays clip.mp4 \
+  --overlays overlay-decisions.json \
+  --srt captions.srt \
+  --quality balanced \
+  -o output.mp4
+```
+
+**Alternatively, use the all-in-one command:**
+```bash
+npx frameforge edit clip.mp4 \
+  --word-timings whisperx-output.json \
+  --style neo-brutalist \
+  --caption-style pop-in \
+  --quality balanced \
+  -o output.mp4
+```
+
 ---
 
 ## When to Use Each Approach
@@ -96,6 +129,7 @@ await scene.render("./output.mp4");
 | **Raw HTML** | Complex animations, 3rd-party libraries (GSAP, Three.js, p5.js), full creative control |
 | **Manifest** | Configuring existing HTML pages, changing resolution/fps/duration without code changes |
 | **SDK** | Programmatic content, data-driven videos, consistent branding, rapid prototyping |
+| **Edit** | Adding professional captions + motion graphic overlays to existing source footage |
 
 ---
 
@@ -170,9 +204,35 @@ new Image("path.jpg", { width, height, x, y, opacity, objectFit, borderRadius })
 ## CLI Commands
 
 ```bash
-# Render video
+# ── Video Editing ────────────────────────────────────────────────────────────
+
+# Extract enriched transcript (word timings, pauses, stats, energy curve, narrative)
+npx frameforge extract-transcript <video> -o transcript.json
+
+# Render overlay decisions from an AI agent onto source video
+npx frameforge render-overlays <video> --overlays decisions.json [--srt captions.srt] -o output.mp4
+  --quality fast|balanced|slow|lossless   (default: balanced)
+  --caption-style pop-in|karaoke|highlight|minimal|bold-center
+  --caption-position top|bottom
+  --format landscape|vertical|square|source
+
+# Preview overlay decisions before committing to full render (~30s)
+npx frameforge preview-overlays <video> --overlays decisions.json -o preview.html
+
+# All-in-one auto-edit pipeline
+npx frameforge edit <video> [options]
+  --word-timings <path>     WhisperX JSON with word-level timing
+  --style neo-brutalist|clean-minimal|corporate|bold-dark
+  --caption-style <preset>
+  --format <format>
+  --quality <level>
+  -o output.mp4
+
+# ── Programmatic Video ───────────────────────────────────────────────────────
+
+# Render any HTML page or scene manifest
 npx frameforge render <input> [options]
-  -o, --output <path>      Output file path
+  -o, --output <path>       Output file path
   -d, --duration <seconds>  Duration (required for HTML)
   --fps <number>            Frames per second (default: 30)
   --width <pixels>          Width (default: 1920)
@@ -182,7 +242,38 @@ npx frameforge render <input> [options]
 npx frameforge preview <input> [options]
   -o, --output <path>       Output PNG path (default: ./preview.png)
   -f, --frame <number>      Frame number (default: 0)
+
+# Compose multiple scenes with transitions
+npx frameforge compose composition.json -o output.mp4
 ```
+
+---
+
+## Edit Agent Contract
+
+When editing source footage, you write overlay decisions as a JSON array. Each overlay specifies when to appear, how long to show, and the complete HTML/CSS/GSAP code to render.
+
+**The `__ID__` namespace:** Every CSS class, HTML ID, and querySelector must use `__ID__` as a prefix. It's replaced at render time with a unique instance identifier.
+
+**The GSAP contract:** Every `initJs` must set `el._tl` to a paused GSAP timeline. FrameForge calls `el._tl.time(localT / 1000)` every frame.
+
+```json
+[
+  {
+    "startMs": 4200,
+    "durationMs": 5000,
+    "type": "hook-phrase",
+    "rationale": "Post-pause entry after hook setup — kinetic phrase amplifies the thesis",
+    "css": ".cls-__ID__-wrap { position: absolute; top: 15%; width: 100%; text-align: center; } .cls-__ID__-word { display: inline-block; font-family: 'Archivo Black', sans-serif; font-size: 88px; color: #FF4D00; text-transform: uppercase; }",
+    "html": "<div class=\"cls-__ID__-wrap\"><span class=\"cls-__ID__-word\">KEY PHRASE</span></div>",
+    "initJs": "var root = el.querySelector('.cls-__ID__-wrap'); el._tl = gsap.timeline({paused:true}); el._tl.fromTo(root, {opacity:0, y:30}, {opacity:1, y:0, duration:0.4, ease:'power3.out'}); el._tl.to(root, {opacity:0, y:-20, duration:0.35, ease:'power2.in'}, 4.65);"
+  }
+]
+```
+
+**See `examples/video-edit/overlay-starter.json`** for a 4-overlay beginner example.
+**See `examples/video-edit/overlay-kinetic-white-v4-clip01.json`** for a 24-overlay production example.
+**See `.agents/EDIT-AGENT-CONTRACT.md`** for the full 5-phase editing loop with style kits, editorial templates, technique vocabulary, and quality checklist.
 
 ---
 
