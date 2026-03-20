@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: #000;
+}
+
+canvas#bg { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; }
+
+.scene {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1920px; height: 1080px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Scene 1: "ANYTHING" ── */
+#s1 { display: flex; flex-direction: column; justify-content: center; padding: 0 140px; gap: 0; }
+.s1-word {
+  font-family: 'Archivo Black', 'Arial Black', sans-serif;
+  font-size: 220px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: -0.06em;
+  line-height: 0.82;
+  will-change: transform;
+}
+.s1-word.orange { color: #FF4D00; }
+.s1-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  margin-top: 56px;
+}
+
+/* ── Scene 2: Tech Grid ── */
+#s2 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
+.s2-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 520px);
+  grid-template-rows: repeat(2, 300px);
+  gap: 12px;
+}
+.tech-card {
+  background: #0a0a0a;
+  border: 1px solid #1c1c1c;
+  position: relative;
+  overflow: hidden;
+}
+.tech-card canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.tech-card-label {
+  position: absolute;
+  bottom: 16px; left: 20px;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 28px;
+  color: rgba(255,255,255,0.9);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  z-index: 2;
+  background: rgba(0,0,0,0.6);
+  padding: 4px 12px;
+}
+.tech-card-label span { color: #FF4D00; }
+
+/* ── Scene 3: The Engine ── */
+#s3 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 48px; padding: 0 200px; }
+.s3-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 64px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  text-align: center;
+}
+.s3-title .orange { color: #FF4D00; }
+.engine-row { display: flex; align-items: center; gap: 40px; width: 100%; }
+.engine-stat { text-align: center; }
+.engine-number {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 130px;
+  color: #FF4D00;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+.engine-unit {
+  font-family: 'Space Mono', monospace;
+  font-size: 20px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: 4px;
+}
+.progress-track {
+  flex: 1;
+  height: 8px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: #FF4D00;
+  width: 0%;
+  box-shadow: 0 0 20px rgba(255,77,0,0.6);
+  transition: none;
+}
+.quality-row {
+  display: flex;
+  gap: 60px;
+  align-items: center;
+}
+.quality-chip {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 10px 24px;
+  border: 1px solid #282828;
+}
+.quality-chip.active {
+  color: #fff;
+  border-color: #FF4D00;
+  background: rgba(255,77,0,0.06);
+}
+.done-line {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 48px;
+  color: #FF4D00;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* ── Scene 4: CTA ── */
+#s4 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px; }
+.s4-brand {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 160px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+.s4-brand .ff-f { color: #FF4D00; }
+.s4-command {
+  background: #0d0d0d;
+  border: 2px solid #FF4D00;
+  padding: 28px 80px;
+  font-family: 'Space Mono', monospace;
+  font-size: 48px;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.s4-command .prompt { color: #FF4D00; }
+.s4-tagline {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+.s4-rule {
+  width: 600px;
+  height: 2px;
+  background: #FF4D00;
+}
+</style>
+</head>
+<body>
+
+<!-- Background: persistent flow field -->
+<canvas id="bg" width="1920" height="1080"></canvas>
+
+<!-- ── Scene 1 ── -->
+<div class="scene" id="s1">
+  <div class="s1-word" id="w-gsap">GSAP.</div>
+  <div class="s1-word" id="w-three">THREE.JS.</div>
+  <div class="s1-word" id="w-css">CSS.</div>
+  <div class="s1-word orange" id="w-any">ANYTHING.</div>
+  <div class="s1-sub" id="w-sub">One renderer. Zero lock-in.</div>
+</div>
+
+<!-- ── Scene 2 ── -->
+<div class="scene" id="s2">
+  <div class="s2-label">Any technology. One renderer.</div>
+  <div class="tech-grid">
+    <div class="tech-card" id="card-gsap">
+      <canvas id="c-gsap" width="520" height="300"></canvas>
+      <div class="tech-card-label"><span>↗</span> GSAP</div>
+    </div>
+    <div class="tech-card" id="card-three">
+      <canvas id="c-three" width="520" height="300"></canvas>
+      <div class="tech-card-label"><span>↗</span> THREE.JS</div>
+    </div>
+    <div class="tech-card" id="card-p5">
+      <canvas id="c-p5" width="520" height="300"></canvas>
+      <div class="tech-card-label"><span>↗</span> P5.JS</div>
+    </div>
+    <div class="tech-card" id="card-canvas">
+      <canvas id="c-canvas" width="520" height="300"></canvas>
+      <div class="tech-card-label"><span>↗</span> CANVAS 2D</div>
+    </div>
+    <div class="tech-card" id="card-svg">
+      <canvas id="c-svg" width="520" height="300"></canvas>
+      <div class="tech-card-label"><span>↗</span> SVG + CSS</div>
+    </div>
+    <div class="tech-card" id="card-flow">
+      <canvas id="c-flow" width="520" height="300"></canvas>
+      <div class="tech-card-label"><span>↗</span> FLOW FIELD</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Scene 3 ── -->
+<div class="scene" id="s3">
+  <div class="s3-title">Deterministic. <span class="orange">Frame-perfect.</span> Every render.</div>
+  <div class="engine-row">
+    <div class="engine-stat">
+      <div class="engine-number" id="frame-num">0</div>
+      <div class="engine-unit">frames</div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:20px;">
+      <div style="font-family:'Space Mono',monospace; font-size:20px; color:rgba(255,255,255,0.3); letter-spacing:0.08em; text-transform:uppercase;">Rendering 1920×1080 · 30fps · H.264 · Quality: Slow</div>
+      <div class="progress-track"><div class="progress-bar" id="prog-bar"></div></div>
+      <div style="display:flex; justify-content:space-between; font-family:'Space Mono',monospace; font-size:18px; color:rgba(255,255,255,0.2);">
+        <span>0</span><span id="pct-label">0%</span><span>900 frames</span>
+      </div>
+    </div>
+  </div>
+  <div class="quality-row">
+    <div class="quality-chip active">1920×1080</div>
+    <div class="quality-chip active">H.264</div>
+    <div class="quality-chip active">yuv420p</div>
+    <div class="quality-chip active">30fps</div>
+    <div class="quality-chip" id="chip-done">⚡ 23.4s</div>
+  </div>
+  <div class="done-line" id="done-msg" style="opacity:0;">✓ Render complete — 900 frames in 23.4 seconds</div>
+</div>
+
+<!-- ── Scene 4 ── -->
+<div class="scene" id="s4">
+  <div class="s4-brand"><span class="ff-f">Frame</span>Forge</div>
+  <div class="s4-rule" id="s4-rule"></div>
+  <div class="s4-command"><span class="prompt">$ </span>npm install @frameforge/core</div>
+  <div class="s4-tagline">Code your video. Frame by frame. · MIT License</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  // ── Background flow field (persistent, runs entire video) ──────────────────
+  const bg = document.getElementById('bg');
+  const bgCtx = bg.getContext('2d');
+  const W = 1920, H = 1080;
+
+  // Flow field: particles follow angle derived from sin/cos field
+  const PTCOUNT = 800;
+  const pts = Array.from({ length: PTCOUNT }, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    vx: 0, vy: 0,
+    life: Math.random(),
+    speed: 0.8 + Math.random() * 1.4
+  }));
+
+  function fieldAngle(x, y, t) {
+    const nx = x / W, ny = y / H;
+    return (
+      Math.sin(nx * 6 + t * 0.4) * Math.cos(ny * 4 - t * 0.3) * Math.PI * 2 +
+      Math.sin(nx * 3 - ny * 5 + t * 0.2) * 0.8
+    );
+  }
+
+  // Persistent trail canvas for motion blur effect
+  const trail = document.createElement('canvas');
+  trail.width = W; trail.height = H;
+  const trailCtx = trail.getContext('2d');
+
+  function drawBg() {
+    const t = performance.now() / 1000;
+
+    // Fade trail
+    trailCtx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+    trailCtx.fillRect(0, 0, W, H);
+
+    pts.forEach(p => {
+      p.life += 0.003;
+      if (p.life > 1 || p.x < 0 || p.x > W || p.y < 0 || p.y > H) {
+        p.x = Math.random() * W;
+        p.y = Math.random() * H;
+        p.life = 0;
+      }
+
+      const angle = fieldAngle(p.x, p.y, t);
+      p.vx = p.vx * 0.9 + Math.cos(angle) * p.speed * 0.3;
+      p.vy = p.vy * 0.9 + Math.sin(angle) * p.speed * 0.3;
+
+      const alpha = (1 - p.life) * 0.12;
+      trailCtx.beginPath();
+      trailCtx.moveTo(p.x, p.y);
+      p.x += p.vx;
+      p.y += p.vy;
+      trailCtx.lineTo(p.x, p.y);
+      trailCtx.strokeStyle = `rgba(255, 77, 0, ${alpha})`;
+      trailCtx.lineWidth = 0.8;
+      trailCtx.stroke();
+    });
+
+    bgCtx.clearRect(0, 0, W, H);
+    bgCtx.drawImage(trail, 0, 0);
+    requestAnimationFrame(drawBg);
+  }
+  drawBg();
+
+
+  // ── Tech card animations (called when Scene 2 mounts) ─────────────────────
+  function startTechCards() {
+
+    // CARD 1 — GSAP: orange ball with physics springs
+    (function() {
+      const c = document.getElementById('c-gsap');
+      const ctx = c.getContext('2d');
+      const ball = { x: 260, y: 80, r: 32 };
+      gsap.to(ball, { y: 220, duration: 0.55, ease: 'bounce.out', repeat: -1, yoyo: true });
+      gsap.to(ball, { x: 380, duration: 1.1, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 0.2 });
+      function draw() {
+        ctx.clearRect(0, 0, 520, 300);
+        // Glow
+        const g = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, ball.r * 3);
+        g.addColorStop(0, 'rgba(255,77,0,0.25)');
+        g.addColorStop(1, 'rgba(255,77,0,0)');
+        ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r * 3, 0, Math.PI * 2);
+        ctx.fillStyle = g; ctx.fill();
+        // Ball
+        ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#FF4D00'; ctx.fill();
+        // Shadow on ground
+        const shadow = ctx.createEllipse ? null : null;
+        const sy = 255;
+        const sw = ball.r * (1 + (ball.y - 80) / 200);
+        ctx.beginPath(); ctx.ellipse(ball.x, sy, sw * 0.8, 6, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,77,0,0.15)'; ctx.fill();
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // CARD 2 — THREE.JS: rotating icosahedron wireframe projection
+    (function() {
+      const c = document.getElementById('c-three');
+      const ctx = c.getContext('2d');
+      // Icosahedron vertices
+      const phi = (1 + Math.sqrt(5)) / 2;
+      const verts = [
+        [-1,phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],
+        [0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],
+        [phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]
+      ].map(([x,y,z]) => {
+        const l = Math.sqrt(x*x+y*y+z*z);
+        return [x/l, y/l, z/l];
+      });
+      const edges = [
+        [0,1],[0,5],[0,7],[0,10],[0,11],
+        [1,5],[1,7],[1,8],[1,9],
+        [2,3],[2,4],[2,6],[2,10],[2,11],
+        [3,4],[3,6],[3,8],[3,9],
+        [4,5],[4,9],[4,11],
+        [5,9],[5,11],
+        [6,7],[6,8],[6,10],
+        [7,8],[7,10],
+        [8,9],[10,11]
+      ];
+      function project(x, y, z, rx, ry) {
+        // Rotate Y
+        const x1 = x * Math.cos(ry) - z * Math.sin(ry);
+        const z1 = x * Math.sin(ry) + z * Math.cos(ry);
+        // Rotate X
+        const y2 = y * Math.cos(rx) - z1 * Math.sin(rx);
+        const z2 = y * Math.sin(rx) + z1 * Math.cos(rx);
+        const fov = 3.5;
+        const px = x1 / (z2 + fov) * 260 + 260;
+        const py = y2 / (z2 + fov) * 260 + 150;
+        return [px, py, z2];
+      }
+      function draw() {
+        const t = performance.now() / 1000;
+        const ry = t * 0.5;
+        const rx = Math.sin(t * 0.3) * 0.4;
+        ctx.clearRect(0, 0, 520, 300);
+        edges.forEach(([a, b]) => {
+          const [ax, ay, az] = project(...verts[a], rx, ry);
+          const [bx, by, bz] = project(...verts[b], rx, ry);
+          const depth = (az + bz) / 2;
+          const alpha = Math.max(0.1, 0.5 + depth * 0.3);
+          ctx.beginPath();
+          ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+          ctx.strokeStyle = `rgba(255, 77, 0, ${alpha})`;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // CARD 3 — P5.JS: lissajous orbit trails
+    (function() {
+      const c = document.getElementById('c-p5');
+      const ctx = c.getContext('2d');
+      const trail = document.createElement('canvas');
+      trail.width = 520; trail.height = 300;
+      const tCtx = trail.getContext('2d');
+      function draw() {
+        const t = performance.now() / 1000;
+        tCtx.fillStyle = 'rgba(0,0,0,0.025)';
+        tCtx.fillRect(0, 0, 520, 300);
+        for (let i = 0; i < 3; i++) {
+          const phase = i * Math.PI * 2 / 3;
+          const x = 260 + Math.sin(t * 1.1 + phase) * 160;
+          const y = 150 + Math.cos(t * 1.7 + phase) * 100;
+          const r = 8 + i * 4;
+          tCtx.beginPath();
+          tCtx.arc(x, y, r, 0, Math.PI * 2);
+          tCtx.fillStyle = i === 0 ? '#FF4D00' : i === 1 ? 'rgba(255,77,0,0.7)' : 'rgba(255,77,0,0.4)';
+          tCtx.fill();
+          // Connecting line
+          if (i < 2) {
+            const x2 = 260 + Math.sin(t * 1.1 + (i+1) * Math.PI * 2 / 3) * 160;
+            const y2 = 150 + Math.cos(t * 1.7 + (i+1) * Math.PI * 2 / 3) * 100;
+            tCtx.beginPath(); tCtx.moveTo(x, y); tCtx.lineTo(x2, y2);
+            tCtx.strokeStyle = 'rgba(255,77,0,0.15)'; tCtx.lineWidth = 1;
+            tCtx.stroke();
+          }
+        }
+        ctx.clearRect(0, 0, 520, 300);
+        ctx.drawImage(trail, 0, 0);
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // CARD 4 — CANVAS 2D: exploding particle field
+    (function() {
+      const c = document.getElementById('c-canvas');
+      const ctx = c.getContext('2d');
+      const particles = Array.from({ length: 120 }, (_, i) => ({
+        angle: (i / 120) * Math.PI * 2 + Math.random() * 0.1,
+        speed: 0.4 + Math.random() * 2,
+        life: Math.random(),
+        size: 1 + Math.random() * 3,
+        radius: Math.random() * 60
+      }));
+      function draw() {
+        const t = performance.now() / 1000;
+        ctx.clearRect(0, 0, 520, 300);
+        particles.forEach(p => {
+          p.life = (p.life + 0.006) % 1;
+          const r = p.life * (80 + p.radius);
+          const x = 260 + Math.cos(p.angle + t * 0.15) * r;
+          const y = 150 + Math.sin(p.angle + t * 0.15) * r;
+          const a = (1 - p.life) * 0.9;
+          ctx.beginPath();
+          ctx.arc(x, y, p.size * (1 - p.life * 0.5), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, ${Math.floor(77 + p.life * 100)}, 0, ${a})`;
+          ctx.fill();
+        });
+        // Center orb
+        const g = ctx.createRadialGradient(260, 150, 0, 260, 150, 35);
+        g.addColorStop(0, 'rgba(255,77,0,0.9)');
+        g.addColorStop(0.5, 'rgba(255,77,0,0.3)');
+        g.addColorStop(1, 'rgba(255,77,0,0)');
+        ctx.beginPath(); ctx.arc(260, 150, 35, 0, Math.PI * 2);
+        ctx.fillStyle = g; ctx.fill();
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // CARD 5 — SVG + CSS: sine wave self-drawing
+    (function() {
+      const c = document.getElementById('c-svg');
+      const ctx = c.getContext('2d');
+      const hist = [];
+      function draw() {
+        const t = performance.now() / 1000;
+        ctx.clearRect(0, 0, 520, 300);
+        // Wave 1 (orange, full)
+        ctx.beginPath();
+        for (let x = 0; x <= 520; x += 2) {
+          const y = 150 + Math.sin(x * 0.022 - t * 2.0) * 70 + Math.sin(x * 0.044 - t * 3.1) * 25;
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = '#FF4D00'; ctx.lineWidth = 2.5;
+        ctx.shadowColor = '#FF4D00'; ctx.shadowBlur = 8;
+        ctx.stroke(); ctx.shadowBlur = 0;
+        // Wave 2 (dim)
+        ctx.beginPath();
+        for (let x = 0; x <= 520; x += 2) {
+          const y = 150 + Math.sin(x * 0.022 - t * 2.0 + 1.2) * 50 + Math.sin(x * 0.033 + t * 1.5) * 20;
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = 'rgba(255,77,0,0.25)'; ctx.lineWidth = 1.5;
+        ctx.stroke();
+        // Wave 3 (very dim)
+        ctx.beginPath();
+        for (let x = 0; x <= 520; x += 2) {
+          const y = 150 + Math.sin(x * 0.033 + t * 1.8 - 0.8) * 35;
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = 'rgba(255,77,0,0.1)'; ctx.lineWidth = 1;
+        ctx.stroke();
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // CARD 6 — FLOW FIELD: vector field particles (WebGL-grade visual in Canvas)
+    (function() {
+      const c = document.getElementById('c-flow');
+      const ctx = c.getContext('2d');
+      const trailC = document.createElement('canvas');
+      trailC.width = 520; trailC.height = 300;
+      const trailCtx = trailC.getContext('2d');
+      const fpts = Array.from({ length: 300 }, () => ({
+        x: Math.random() * 520, y: Math.random() * 300,
+        life: Math.random(), speed: 0.6 + Math.random()
+      }));
+      function angle(x, y, t) {
+        const nx = x / 520, ny = y / 300;
+        return Math.sin(nx * 5 + t * 0.5) * Math.cos(ny * 4 - t * 0.3) * Math.PI * 2 +
+               Math.cos(nx * 3 - ny * 6) * 0.5;
+      }
+      function draw() {
+        const t = performance.now() / 1000;
+        trailCtx.fillStyle = 'rgba(0,0,0,0.035)';
+        trailCtx.fillRect(0, 0, 520, 300);
+        fpts.forEach(p => {
+          p.life += 0.004;
+          if (p.life > 1 || p.x < 0 || p.x > 520 || p.y < 0 || p.y > 300) {
+            p.x = Math.random() * 520; p.y = Math.random() * 300; p.life = 0;
+          }
+          const a = angle(p.x, p.y, t);
+          const vx = Math.cos(a) * p.speed;
+          const vy = Math.sin(a) * p.speed;
+          const alpha = (1 - p.life) * 0.5;
+          trailCtx.beginPath();
+          trailCtx.moveTo(p.x, p.y);
+          p.x += vx; p.y += vy;
+          trailCtx.lineTo(p.x, p.y);
+          trailCtx.strokeStyle = `rgba(255, 77, 0, ${alpha})`;
+          trailCtx.lineWidth = 0.7;
+          trailCtx.stroke();
+        });
+        ctx.clearRect(0, 0, 520, 300);
+        ctx.drawImage(trailC, 0, 0);
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+  }
+
+
+  // ── Main GSAP Timeline ────────────────────────────────────────────────────
+  const tl = gsap.timeline();
+
+  // ── SCENE 1: "ANYTHING." (0s – 7s) ───────────────────────────────────────
+  tl.set('#s1', { opacity: 1 }, 0);
+
+  // Words slam in from different directions, staggered fast
+  tl.from('#w-gsap',  { x: -800, opacity: 0, duration: 0.38, ease: 'power4.out' }, 0.15);
+  tl.from('#w-three', { x: 800,  opacity: 0, duration: 0.38, ease: 'power4.out' }, 0.45);
+  tl.from('#w-css',   { x: -600, opacity: 0, duration: 0.38, ease: 'power4.out' }, 0.75);
+
+  // Pause — then ANYTHING. explodes in with scale
+  tl.from('#w-any', { scale: 2.5, opacity: 0, filter: 'blur(40px)', duration: 0.55, ease: 'power4.out' }, 1.5);
+  tl.from('#w-sub', { opacity: 0, y: 24, duration: 0.5, ease: 'power3.out' }, 2.3);
+
+  // Exit: whole scene snaps out
+  tl.to('#s1', { opacity: 0, duration: 0.3, ease: 'power2.in' }, 6.2);
+
+
+  // ── SCENE 2: Tech Grid (6.5s – 16.5s) ────────────────────────────────────
+  tl.set('#s2', { opacity: 1 }, 6.5);
+  tl.call(startTechCards, [], 6.5);
+
+  tl.from('#s2 .s2-label', { opacity: 0, y: -20, duration: 0.5, ease: 'power3.out' }, 6.7);
+
+  // Cards enter in 2 rows, stagger 0.12s each
+  ['card-gsap','card-three','card-p5','card-canvas','card-svg','card-flow'].forEach((id, i) => {
+    tl.from(`#${id}`, { scale: 0.75, opacity: 0, duration: 0.45, ease: 'back.out(1.4)' }, 7.0 + i * 0.12);
+  });
+
+  tl.to('#s2', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 16.0);
+
+
+  // ── SCENE 3: The Engine (16.4s – 23.5s) ──────────────────────────────────
+  tl.set('#s3', { opacity: 1 }, 16.4);
+  tl.from('#s3 .s3-title', { opacity: 0, y: -24, duration: 0.6, ease: 'power3.out' }, 16.6);
+  tl.from('#frame-num',    { opacity: 0, scale: 0.6, duration: 0.5, ease: 'back.out(1.7)' }, 17.1);
+  tl.from('#s3 .progress-track', { scaleX: 0, transformOrigin: 'left center', duration: 0.5, ease: 'power3.out' }, 17.3);
+  tl.from('#s3 .quality-chip', { opacity: 0, y: 16, stagger: 0.1, duration: 0.4, ease: 'power3.out' }, 17.6);
+
+  // Animate frame counter + progress bar
+  const state = { frames: 0 };
+  tl.to(state, {
+    frames: 900,
+    duration: 4.2,
+    ease: 'power2.inOut',
+    onUpdate() {
+      const v = Math.round(state.frames);
+      document.getElementById('frame-num').textContent = v.toLocaleString();
+      document.getElementById('prog-bar').style.width = (v / 900 * 100).toFixed(1) + '%';
+      document.getElementById('pct-label').textContent = (v / 900 * 100).toFixed(0) + '%';
+    }
+  }, 17.5);
+
+  // Done flash
+  tl.to('#chip-done', { color: '#FF4D00', borderColor: '#FF4D00', background: 'rgba(255,77,0,0.06)', duration: 0.3 }, 21.9);
+  tl.to('#done-msg',  { opacity: 1, duration: 0.4, ease: 'power2.out' }, 22.1);
+  tl.to('#s3', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 23.2);
+
+
+  // ── SCENE 4: CTA (23.6s – 30s) ───────────────────────────────────────────
+  tl.set('#s4', { opacity: 1 }, 23.6);
+  tl.from('#s4 .s4-brand',   { scale: 1.6, opacity: 0, filter: 'blur(20px)', duration: 0.55, ease: 'power4.out' }, 23.8);
+  tl.from('#s4-rule',        { scaleX: 0, transformOrigin: 'left center', duration: 0.5, ease: 'power3.out' }, 24.5);
+  tl.from('#s4 .s4-command', { opacity: 0, y: 32, duration: 0.5, ease: 'power3.out' }, 24.9);
+  tl.from('#s4 .s4-tagline', { opacity: 0, duration: 0.5, ease: 'power2.out' }, 25.5);
+
+  // Final pulse on brand
+  tl.to('#s4 .s4-brand', { scale: 1.02, duration: 0.4, ease: 'sine.inOut', repeat: -1, yoyo: true }, 26.0);
+
+})();
+</script>
+</body>
+</html>
