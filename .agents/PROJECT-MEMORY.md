@@ -15,6 +15,7 @@
 | ADR-005 | tsup for building, vitest for testing | 2026-03-15 | Fast, modern, good ESM support; matches the project's Node 20+ target | — |
 | ADR-006 | Edit agent is model-agnostic — FrameForge never calls AI APIs | 2026-03-17 | FrameForge philosophy: framework-agnostic rendering. Embedding Anthropic SDK contradicts this. Agent reads EDIT-AGENT-CONTRACT.md, writes overlay-decisions.json, FrameForge renders it. Any model works. | Supersedes: any design where FrameForge calls an AI API internally |
 | ADR-007 | Always pass `-g fps` to libx264 in compositeVideo | 2026-03-18 | `ultrafast` preset disables scene-change detection, producing long GOP chains that corrupt bitstreams. Explicit keyframe interval every second ensures valid bitstream regardless of preset. Applies to all quality levels including `fast`. | — |
+| ADR-008 | No MCP server — coding agents + CLI replace MCP entirely | 2026-03-20 | MCP exists to give AI structured tool access. A coding agent with skill.md + CLI is strictly better: 7 commands vs 2 tools, full Phase 5 support, composable, agent-friendly errors. MCP is a pre-coding-agent pattern. `@frameforge/mcp-server` removed from monorepo. | Supersedes: @frameforge/mcp-server (Phase 3) |
 
 ---
 

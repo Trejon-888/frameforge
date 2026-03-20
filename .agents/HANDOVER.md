@@ -1,7 +1,7 @@
 # Session Handover
 
 **Project:** FrameForge
-**Current Status:** Kinetic Orange white-canvas motion graphics v3 rendered — Canvas/SVG creative system live
+**Current Status:** v0.2.0 published to npm — video editing engine, edit agent contract, 3 packages live
 
 ---
 
@@ -17,21 +17,17 @@
 
 ## What's Next
 
-**#1 PRIORITY: Review kinetic-white-v4-clip01-v2.mp4**
+**#1: Social media launch posts (~March 22 — 2 days away)**
+- Social Media Launch plan is on hold, ready to go
+- v0.2.0 is live — this is the actual product, not a preview
+- Content should lead with the video editing angle (most visually impressive)
+
+**#2: kinetic-white-v4-clip01-v2.mp4 review**
+- 24 overlays, 41 captions, 73.9s, 14MB, zero H.264 corruption
+- This is the best demo asset for launch — use it for social posts
 - Served at http://localhost:9000/kinetic-white-v4-clip01-v2.mp4
-- 24 overlays, 41 captions, 73.9s, 14MB, zero H.264 corruption (fixed)
-- If audio doesn't sync with overlay events, provide the portrait-crop source video → re-render in ~8 min
 
-**#2: Agent overlay preview command**
-- `frameforge preview-overlays video.mp4 --overlays decisions.json` — renders one frame per overlay (fast, no full render needed)
-- Lets agents iterate on overlay decisions without waiting for full render
-
-**#3: Soft launch prep (~March 22)**
-- npm publish preparation
-- EDIT-AGENT-CONTRACT.md quality review
-- Example overlay decisions for different video types
-
-**#4: Other**
+**#3: Post-launch iteration**
 1. Smart cropping strategies (fit/fill/smart)
 2. Template system
 3. Render preview server (hot-reload)
@@ -40,6 +36,19 @@
 ---
 
 ## Session Log
+
+### Session 15 — 2026-03-20
+- **Context:** Launch prep — npm v0.2.0 publish, README overhaul, architectural cleanup
+- **Completed:**
+  - **README rewrite:** Added full Phase 5 video editing pipeline, updated test count (169→238), complete CLI reference (7 commands), Edit Agent Contract section, updated comparison table with video editing row
+  - **CHANGELOG.md:** Created v0.2.0 release notes
+  - **Version bump:** All packages 0.1.1 → 0.2.0, core peer deps updated to ^0.2.0
+  - **Removed @frameforge/mcp-server entirely:** ADR-008 — MCP is a pre-coding-agent pattern. skill.md + CLI is strictly better (7 commands vs 2 tools, full Phase 5, composable). Package deleted from monorepo.
+  - **skill.md updated:** Added Approach 4 (video editing), Phase 5 CLI commands, Edit Agent Contract inline example
+  - **overlay-starter.json:** 4-overlay beginner example (lower-third → hook-phrase → stat-reveal → cta-card)
+  - **Published:** @frameforge/core@0.2.0, @frameforge/sdk@0.2.0, @frameforge/studio@0.2.0 — all live on npm
+- **Stats:** 238 tests passing, 3 packages on npm, launch-ready
+- **Next:** Social media launch posts (~March 22), review kinetic-white-v4-clip01-v2.mp4 for demo content
 
 ### Session 14 — 2026-03-18
 - **Context:** H.264 bitstream corruption fix — v4 render (`kinetic-white-v4-clip01.mp4`) was corrupt after second "5" stat card
