@@ -45,11 +45,6 @@ frameforge/
 │   │   │   └── codegen.ts       # Generates HTML from scene graph
 │   │   └── package.json
 │   │
-│   ├── mcp-server/              # MCP Server (@frameforge/mcp-server)
-│   │   ├── src/
-│   │   │   └── index.ts         # MCP protocol server (render + validate tools)
-│   │   └── package.json
-│   │
 │   └── sdk-python/              # Python SDK (frameforge PyPI)
 │       ├── frameforge/
 │       │   ├── scene.py

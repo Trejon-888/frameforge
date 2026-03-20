@@ -54,7 +54,7 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Feature | Description | Priority | Status |
 |---------|-------------|----------|--------|
 | Claude Code Agent Skill | Skill file teaching Claude how to use FrameForge | P0 | Implemented |
-| MCP Server | Model Context Protocol server for FrameForge | P1 | Implemented |
+| MCP Server | Model Context Protocol server for FrameForge | P1 | Removed — coding agents replace MCP |
 | Example prompts library | Curated prompts for good video output | P1 | Implemented |
 | Agent-friendly errors | Errors an LLM can parse and fix | P0 | Implemented |
 | Render preview server | Hot-reload preview before final render | P2 | Planned |

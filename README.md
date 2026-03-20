@@ -98,7 +98,7 @@ scene.render("output.mp4")
 | **Python SDK** | ✅ | ❌ | ❌ |
 | **Video editing from footage** | ✅ | ❌ | ❌ |
 | **Word-level captions (WhisperX)** | ✅ | ❌ | ❌ |
-| **AI Agent Integration** | ✅ MCP + Skill + Contract | ❌ | ❌ |
+| **AI Agent Integration** | ✅ skill.md + CLI Contract | ❌ | ❌ |
 | **Multi-scene + Transitions** | ✅ 23 types | ❌ | ✅ |
 | **Subtitles (SRT/VTT)** | ✅ | ❌ | ❌ |
 | **Zero config** | ✅ | ❌ React setup | ❌ |
@@ -145,9 +145,9 @@ scene.render("output.mp4")
 - **One-click render** — Preview → Render MP4
 
 ### 🤖 AI-Native
-- **Agent Skill** — Comprehensive `skill.md` for Claude Code / coding agents
-- **MCP Server** — Model Context Protocol tools for render + validate
+- **Agent Skill** — Comprehensive `skill.md` + `EDIT-AGENT-CONTRACT.md` for Claude Code and any coding agent
 - **Agent-friendly errors** — Parseable error messages with actionable hints
+- **Model-agnostic edit pipeline** — Any AI writes overlay decisions; FrameForge renders them
 
 ---
 
@@ -250,7 +250,6 @@ This means **any animation library** that uses standard browser APIs works autom
 | `@frameforge/core` | Render engine, CLI, time virtualization, FFmpeg pipeline, video editing |
 | `@frameforge/sdk` | TypeScript SDK — Scene, elements, animations, codegen |
 | `@frameforge/studio` | Visual preview UI with timeline and hot-reload |
-| `@frameforge/mcp-server` | MCP server for AI tool integration |
 | `frameforge` (PyPI) | Python SDK — same API, generates HTML, calls Node renderer |
 
 ---

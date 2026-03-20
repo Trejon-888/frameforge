@@ -70,7 +70,7 @@ All notable changes to FrameForge are documented here.
 - **Scene Manifest** — Zod-validated JSON schema for scene definition.
 - **TypeScript SDK** (`@frameforge/sdk`) — `Scene`, `Text`, `Shape`, `Image` elements with animation primitives.
 - **Python SDK** (`frameforge` on PyPI) — Same API surface, generates HTML + calls Node renderer.
-- **MCP Server** (`@frameforge/mcp-server`) — Model Context Protocol tools for `render` and `validate`.
+- **Agent Skill** (`skill.md`) — Comprehensive guide for Claude Code and coding agents to generate videos.
 - **Studio** (`@frameforge/studio`) — Visual timeline preview with hot-reload.
 - **Subtitle engine** — SRT/VTT parser with HTML overlay synced to virtual time.
 - **GPU acceleration** — `--gpu` flag for Chrome hardware acceleration.
