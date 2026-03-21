@@ -1,64 +1,74 @@
 # Content Queue
 
 **Protocol:** kino dev agent drops READY items here. Scooby picks up, uploads, schedules, marks POSTED.
-
 **Last Updated:** 2026-03-21
 
 ---
 
 ## Queue
 
-| # | Asset | Copy | Platforms | Priority | Status |
-|---|-------|------|-----------|----------|--------|
-| 001 | `examples/social-media/output/kinetic-white-v4-clip01-v2.mp4` | See below | LinkedIn | P0 | READY |
-| 002 | `examples/social-media/output/v5-kino-any-framework.mp4` | See below | X, Instagram Reels | P0 | READY |
-| 003 | `examples/brand-video/output/kino-endcard-ix.mp4` | — | Internal reference only | — | HOLD |
-| 004 | `examples/frameforge-showcase/output/kino-showcase-v2.mp4` | See below | X, LinkedIn | P0 | PENDING RENDER |
-
----
-
-## Copy Bank
-
 ### 001 — kinetic-white-v4-clip01-v2.mp4
+**Asset:** `examples/social-media/output/kinetic-white-v4-clip01-v2.mp4`
+**Format:** 16:9 landscape
+**Priority:** P0
+**Status:** READY
 
-**LinkedIn:**
-> Your competitors are still editing in Premiere.
->
-> This took 12 seconds.
+| Platform | Copy | Schedule |
+|----------|------|----------|
+| LinkedIn | "Your competitors are still editing in Premiere.\n\nThis took 12 seconds." | Tuesday 8:30am |
+| — | — | — |
 
-**X:**
-> this was code 12 seconds ago.
+**Note:** LinkedIn only for first post. Let it land. No explanation. No hashtags.
 
 ---
 
 ### 002 — v5-kino-any-framework.mp4
+**Asset:** `examples/social-media/output/v5-kino-any-framework.mp4`
+**Format:** 9:16 portrait (1080×1920)
+**Priority:** P0
+**Status:** READY
 
-**LinkedIn:**
-> If a browser can render it, she renders it.
->
-> HTML. Canvas. WebGL. Three.js. GSAP. Python.
-> One render command. One MP4.
-
-**X:**
-> she renders anything a browser can render.
-
-**Instagram caption:**
-> she renders anything ✦ html · canvas · webgl · three.js · gsap · python
+| Platform | Copy | Schedule |
+|----------|------|----------|
+| X | "she renders anything a browser can render." | Wednesday 9:30am |
+| Instagram Reels | "she renders anything ✦\n\nhtml · canvas · webgl · three.js · gsap · python\none command. one mp4.\n\n#motiongraphics #aitools #techcreator #aicontentcreation #contentcreator #reels" | Wednesday 11:00am |
+| TikTok | "she renders anything a browser can render. ✦ html · canvas · webgl · three.js · gsap · python" | Wednesday 11:00am |
+| Threads | "she renders anything a browser can render." | Wednesday 12:00pm |
+| Bluesky | "she renders anything a browser can render." | Wednesday 12:00pm |
 
 ---
 
-### 004 — kino-showcase-v2.mp4 (Transmission from Kino)
+### 003 — kino-endcard-ix.mp4
+**Asset:** `examples/brand-video/output/kino-endcard-ix.mp4`
+**Format:** 16:9 landscape (4s)
+**Priority:** —
+**Status:** HOLD — internal use only (compositing reference, not for posting standalone)
 
-**LinkedIn:**
-> Transmission received.
->
-> 30 seconds. 4 scenes. Zero After Effects.
-> This is how we produce IX content.
+---
 
-**X:**
-> transmission received.
-> origin: unknown.
-> render time: pending.
+### 004 — kino-showcase-v2.mp4
+**Asset:** `examples/frameforge-showcase/output/kino-showcase-v2.mp4`
+**Format:** 16:9 landscape
+**Priority:** P0
+**Status:** PENDING RENDER — confirm with kino dev agent before scheduling
+
+| Platform | Copy | Schedule |
+|----------|------|----------|
+| X | "transmission received.\norigin: unknown.\nrender time: pending." | Week 2, Tuesday 9:00am |
+| LinkedIn | "Transmission received.\n\n30 seconds. 4 scenes. Zero After Effects.\n\nThis is how IX operates." | Week 2, Wednesday 8:30am |
+| YouTube Shorts | (same as LinkedIn copy, 9:16 crop needed) | Week 2, Thursday |
+
+---
+
+## REQUEST Queue (Scooby → kino dev agent)
+
+Items Scooby needs produced:
+
+| # | Request | Platform Need | Priority |
+|---|---------|---------------|----------|
+| R001 | 15s vertical crop of kino-showcase-v2 for Reels/TikTok | 9:16 1080×1920 | P0 (Week 2) |
+| R002 | Pinterest versions of 001 + 002 with optimized thumbnails | Static + short clip | P1 (Week 2) |
+| R003 | Dribbble showcase version of best render — clean, no text overlays | Design-focused | P1 (Week 3) |
 
 ---
 
@@ -68,12 +78,8 @@
 
 ---
 
-## Notes for Scooby
+## Performance Log
 
-- Assets are local MP4s at the paths listed above
-- Upload via `media_generate_upload_link` before scheduling
-- Post 001 first — LinkedIn, no hashtags, no explanation
-- Post 002 second — X and Reels simultaneously
-- Hold 003 (end card) — internal use only until compositing workflow is ready
-- 004 pending render confirmation — check with kino dev agent before scheduling
-- **Rule: Never post anything that wasn't rendered by kino**
+| Post | Platform | Date | Views | Completion % | "How?" Comments | Action |
+|------|----------|------|-------|--------------|-----------------|--------|
+| — | — | — | — | — | — | — |
