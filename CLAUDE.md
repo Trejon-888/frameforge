@@ -76,14 +76,16 @@ pnpm lint                 # Lint source code
 pnpm --filter @kinohq/core build
 pnpm --filter @kinohq/core test
 
-# Render a page
-npx kino render ./page.html --duration 10 --fps 30 -o video.mp4
+# Render a scene (use local CLI — npx kino resolves to a different npm package)
+node packages/core/dist/cli.js render ./scene.json
+# From an examples/ subdirectory:
+node ../../packages/core/dist/cli.js render scene.json
 
 # Preview a single frame
-npx kino preview ./scene.json --frame 45 -o preview.png
+node packages/core/dist/cli.js preview ./scene.json --frame 45 -o preview.png
 
 # Compose multiple scenes with transitions
-npx kino compose ./composition.json -o output.mp4
+node packages/core/dist/cli.js compose ./composition.json -o output.mp4
 ```
 
 ---
