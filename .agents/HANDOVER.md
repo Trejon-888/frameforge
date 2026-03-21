@@ -1,7 +1,7 @@
 # Session Handover
 
-**Project:** FrameForge
-**Current Status:** v0.2.0 published to npm — video editing engine, edit agent contract, 3 packages live
+**Project:** FrameForge → kino (rebrand in progress)
+**Current Status:** v0.2.0 published to npm — rebrand to kino decided, @kinohq npm org created, mascot SVG created
 
 ---
 
@@ -11,16 +11,19 @@
 |------|--------|-------|
 | [Video Editing Engine v2](plans/active/video-editing-engine-v2.md) | Complete | Cinema system + edit agent contract shipped |
 | [Video Editing Test](plans/active/video-editing-test.md) | In Progress | agent-latest.mp4 rendered, review quality |
-| [Social Media Launch](plans/active/social-media-launch.md) | On Hold | Waiting for testing week (~March 22) |
+| [Social Media Launch](plans/active/social-media-launch.md) | On Hold | Hold until rebrand complete |
+| [Demo Content Series](active/demo-content-series.md) | In Progress | 4-video creative series — hold until rebrand complete |
+| Kino Rebrand | NEXT | 5-phase rebrand plan ready to execute |
 
 ---
 
 ## What's Next
 
-**#1: Social media launch posts (~March 22 — 2 days away)**
-- Social Media Launch plan is on hold, ready to go
-- v0.2.0 is live — this is the actual product, not a preview
-- Content should lead with the video editing angle (most visually impressive)
+**#1: Execute kino rebrand (IMMEDIATE)**
+- Brand: **kino** (lowercase), mascot: **Kino** (green pixel art alien)
+- npm scope: **@kinohq** (org created by user on 2026-03-21)
+- 5-phase plan: identity → npm → codebase → docs → GTM
+- Start next session with `/plan kino rebrand` then `/execute`
 
 **#2: kinetic-white-v4-clip01-v2.mp4 review**
 - 24 overlays, 41 captions, 73.9s, 14MB, zero H.264 corruption
@@ -36,6 +39,19 @@
 ---
 
 ## Session Log
+
+### Session 16 — 2026-03-21
+- **Context:** Branding session — full brand identity pivot from FrameForge to kino
+- **Completed:**
+  - **Market research:** Evaluated 13+ name candidates; ruled out Flux (Black Forest Labs), Nova, Cosmo, Orbit, Void, Signal, Quark — all taken in dev tooling space
+  - **Brand name decided:** **kino** (lowercase) — Greek/German/cross-linguistic for cinema, 4 letters, no dev tool conflicts, easy to pronounce
+  - **Mascot named:** **Kino** — the green pixel art alien (previously unnamed, briefly "Cosmo")
+  - **Mascot SVG created:** `branding/kino.svg` — green pixel art alien, two antennae, friendly arch eyebrows, horizon-gazing eyes, simple mouth, no teeth
+  - **npm scope secured:** User created **@kinohq** org on npmjs.com (2026-03-21); @kino was taken
+  - **Rebrand plan defined:** 5 phases — identity, npm, codebase, docs, GTM
+- **Key decisions:** kino not kinohq is the display name; @kinohq is only the npm scope; mascot IS named Kino (same as brand — intentional, like Duolingo's owl named Duo)
+- **Next:** Execute full rebrand — packages @frameforge/* → @kinohq/*, CLI `frameforge` → `kino`, all docs updated
+- **Alignment Score:** 88%
 
 ### Session 15 — 2026-03-20
 - **Context:** Launch prep — npm v0.2.0 publish, README overhaul, architectural cleanup

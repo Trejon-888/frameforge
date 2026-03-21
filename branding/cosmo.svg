@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 560" shape-rendering="crispEdges">
+  <!--
+    COSMO v4
+    Grid: 20 cols × 26 rows, 20px per pixel
+    col x = 20 + col*20  |  row y = 40 + row*20
+    G=#22C55E  L=#4ADE80  D=#16A34A  K=#15803D  W=#F0FFF4  B=#111111  T=#A7F3D0
+
+    v4 changes:
+    - TWO antennae (left col 5-6, right col 13-14) angled slightly outward
+    - Eyebrows: gentle arch using D (lighter), not flat angry K
+    - Mouth: simple clean 4px line, no teeth, no cavity
+  -->
+
+  <defs>
+    <filter id="tip-glow" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="bg-glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="30"/>
+    </filter>
+  </defs>
+
+  <circle cx="220" cy="300" r="145" fill="#22C55E" opacity="0.06" filter="url(#bg-glow)"/>
+
+  <!-- ── LEFT ANTENNA ── (angled slightly outward) -->
+  <circle cx="132" cy="24" r="16" fill="#A7F3D0" opacity="0.4" filter="url(#tip-glow)"/>
+  <rect x="120" y="20"  width="20" height="20" fill="#DCFCE7"/>   <!-- tip col 5 -->
+  <rect x="140" y="40"  width="20" height="20" fill="#22C55E"/>   <!-- stem col 6 row 0 -->
+  <rect x="140" y="60"  width="20" height="20" fill="#22C55E"/>   <!-- stem col 6 row 1 -->
+
+  <!-- ── RIGHT ANTENNA ── (angled slightly outward) -->
+  <circle cx="308" cy="24" r="16" fill="#A7F3D0" opacity="0.4" filter="url(#tip-glow)"/>
+  <rect x="300" y="20"  width="20" height="20" fill="#DCFCE7"/>   <!-- tip col 14 -->
+  <rect x="280" y="40"  width="20" height="20" fill="#22C55E"/>   <!-- stem col 13 row 0 -->
+  <rect x="280" y="60"  width="20" height="20" fill="#22C55E"/>   <!-- stem col 13 row 1 -->
+
+  <!-- ── HEAD ── -->
+
+  <!-- row 2 (y=80): top 4 wide -->
+  <rect x="180" y="80"  width="40"  height="20" fill="#4ADE80"/>
+  <rect x="220" y="80"  width="40"  height="20" fill="#22C55E"/>
+
+  <!-- row 3 (y=100): 8 wide -->
+  <rect x="140" y="100" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="180" y="100" width="80"  height="20" fill="#22C55E"/>
+  <rect x="260" y="100" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 4 (y=120): 12 wide + eyebrow arch PEAKS (D, lighter = not angry) -->
+  <rect x="100" y="120" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="140" y="120" width="160" height="20" fill="#22C55E"/>
+  <rect x="300" y="120" width="40"  height="20" fill="#16A34A"/>
+  <rect x="140" y="120" width="20"  height="20" fill="#16A34A"/>   <!-- left brow peak col 6 D -->
+  <rect x="280" y="120" width="20"  height="20" fill="#16A34A"/>   <!-- right brow peak col 13 D -->
+
+  <!-- row 5 (y=140): 14 wide + eyebrow arch ENDS (outer + inner, D) -->
+  <rect x="80"  y="140" width="280" height="20" fill="#22C55E"/>
+  <rect x="80"  y="140" width="60"  height="20" fill="#4ADE80"/>
+  <rect x="320" y="140" width="40"  height="20" fill="#16A34A"/>
+  <!-- Left brow arch ends: col 5 (outer) and col 7 (inner) -->
+  <rect x="120" y="140" width="20"  height="20" fill="#16A34A"/>   <!-- col 5 outer end D -->
+  <rect x="160" y="140" width="20"  height="20" fill="#16A34A"/>   <!-- col 7 inner end D -->
+  <!-- Right brow arch ends: col 12 (inner) and col 14 (outer) -->
+  <rect x="260" y="140" width="20"  height="20" fill="#16A34A"/>   <!-- col 12 inner end D -->
+  <rect x="300" y="140" width="20"  height="20" fill="#16A34A"/>   <!-- col 14 outer end D -->
+
+  <!-- row 6 (y=160): eyelid row — all green -->
+  <rect x="80"  y="160" width="280" height="20" fill="#22C55E"/>
+  <rect x="80"  y="160" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="320" y="160" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 7 (y=180): eye top — white + specular -->
+  <rect x="80"  y="180" width="280" height="20" fill="#22C55E"/>
+  <rect x="80"  y="180" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="120" y="180" width="60"  height="20" fill="#F0FFF4"/>   <!-- left eye cols 5-7 -->
+  <rect x="160" y="180" width="20"  height="20" fill="#FFFFFF"/>   <!-- specular col 7 -->
+  <rect x="260" y="180" width="60"  height="20" fill="#F0FFF4"/>   <!-- right eye cols 12-14 -->
+  <rect x="300" y="180" width="20"  height="20" fill="#FFFFFF"/>   <!-- specular col 14 -->
+  <rect x="320" y="180" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 8 (y=200): eye bottom — pupils shifted right (looking at horizon) -->
+  <rect x="80"  y="200" width="280" height="20" fill="#22C55E"/>
+  <rect x="80"  y="200" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="120" y="200" width="20"  height="20" fill="#F0FFF4"/>   <!-- col 5 white -->
+  <rect x="140" y="200" width="20"  height="20" fill="#F0FFF4"/>   <!-- col 6 white -->
+  <rect x="160" y="200" width="20"  height="20" fill="#111111"/>   <!-- col 7 LEFT PUPIL -->
+  <rect x="260" y="200" width="20"  height="20" fill="#F0FFF4"/>   <!-- col 12 white -->
+  <rect x="280" y="200" width="20"  height="20" fill="#F0FFF4"/>   <!-- col 13 white -->
+  <rect x="300" y="200" width="20"  height="20" fill="#111111"/>   <!-- col 14 RIGHT PUPIL -->
+  <rect x="320" y="200" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 9 (y=220): cheeks -->
+  <rect x="80"  y="220" width="280" height="20" fill="#22C55E"/>
+  <rect x="80"  y="220" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="120" y="220" width="20"  height="20" fill="#4ADE80"/>   <!-- left cheek blush -->
+  <rect x="280" y="220" width="20"  height="20" fill="#4ADE80"/>   <!-- right cheek blush -->
+  <rect x="320" y="220" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 10 (y=240): plain face -->
+  <rect x="80"  y="240" width="280" height="20" fill="#22C55E"/>
+  <rect x="80"  y="240" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="320" y="240" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 11 (y=260): MOUTH — simple clean line, no teeth -->
+  <rect x="80"  y="260" width="280" height="20" fill="#22C55E"/>
+  <rect x="80"  y="260" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="180" y="260" width="80"  height="20" fill="#15803D"/>   <!-- cols 8-11, 4px line -->
+  <rect x="320" y="260" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 12 (y=280): plain face -->
+  <rect x="80"  y="280" width="280" height="20" fill="#22C55E"/>
+  <rect x="80"  y="280" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="320" y="280" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 13 (y=300): head narrowing 12 wide -->
+  <rect x="100" y="300" width="240" height="20" fill="#22C55E"/>
+  <rect x="100" y="300" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="300" y="300" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 14 (y=320): chin 8 wide -->
+  <rect x="140" y="320" width="160" height="20" fill="#22C55E"/>
+  <rect x="140" y="320" width="40"  height="20" fill="#16A34A"/>
+  <rect x="260" y="320" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- NECK row 15 (y=340) -->
+  <rect x="180" y="340" width="80"  height="20" fill="#22C55E"/>
+
+  <!-- ── BODY + ARMS ── -->
+
+  <!-- row 16 (y=360) -->
+  <rect x="20"  y="360" width="20"  height="20" fill="#15803D"/>
+  <rect x="40"  y="360" width="60"  height="20" fill="#22C55E"/>
+  <rect x="100" y="360" width="240" height="20" fill="#22C55E"/>
+  <rect x="100" y="360" width="40"  height="20" fill="#4ADE80"/>
+  <rect x="300" y="360" width="40"  height="20" fill="#16A34A"/>
+  <rect x="340" y="360" width="60"  height="20" fill="#22C55E"/>
+  <rect x="400" y="360" width="20"  height="20" fill="#15803D"/>
+
+  <!-- row 17 (y=380): claw split -->
+  <rect x="40"  y="380" width="20"  height="20" fill="#15803D"/>
+  <rect x="80"  y="380" width="20"  height="20" fill="#15803D"/>
+  <rect x="100" y="380" width="240" height="20" fill="#22C55E"/>
+  <rect x="340" y="380" width="20"  height="20" fill="#15803D"/>
+  <rect x="380" y="380" width="20"  height="20" fill="#15803D"/>
+
+  <!-- row 18 (y=400): body -->
+  <rect x="100" y="400" width="240" height="20" fill="#22C55E"/>
+  <rect x="300" y="400" width="40"  height="20" fill="#16A34A"/>
+
+  <!-- row 19 (y=420): body bottom -->
+  <rect x="100" y="420" width="240" height="20" fill="#22C55E"/>
+  <rect x="280" y="420" width="60"  height="20" fill="#16A34A"/>
+
+  <!-- ── LEGS ── -->
+  <rect x="140" y="440" width="60"  height="20" fill="#22C55E"/>
+  <rect x="240" y="440" width="60"  height="20" fill="#22C55E"/>
+  <rect x="140" y="460" width="60"  height="20" fill="#22C55E"/>
+  <rect x="240" y="460" width="60"  height="20" fill="#22C55E"/>
+  <rect x="140" y="480" width="60"  height="20" fill="#22C55E"/>
+  <rect x="240" y="480" width="60"  height="20" fill="#22C55E"/>
+
+  <!-- FEET row 23 (y=500) -->
+  <rect x="120" y="500" width="100" height="20" fill="#16A34A"/>
+  <rect x="240" y="500" width="100" height="20" fill="#16A34A"/>
+
+  <!-- ── PIXEL STARS ── -->
+  <rect x="32"  y="258" width="10" height="10" fill="#86EFAC" opacity="0.7"/>
+  <rect x="22"  y="268" width="10" height="10" fill="#86EFAC" opacity="0.7"/>
+  <rect x="32"  y="268" width="10" height="10" fill="#86EFAC" opacity="0.7"/>
+  <rect x="42"  y="268" width="10" height="10" fill="#86EFAC" opacity="0.7"/>
+  <rect x="32"  y="278" width="10" height="10" fill="#86EFAC" opacity="0.7"/>
+
+  <rect x="406" y="148" width="10" height="10" fill="#86EFAC" opacity="0.6"/>
+  <rect x="396" y="158" width="10" height="10" fill="#86EFAC" opacity="0.6"/>
+  <rect x="406" y="158" width="10" height="10" fill="#86EFAC" opacity="0.6"/>
+  <rect x="416" y="158" width="10" height="10" fill="#86EFAC" opacity="0.6"/>
+  <rect x="406" y="168" width="10" height="10" fill="#86EFAC" opacity="0.6"/>
+
+  <rect x="28"  y="390" width="7"  height="7"  fill="#86EFAC" opacity="0.4"/>
+  <rect x="412" y="370" width="7"  height="7"  fill="#86EFAC" opacity="0.4"/>
+  <rect x="26"  y="160" width="6"  height="6"  fill="#86EFAC" opacity="0.35"/>
+  <rect x="414" y="300" width="6"  height="6"  fill="#86EFAC" opacity="0.35"/>
+
+</svg>
