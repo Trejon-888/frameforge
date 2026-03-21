@@ -1,6 +1,6 @@
 # Plans Index
 
-**Last Updated:** 2026-03-20
+**Last Updated:** 2026-03-21
 
 ---
 
@@ -10,7 +10,7 @@
 |--------|-------|
 | Active | 4 |
 | Pending | 0 |
-| Completed | 12 |
+| Completed | 13 |
 
 ---
 
@@ -22,7 +22,6 @@
 | [Video Editing Test](active/video-editing-test.md) | 2026-03-16 | Pending | Real footage + captions + motion graphics test |
 | [Social Media Launch](active/social-media-launch.md) | 2026-03-15 | On Hold | Content ready, posting after testing week (~March 22) |
 | [Demo Content Series](active/demo-content-series.md) | 2026-03-20 | In Progress | 4-video creative series — showcase rendered, 3 more planned |
-
 ---
 
 ## Completed Plans
@@ -41,3 +40,4 @@
 | [Competitive Benchmark](completed/competitive-benchmark-v4.md) | 2026-03-16 | 10 videos, 7 technologies, demo reel |
 | [Component System — Motion Graphics](completed/component-system-motion-graphics.md) | 2026-03-17 | 8 GSAP/Canvas renderers, content intelligence, preview-edit CLI |
 | [Cinema System + Edit Agent Contract](completed/cinema-system-edit-agent-contract.md) | 2026-03-17 | Cinema renderers, poster-modernist style, model-agnostic edit agent architecture |
+| [Kino Rebrand](completed/kino-rebrand.md) | 2026-03-21 | Full FrameForge → kino migration: 35 files, 273 tests passing, build clean |
