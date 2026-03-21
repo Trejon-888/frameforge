@@ -1,12 +1,12 @@
 {
-  "name": "@frameforge/studio",
-  "version": "0.2.0",
-  "description": "FrameForge Studio — local preview UI with timeline scrubbing and hot-reload",
+  "name": "@kinohq/studio",
+  "version": "0.3.0",
+  "description": "kino Studio — local preview UI with timeline scrubbing and hot-reload",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "frameforge-studio": "dist/cli.js"
+    "kino-studio": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -19,7 +19,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@frameforge/core": "^0.2.0",
+    "@kinohq/core": "workspace:*",
     "puppeteer": "^23.0.0",
     "fastify": "^5.0.0",
     "@fastify/websocket": "^11.0.0",
@@ -46,7 +46,7 @@
     "access": "public"
   },
   "keywords": [
-    "frameforge",
+    "kino",
     "studio",
     "video-editor",
     "timeline",

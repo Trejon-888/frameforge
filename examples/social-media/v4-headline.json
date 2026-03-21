@@ -1,17 +1,17 @@
 {
   "version": "1.0",
   "canvas": {
-    "width": 1920,
-    "height": 1080,
+    "width": 1080,
+    "height": 1920,
     "fps": 30,
-    "duration": 30,
+    "duration": 8,
     "background": "#000000"
   },
-  "entry": "./scene.html",
+  "entry": "./v4-headline.html",
   "render": {
     "codec": "h264",
     "quality": "high",
     "pixelFormat": "yuv420p",
-    "output": "./kino-showcase-v2.mp4"
+    "output": "./output/v5-kino-headline.mp4"
   }
 }

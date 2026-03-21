@@ -2,10 +2,10 @@
  * Page API Script
  *
  * Lightweight script injected after time virtualization.
- * Provides the public-facing __frameforge API that animation
+ * Provides the public-facing __kino API that animation
  * authors can optionally use to coordinate with the renderer.
  *
- * The time-virtualization script creates __frameforge.
+ * The time-virtualization script creates __kino.
  * This script extends it with metadata set by the renderer.
  */
 export const PAGE_API_SCRIPT = `
@@ -13,17 +13,17 @@ export const PAGE_API_SCRIPT = `
   'use strict';
 
   // These are set by the renderer before the page loads
-  const totalFrames = window.__FRAMEFORGE_TOTAL_FRAMES__ || 0;
-  const duration = window.__FRAMEFORGE_DURATION__ || 0;
-  const width = window.__FRAMEFORGE_WIDTH__ || 1920;
-  const height = window.__FRAMEFORGE_HEIGHT__ || 1080;
+  const totalFrames = window.__KINO_TOTAL_FRAMES__ || 0;
+  const duration = window.__KINO_DURATION__ || 0;
+  const width = window.__KINO_WIDTH__ || 1920;
+  const height = window.__KINO_HEIGHT__ || 1080;
 
-  if (!window.__frameforge) {
-    console.error('[FrameForge] Time virtualization must load before page-api');
+  if (!window.__kino) {
+    console.error('[kino] Time virtualization must load before page-api');
     return;
   }
 
-  Object.defineProperties(window.__frameforge, {
+  Object.defineProperties(window.__kino, {
     totalFrames: { value: totalFrames, writable: false },
     duration: { value: duration, writable: false },
     width: { value: width, writable: false },
@@ -31,12 +31,12 @@ export const PAGE_API_SCRIPT = `
   });
 
   // Convenience: progress from 0 to 1
-  Object.defineProperty(window.__frameforge, 'progress', {
+  Object.defineProperty(window.__kino, 'progress', {
     get: function() {
-      return totalFrames > 0 ? window.__frameforge.currentFrame / totalFrames : 0;
+      return totalFrames > 0 ? window.__kino.currentFrame / totalFrames : 0;
     }
   });
 
-  console.log('[FrameForge] Page API ready — ' + totalFrames + ' frames, ' + duration + 's');
+  console.log('[kino] Page API ready — ' + totalFrames + ' frames, ' + duration + 's');
 })();
 `;

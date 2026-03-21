@@ -1,16 +1,16 @@
 /**
  * Edit Agent Contract — Types and Utilities
  *
- * FrameForge does NOT call any AI API. Instead, it defines a contract
+ * kino does NOT call any AI API. Instead, it defines a contract
  * that any AI agent (Claude, GPT, Gemini, Codex, local models) can fulfill.
  *
  * Workflow:
- *   1. frameforge extract-transcript video.mp4 -o transcript.json
+ *   1. kino extract-transcript video.mp4 -o transcript.json
  *   2. Agent reads transcript.json + EDIT-AGENT-CONTRACT.md
  *   3. Agent writes overlay-decisions.json
  *   4. frameforge edit video.mp4 --overlays overlay-decisions.json -o output.mp4
  *
- * The agent can be any model. FrameForge is model-agnostic.
+ * The agent can be any model. kino is model-agnostic.
  * See .agents/EDIT-AGENT-CONTRACT.md for the full agent specification.
  */
 
@@ -23,7 +23,7 @@ import { type WordTiming } from "./word-captions.js";
 /**
  * A single overlay decision from an AI agent.
  *
- * The agent writes these. FrameForge renders them.
+ * The agent writes these. kino renders them.
  * See EDIT-AGENT-CONTRACT.md for full specification and examples.
  */
 export interface AgentOverlayDecision {
@@ -179,7 +179,7 @@ export function validateOverlayDecisions(
     if (typeof d.initJs !== "string") missing.push("initJs");
 
     if (missing.length > 0) {
-      console.warn(`[FrameForge] Skipping overlay[${i}]: missing fields: ${missing.join(", ")}`);
+      console.warn(`[kino] Skipping overlay[${i}]: missing fields: ${missing.join(", ")}`);
       continue;
     }
 
@@ -187,7 +187,7 @@ export function validateOverlayDecisions(
     const durationMsVal = Math.max(1000, Math.min(30000, Math.round(d.durationMs)));
 
     if (startMs >= durationMs) {
-      console.warn(`[FrameForge] Skipping overlay[${i}]: startMs ${startMs} >= video duration ${durationMs}`);
+      console.warn(`[kino] Skipping overlay[${i}]: startMs ${startMs} >= video duration ${durationMs}`);
       continue;
     }
 

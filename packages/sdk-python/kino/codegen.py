@@ -7,7 +7,7 @@ import json
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from frameforge.scene import Scene
+    from kino.scene import Scene
 
 
 def generate_html(scene: Scene) -> str:
@@ -46,7 +46,7 @@ def generate_html(scene: Scene) -> str:
 {elements_html}
 <script>
 function updateAnimations() {{
-  const t = window.__frameforge ? window.__frameforge.currentTime : 0;
+  const t = window.__kino ? window.__kino.currentTime : 0;
 
 {animation_js}
 }}

@@ -234,7 +234,7 @@ describe("components.assembler", () => {
     ];
     const result = assembleOverlayPage(overlays, style, 1920, 1080);
     expect(result.script).toContain("try {");
-    expect(result.script).toContain("[FrameForge] Component ff-c-0");
+    expect(result.script).toContain("[kino] Component ff-c-0");
   });
 
   it("passes position data to renderers", () => {

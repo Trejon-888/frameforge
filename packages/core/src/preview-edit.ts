@@ -10,7 +10,7 @@
  * - Interactive time scrubber (play/pause/seek/speed)
  * - Dark background simulating video footage
  *
- * The overlay scripts read from `window.__frameforge.currentTimeMs`,
+ * The overlay scripts read from `window.__kino.currentTimeMs`,
  * which is controlled by the scrubber. GSAP paused timelines are driven
  * via `.time()` exactly like in the real renderer — frame-perfect preview.
  */
@@ -139,7 +139,7 @@ export function generateEditPreview(options: EditPreviewOptions): string {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>FrameForge Edit Preview — ${style.name} — ${durationDisplay}</title>
+  <title>kino Edit Preview — ${style.name} — ${durationDisplay}</title>
   <link href="${style.typography.googleFontsUrl}" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 ${overlayDepScripts}
@@ -235,7 +235,7 @@ ${overlayDepScripts}
 </head>
 <body>
   <div class="header">
-    <strong>FrameForge Edit Preview</strong><br>
+    <strong>kino Edit Preview</strong><br>
     Style: ${style.name} &nbsp;|&nbsp; ${width}&times;${height} &nbsp;|&nbsp; ${durationDisplay}
     <div class="stats">${overlayCount} overlays &nbsp;|&nbsp; ${captionGroups.length} caption groups &nbsp;|&nbsp; ${options.words.length} words</div>
   </div>
@@ -272,7 +272,7 @@ ${overlayDepScripts}
     var frameDur = 1000 / fps;
 
     // Controlled clock for overlay/caption scripts
-    window.__frameforge = {
+    window.__kino = {
       currentTimeMs: 0,
       currentFrame: 0,
       totalFrames: Math.ceil(${duration} * fps)
@@ -290,8 +290,8 @@ ${overlayDepScripts}
 
     function setTime(ms) {
       ms = Math.max(0, Math.min(ms, durationMs));
-      window.__frameforge.currentTimeMs = ms;
-      window.__frameforge.currentFrame = Math.floor(ms / frameDur);
+      window.__kino.currentTimeMs = ms;
+      window.__kino.currentFrame = Math.floor(ms / frameDur);
       slider.value = ms;
       // Sync background video if present
       if (bgVideo) bgVideo.currentTime = ms / 1000;
@@ -319,10 +319,10 @@ ${overlayDepScripts}
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
       if (e.code === 'Space') { e.preventDefault(); playBtn.click(); }
-      if (e.code === 'ArrowRight') { setTime(window.__frameforge.currentTimeMs + 1000); }
-      if (e.code === 'ArrowLeft') { setTime(window.__frameforge.currentTimeMs - 1000); }
-      if (e.key === '.') { setTime(window.__frameforge.currentTimeMs + frameDur); }
-      if (e.key === ',') { setTime(window.__frameforge.currentTimeMs - frameDur); }
+      if (e.code === 'ArrowRight') { setTime(window.__kino.currentTimeMs + 1000); }
+      if (e.code === 'ArrowLeft') { setTime(window.__kino.currentTimeMs - 1000); }
+      if (e.key === '.') { setTime(window.__kino.currentTimeMs + frameDur); }
+      if (e.key === ',') { setTime(window.__kino.currentTimeMs - frameDur); }
     });
 
     // Playback loop
@@ -331,7 +331,7 @@ ${overlayDepScripts}
         var now = performance.now();
         var delta = (now - lastTick) * speed;
         lastTick = now;
-        var newTime = window.__frameforge.currentTimeMs + delta;
+        var newTime = window.__kino.currentTimeMs + delta;
         if (newTime >= durationMs) newTime = 0; // Loop
         setTime(newTime);
       }

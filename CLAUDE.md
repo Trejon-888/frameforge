@@ -1,6 +1,6 @@
-# FrameForge
+# kino
 
-**Framework-agnostic programmatic video from any web technology. If a browser can render it, FrameForge can record it.**
+**Framework-agnostic programmatic video from any web technology. If a browser can render it, kino can record it.**
 
 ---
 
@@ -22,7 +22,7 @@
 ## Architecture Overview
 
 ```
-frameforge/
+kino/
 ├── packages/
 │   ├── core/                    # Render engine (CLI + library)
 │   │   ├── src/
@@ -32,11 +32,11 @@ frameforge/
 │   │   │   ├── frame-capture.ts # Puppeteer frame capture
 │   │   │   ├── ffmpeg.ts        # FFmpeg pipeline
 │   │   │   ├── manifest.ts      # Scene manifest parsing (Zod)
-│   │   │   ├── page-api.ts      # __frameforge client API
+│   │   │   ├── page-api.ts      # __kino client API
 │   │   │   └── preview.ts       # Single frame capture
 │   │   └── package.json
 │   │
-│   ├── sdk-ts/                  # TypeScript SDK (@frameforge/sdk)
+│   ├── sdk-ts/                  # TypeScript SDK (@kinohq/sdk)
 │   │   ├── src/
 │   │   │   ├── scene.ts         # Scene builder
 │   │   │   ├── elements/        # Text, Shape, Image, etc.
@@ -45,8 +45,8 @@ frameforge/
 │   │   │   └── codegen.ts       # Generates HTML from scene graph
 │   │   └── package.json
 │   │
-│   └── sdk-python/              # Python SDK (frameforge PyPI)
-│       ├── frameforge/
+│   └── sdk-python/              # Python SDK (kino PyPI)
+│       ├── kino/
 │       │   ├── scene.py
 │       │   ├── elements.py
 │       │   ├── animations.py
@@ -73,17 +73,17 @@ pnpm test                 # Run tests (Vitest)
 pnpm lint                 # Lint source code
 
 # Core package
-pnpm --filter @frameforge/core build
-pnpm --filter @frameforge/core test
+pnpm --filter @kinohq/core build
+pnpm --filter @kinohq/core test
 
 # Render a page
-npx frameforge render ./page.html --duration 10 --fps 30 -o video.mp4
+npx kino render ./page.html --duration 10 --fps 30 -o video.mp4
 
 # Preview a single frame
-npx frameforge preview ./scene.json --frame 45 -o preview.png
+npx kino preview ./scene.json --frame 45 -o preview.png
 
 # Compose multiple scenes with transitions
-npx frameforge compose ./composition.json -o output.mp4
+npx kino compose ./composition.json -o output.mp4
 ```
 
 ---
@@ -121,11 +121,11 @@ This makes rendering deterministic regardless of system performance.
 ### Scene Manifest
 JSON file describing what to render: entry HTML, canvas dimensions, fps, duration, audio tracks, codec settings. All authoring paths (raw HTML, TS SDK, Python SDK) produce a manifest + HTML entry.
 
-### __frameforge Page API
+### __kino Page API
 Global API injected into pages. Pages can optionally use it to signal frame readiness for async content:
-- `__frameforge.ready()` — signal current frame is ready to capture
-- `__frameforge.totalFrames` — total frames to render
-- `__frameforge.currentFrame` — current frame number
+- `__kino.ready()` — signal current frame is ready to capture
+- `__kino.totalFrames` — total frames to render
+- `__kino.currentFrame` — current frame number
 
 ---
 

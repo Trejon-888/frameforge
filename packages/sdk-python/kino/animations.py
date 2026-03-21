@@ -1,4 +1,4 @@
-"""Animation helpers for FrameForge scenes."""
+"""Animation helpers for kino scenes."""
 
 from __future__ import annotations
 

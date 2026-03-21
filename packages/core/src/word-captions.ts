@@ -263,7 +263,7 @@ export function generateCaptionOverlay(
   var lastGroupIdx = -1;
 
   function update() {
-    var t = window.__frameforge ? window.__frameforge.currentTimeMs : performance.now();
+    var t = window.__kino ? window.__kino.currentTimeMs : performance.now();
 
     // Find active group
     var activeIdx = -1;

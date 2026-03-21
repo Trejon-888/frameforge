@@ -1,16 +1,16 @@
 # Changelog
 
-All notable changes to FrameForge are documented here.
+All notable changes to kino are documented here.
 
 ## [0.2.0] — 2026-03-19
 
 ### Added
 
-#### Video Editing Engine (`frameforge edit`)
-- **`frameforge edit`** — Full pipeline command: source footage → edited video with word-level captions + auto-generated motion graphics overlays. Single command replaces manual video editing workflow.
-- **`frameforge extract-transcript`** — Extract enriched transcript from source video with word-level timing, pause detection, energy curve analysis, stat extraction, narrative segmentation, and suggested entry points.
-- **`frameforge render-overlays`** — Render AI agent overlay decisions onto source video. Takes source video + overlay-decisions.json + optional SRT captions → final edited MP4.
-- **`frameforge preview-overlays`** — Preview overlay decisions before full render. Captures one frame per overlay at its midpoint (~30s vs 8-12min full render). Generates a self-contained HTML gallery for review.
+#### Video Editing Engine (`kino edit`)
+- **`kino edit`** — Full pipeline command: source footage → edited video with word-level captions + auto-generated motion graphics overlays. Single command replaces manual video editing workflow.
+- **`kino extract-transcript`** — Extract enriched transcript from source video with word-level timing, pause detection, energy curve analysis, stat extraction, narrative segmentation, and suggested entry points.
+- **`kino render-overlays`** — Render AI agent overlay decisions onto source video. Takes source video + overlay-decisions.json + optional SRT captions → final edited MP4.
+- **`kino preview-overlays`** — Preview overlay decisions before full render. Captures one frame per overlay at its midpoint (~30s vs 8-12min full render). Generates a self-contained HTML gallery for review.
 
 #### Edit Agent Contract (`EDIT-AGENT-CONTRACT.md`)
 - Model-agnostic editing framework — any AI (Claude, GPT, Gemini, local models) reads the contract and produces overlay decisions as plain JSON.
@@ -68,10 +68,10 @@ All notable changes to FrameForge are documented here.
 - **`frameforge preview`** — Single frame capture to PNG.
 - **`frameforge compose`** — Multi-scene composition with 23 FFmpeg xfade transitions.
 - **Scene Manifest** — Zod-validated JSON schema for scene definition.
-- **TypeScript SDK** (`@frameforge/sdk`) — `Scene`, `Text`, `Shape`, `Image` elements with animation primitives.
+- **TypeScript SDK** (`@kinohq/sdk`) — `Scene`, `Text`, `Shape`, `Image` elements with animation primitives.
 - **Python SDK** (`frameforge` on PyPI) — Same API surface, generates HTML + calls Node renderer.
 - **Agent Skill** (`skill.md`) — Comprehensive guide for Claude Code and coding agents to generate videos.
-- **Studio** (`@frameforge/studio`) — Visual timeline preview with hot-reload.
+- **Studio** (`@kinohq/studio`) — Visual timeline preview with hot-reload.
 - **Subtitle engine** — SRT/VTT parser with HTML overlay synced to virtual time.
 - **GPU acceleration** — `--gpu` flag for Chrome hardware acceleration.
 - **106 tests** for core rendering, time virtualization, and SDK.

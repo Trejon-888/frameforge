@@ -3,7 +3,7 @@ import type { Scene, SceneElement, Animation } from "./scene.js";
 /**
  * Generate a self-contained HTML page from a Scene graph.
  * The generated page uses CSS for styling and JavaScript
- * for animation driven by __frameforge time virtualization.
+ * for animation driven by __kino time virtualization.
  */
 export function generateHTML(scene: Scene): string {
   const elements = scene.elements
@@ -37,14 +37,14 @@ export function generateHTML(scene: Scene): string {
 <body>
 ${elements}
 <script>
-// Animation update function called each frame by __frameforge
+// Animation update function called each frame by __kino
 function updateAnimations() {
-  const t = window.__frameforge ? window.__frameforge.currentTime : 0;
+  const t = window.__kino ? window.__kino.currentTime : 0;
 
 ${animationCode}
 }
 
-// Hook into requestAnimationFrame (which is virtualized by FrameForge)
+// Hook into requestAnimationFrame (which is virtualized by kino)
 function loop() {
   updateAnimations();
   requestAnimationFrame(loop);

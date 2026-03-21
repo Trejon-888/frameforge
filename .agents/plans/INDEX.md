@@ -8,7 +8,7 @@
 
 | Status | Count |
 |--------|-------|
-| Active | 4 |
+| Active | 5 |
 | Pending | 0 |
 | Completed | 13 |
 
@@ -20,7 +20,8 @@
 |------|---------|--------|-------|
 | [Video Editing Engine v2](active/video-editing-engine-v2.md) | 2026-03-16 | Phase A complete | Transparent overlay compositing, scaled sizing, encoding speed |
 | [Video Editing Test](active/video-editing-test.md) | 2026-03-16 | Pending | Real footage + captions + motion graphics test |
-| [Social Media Launch](active/social-media-launch.md) | 2026-03-15 | On Hold | Content ready, posting after testing week (~March 22) |
+| [Social Media Launch](active/social-media-launch.md) | 2026-03-21 | Active — Executing | Full pivot: IX content flywheel, not public dev launch. Post kinetic-white v4 first. |
+| [IX-Kino Integration](active/ix-kino-integration.md) | 2026-03-21 | Active | Community weapon deployment — end card, templates, agent pipeline, member access |
 | [Demo Content Series](active/demo-content-series.md) | 2026-03-20 | In Progress | 4-video creative series — showcase rendered, 3 more planned |
 ---
 

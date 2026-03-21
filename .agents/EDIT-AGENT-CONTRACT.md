@@ -1,4 +1,4 @@
-# FrameForge Edit Agent Contract
+# kino Edit Agent Contract
 **Version:** 2.0
 **Purpose:** Creative intelligence framework for AI agents producing video overlays. Any model — Claude, GPT, Gemini, Codex, local — reads this document and produces professional-quality edits.
 
@@ -12,7 +12,7 @@
 
 Your job is to find the moments in this video that deserve to be amplified, and amplify them with precision. Every overlay you add is a decision. Every empty frame is also a decision. The edit that gets watched twice is the one that felt *inevitable* — like every visual choice was exactly right for that exact moment.
 
-FrameForge renders anything a browser can render. Your creative range is unlimited. The only question is whether your choices serve the content.
+kino renders anything a browser can render. Your creative range is unlimited. The only question is whether your choices serve the content.
 
 ---
 
@@ -35,7 +35,7 @@ You receive two inputs:
 
 ### Reading the Enriched Transcript
 
-Run `frameforge extract-transcript video.mp4 -o transcript.json` to generate the base transcript. The intelligence layer is computed automatically.
+Run `kino extract-transcript video.mp4 -o transcript.json` to generate the base transcript. The intelligence layer is computed automatically.
 
 The transcript intelligence format gives you:
 
@@ -263,7 +263,7 @@ LITTLE  DOES  YOUR  →  stagger 80ms per word  →  hold  →  fade out
 **quote-pull** — The speaker's actual words, formatted as a pull quote. Large, beautiful, held.
 ```
 "If a browser can render it,
- FrameForge can record it."
+ kino can record it."
 ```
 *Use for:* Quotable phrasing. The text must be verbatim from the transcript — never paraphrase.
 
@@ -359,7 +359,7 @@ Frame → [#FF4D00 fill] → "SCALE" → clears instantly
 
 ### Canvas Components
 
-Beyond GSAP, FrameForge includes native Canvas rendering components. These run their own `requestAnimationFrame` loops within the time virtualization system. Use them for sustained visual elements:
+Beyond GSAP, kino includes native Canvas rendering components. These run their own `requestAnimationFrame` loops within the time virtualization system. Use them for sustained visual elements:
 
 ```javascript
 // Dot grid pulse (ambient breathing texture)
@@ -468,7 +468,7 @@ A full render takes 8-12 minutes. The preview command takes 30-60 seconds and ca
 ### Running preview-overlays
 
 ```bash
-frameforge preview-overlays video.mp4 \
+kino preview-overlays video.mp4 \
   --overlays overlay-decisions.json \
   -o overlay-preview.html
 ```
@@ -502,7 +502,7 @@ Iterate on the preview until you're satisfied. The full render is a commitment.
 ## Phase 5: RENDER — Final Output
 
 ```bash
-frameforge render-overlays video.mp4 \
+kino render-overlays video.mp4 \
   --overlays overlay-decisions.json \
   --srt captions.srt \
   --quality balanced \
@@ -575,13 +575,13 @@ Before submitting your overlay JSON for full render:
 - [ ] `startMs` values are post-pause (200-400ms after the triggering phrase ends)
 - [ ] Total overlay count is appropriate for video length (max 1 per 6s)
 - [ ] The edit has one clear hero moment — not many equal moments
-- [ ] You have previewed with `frameforge preview-overlays` before final render
+- [ ] You have previewed with `kino preview-overlays` before final render
 
 ---
 
 ## Validation
 
-FrameForge validates your JSON before rendering:
+kino validates your JSON before rendering:
 - Missing required fields → overlay skipped (warning logged)
 - `startMs` ≥ video duration → overlay skipped
 - `durationMs` outside 1000–30000 → clamped automatically
@@ -591,5 +591,5 @@ FrameForge validates your JSON before rendering:
 ---
 
 *This document is the contract. Code is derived from it.*
-*GSAP, Canvas, SVG, HTML, CSS — if a browser can render it, FrameForge can record it.*
+*GSAP, Canvas, SVG, HTML, CSS — if a browser can render it, kino can record it.*
 *Version 2.0 — the difference between AI-looking and professionally directed.*

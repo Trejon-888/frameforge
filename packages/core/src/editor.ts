@@ -751,7 +751,7 @@ export async function previewOverlays(options: OverlayPreviewOptions): Promise<O
         });
       } catch (err: any) {
         console.warn(
-          `[FrameForge] Warning: Failed to capture frame for overlay[${i}] ` +
+          `[kino] Warning: Failed to capture frame for overlay[${i}] ` +
           `(${decision.type} at ${decision.startMs}ms): ${err.message}`
         );
       }
@@ -849,11 +849,11 @@ async function captureOverlayFrame(args: {
     await page.setViewport({ width, height, deviceScaleFactor: 1 });
 
     await page.evaluateOnNewDocument(`
-      window.__FRAMEFORGE_FPS__ = ${fps};
-      window.__FRAMEFORGE_TOTAL_FRAMES__ = ${totalFrames};
-      window.__FRAMEFORGE_DURATION__ = ${duration};
-      window.__FRAMEFORGE_WIDTH__ = ${width};
-      window.__FRAMEFORGE_HEIGHT__ = ${height};
+      window.__KINO_FPS__ = ${fps};
+      window.__KINO_TOTAL_FRAMES__ = ${totalFrames};
+      window.__KINO_DURATION__ = ${duration};
+      window.__KINO_WIDTH__ = ${width};
+      window.__KINO_HEIGHT__ = ${height};
     `);
     await page.evaluateOnNewDocument(TIME_VIRTUALIZATION_SCRIPT);
     await page.evaluateOnNewDocument(PAGE_API_SCRIPT);
@@ -870,7 +870,7 @@ async function captureOverlayFrame(args: {
     // Advance virtual time to the target frame
     for (let f = 0; f <= targetFrame; f++) {
       await page.evaluate(() => {
-        (window as any).__frameforge.advanceFrame();
+        (window as any).__kino.advanceFrame();
       });
     }
 

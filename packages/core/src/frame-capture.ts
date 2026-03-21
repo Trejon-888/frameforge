@@ -71,11 +71,11 @@ export async function captureFrames(
 
     // Inject time virtualization BEFORE the page loads
     await page.evaluateOnNewDocument(`
-      window.__FRAMEFORGE_FPS__ = ${fps};
-      window.__FRAMEFORGE_TOTAL_FRAMES__ = ${totalFrames};
-      window.__FRAMEFORGE_DURATION__ = ${duration};
-      window.__FRAMEFORGE_WIDTH__ = ${width};
-      window.__FRAMEFORGE_HEIGHT__ = ${height};
+      window.__KINO_FPS__ = ${fps};
+      window.__KINO_TOTAL_FRAMES__ = ${totalFrames};
+      window.__KINO_DURATION__ = ${duration};
+      window.__KINO_WIDTH__ = ${width};
+      window.__KINO_HEIGHT__ = ${height};
     `);
     await page.evaluateOnNewDocument(TIME_VIRTUALIZATION_SCRIPT);
     await page.evaluateOnNewDocument(PAGE_API_SCRIPT);
@@ -128,7 +128,7 @@ export async function captureFrames(
         // Reset async readiness state before advancing
         await withTimeout(
           page.evaluate(() => {
-            (window as any).__frameforge.resetReady();
+            (window as any).__kino.resetReady();
           }),
           frameTimeout,
           `resetReady at frame ${frame}`
@@ -137,7 +137,7 @@ export async function captureFrames(
         // Advance virtual time (fires timers, rAF callbacks, syncs CSS animations)
         await withTimeout(
           page.evaluate(() => {
-            (window as any).__frameforge.advanceFrame();
+            (window as any).__kino.advanceFrame();
           }),
           frameTimeout,
           `advanceFrame at frame ${frame}`
@@ -195,7 +195,7 @@ export async function captureFrames(
     if (pageErrors.length > 0) {
       const uniqueErrors = [...new Set(pageErrors)];
       console.warn(
-        `[FrameForge] ${uniqueErrors.length} page error(s) during render:\n` +
+        `[kino] ${uniqueErrors.length} page error(s) during render:\n` +
           uniqueErrors.slice(0, 5).map((e) => `  - ${e}`).join("\n") +
           (uniqueErrors.length > 5 ? `\n  ... and ${uniqueErrors.length - 5} more` : "")
       );

@@ -69,12 +69,12 @@ describe("frame-capture", () => {
       expect(PAGE_API_SCRIPT.length).toBeGreaterThan(0);
     });
 
-    it("time virtualization defines __frameforge global", () => {
-      expect(TIME_VIRTUALIZATION_SCRIPT).toContain("__frameforge");
+    it("time virtualization defines __kino global", () => {
+      expect(TIME_VIRTUALIZATION_SCRIPT).toContain("__kino");
       expect(TIME_VIRTUALIZATION_SCRIPT).toContain("advanceFrame");
     });
 
-    it("page-api extends __frameforge with metadata", () => {
+    it("page-api extends __kino with metadata", () => {
       expect(PAGE_API_SCRIPT).toContain("totalFrames");
       expect(PAGE_API_SCRIPT).toContain("duration");
       expect(PAGE_API_SCRIPT).toContain("width");
@@ -115,12 +115,12 @@ describe("frame-capture", () => {
 
     it("injection order: config → time-virtualization → page-api", async () => {
       // Simulate the injection order from frame-capture.ts
-      await mockPage.evaluateOnNewDocument(`window.__FRAMEFORGE_FPS__ = 30;`);
+      await mockPage.evaluateOnNewDocument(`window.__KINO_FPS__ = 30;`);
       await mockPage.evaluateOnNewDocument(TIME_VIRTUALIZATION_SCRIPT);
       await mockPage.evaluateOnNewDocument(PAGE_API_SCRIPT);
 
       expect(mockPage._evaluateOnNewDocumentCalls).toHaveLength(3);
-      expect(mockPage._evaluateOnNewDocumentCalls[0]).toContain("__FRAMEFORGE_FPS__");
+      expect(mockPage._evaluateOnNewDocumentCalls[0]).toContain("__KINO_FPS__");
       expect(mockPage._evaluateOnNewDocumentCalls[1]).toContain("advanceFrame");
       expect(mockPage._evaluateOnNewDocumentCalls[2]).toContain("totalFrames");
     });

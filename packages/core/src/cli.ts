@@ -40,10 +40,10 @@ function getVersion(): string {
 const program = new Command();
 
 program
-  .name("frameforge")
+  .name("kino")
   .description(
     "Framework-agnostic programmatic video renderer.\n" +
-      "If a browser can render it, FrameForge can record it."
+      "If a browser can render it, kino can record it."
   )
   .version(getVersion());
 
@@ -60,7 +60,7 @@ program
     const spinner = ora();
 
     console.log(
-      chalk.bold("\n  FrameForge ") +
+      chalk.bold("\n  kino ") +
         chalk.dim(`v${getVersion()}`) +
         "\n"
     );
@@ -104,7 +104,7 @@ program
         console.error(
           chalk.yellow(
             "  Hint: Use --duration <seconds> when rendering raw HTML files.\n" +
-              "  Example: frameforge render page.html --duration 10\n"
+              "  Example: kino render page.html --duration 10\n"
           )
         );
       }
@@ -142,7 +142,7 @@ program
     const spinner = ora();
 
     console.log(
-      chalk.bold("\n  FrameForge ") +
+      chalk.bold("\n  kino ") +
         chalk.dim(`v${getVersion()} — preview`) +
         "\n"
     );
@@ -210,7 +210,7 @@ program
     const spinner = ora();
 
     console.log(
-      chalk.bold("\n  FrameForge ") +
+      chalk.bold("\n  kino ") +
         chalk.dim(`v${getVersion()} — compose`) +
         "\n"
     );
@@ -263,7 +263,7 @@ program
     const spinner = ora();
 
     console.log(
-      chalk.bold("\n  FrameForge ") +
+      chalk.bold("\n  kino ") +
         chalk.dim(`v${getVersion()} — preview-edit`) +
         "\n"
     );
@@ -359,7 +359,7 @@ program
     const spinner = ora();
 
     console.log(
-      chalk.bold("\n  FrameForge ") +
+      chalk.bold("\n  kino ") +
         chalk.dim(`v${getVersion()} — edit`) +
         "\n"
     );
@@ -440,7 +440,7 @@ program
     const spinner = ora();
 
     console.log(
-      chalk.bold("\n  FrameForge ") +
+      chalk.bold("\n  kino ") +
         chalk.dim(`v${getVersion()} — render-overlays`) +
         "\n"
     );
@@ -450,10 +450,10 @@ program
       console.error(
         chalk.yellow(
           "  Workflow:\n" +
-          "    1. frameforge extract-transcript video.mp4 -o transcript.json\n" +
+          "    1. kino extract-transcript video.mp4 -o transcript.json\n" +
           "    2. Agent reads transcript.json + EDIT-AGENT-CONTRACT.md\n" +
           "    3. Agent writes overlay-decisions.json\n" +
-          "    4. frameforge render-overlays video.mp4 --overlays overlay-decisions.json\n"
+          "    4. kino render-overlays video.mp4 --overlays overlay-decisions.json\n"
         )
       );
       process.exit(1);
@@ -511,7 +511,7 @@ program
     const spinner = ora();
 
     console.log(
-      chalk.bold("\n  FrameForge ") +
+      chalk.bold("\n  kino ") +
         chalk.dim(`v${getVersion()} — preview-overlays`) +
         "\n"
     );
@@ -520,7 +520,7 @@ program
       console.error(chalk.red("\n  Error: --overlays <path> is required.\n"));
       console.error(
         chalk.yellow(
-          "  Usage: frameforge preview-overlays video.mp4 --overlays overlay-decisions.json\n"
+          "  Usage: kino preview-overlays video.mp4 --overlays overlay-decisions.json\n"
         )
       );
       process.exit(1);
@@ -567,7 +567,7 @@ program
     const spinner = ora();
 
     console.log(
-      chalk.bold("\n  FrameForge ") +
+      chalk.bold("\n  kino ") +
         chalk.dim(`v${getVersion()} — extract-transcript`) +
         "\n"
     );

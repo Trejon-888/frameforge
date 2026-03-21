@@ -5,7 +5,7 @@
  * These are syntactic sugar over the low-level .animate() API.
  *
  * Usage:
- *   import { fadeIn, slideIn } from "@frameforge/sdk";
+ *   import { fadeIn, slideIn } from "@kinohq/sdk";
  *   const title = new Text("Hello").apply(fadeIn(0, 1)).apply(slideIn("up", 0, 1));
  *
  *   // Or use the chainable methods directly:

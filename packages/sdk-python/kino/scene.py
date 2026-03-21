@@ -1,4 +1,4 @@
-"""Scene builder — the top-level container for a FrameForge video."""
+"""Scene builder — the top-level container for a kino video."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from frameforge.codegen import generate_html
+from kino.codegen import generate_html
 
 
 class Scene:
@@ -68,8 +68,8 @@ class Scene:
         }
 
     def render(self, output: str = "./output.mp4") -> str:
-        """Generate HTML and manifest, then invoke the FrameForge CLI."""
-        with tempfile.TemporaryDirectory(prefix="frameforge-") as tmpdir:
+        """Generate HTML and manifest, then invoke the kino CLI."""
+        with tempfile.TemporaryDirectory(prefix="kino-") as tmpdir:
             tmpdir_path = Path(tmpdir)
 
             # Generate HTML
@@ -95,7 +95,7 @@ class Scene:
             if local_cli.exists():
                 cmd = ["node", str(local_cli), "render", str(manifest_path)]
             else:
-                cmd = [npx_cmd, "@frameforge/core", "render", str(manifest_path)]
+                cmd = [npx_cmd, "@kinohq/core", "render", str(manifest_path)]
 
             result = subprocess.run(
                 cmd,
@@ -106,7 +106,7 @@ class Scene:
 
             if result.returncode != 0:
                 raise RuntimeError(
-                    f"FrameForge render failed:\n{result.stderr}"
+                    f"kino render failed:\n{result.stderr}"
                 )
 
             return str(Path(output).resolve())

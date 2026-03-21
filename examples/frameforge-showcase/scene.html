@@ -14,234 +14,362 @@ html, body {
   background: #000;
 }
 
-canvas#bg { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; }
+/* Persistent layers */
+canvas#stars { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; z-index: 0; }
+canvas#bg    { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; z-index: 1; }
+canvas#fx    { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; z-index: 20; pointer-events: none; }
 
 .scene {
-  position: absolute;
-  top: 0; left: 0;
+  position: absolute; top: 0; left: 0;
   width: 1920px; height: 1080px;
-  opacity: 0;
-  pointer-events: none;
+  opacity: 0; pointer-events: none;
+  z-index: 5;
 }
 
-/* ── Scene 1: "ANYTHING" ── */
-#s1 { display: flex; flex-direction: column; justify-content: center; padding: 0 140px; gap: 0; }
-.s1-word {
-  font-family: 'Archivo Black', 'Arial Black', sans-serif;
-  font-size: 220px;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: -0.06em;
-  line-height: 0.82;
-  will-change: transform;
+/* ── SCENE 0: SIGNAL ── */
+#s0 {
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: flex-start;
+  padding: 0 200px;
+  background: #000;
+  z-index: 10;
 }
-.s1-word.orange { color: #FF4D00; }
-.s1-sub {
+.term-line {
   font-family: 'Space Mono', monospace;
-  font-size: 28px;
-  color: rgba(255,255,255,0.35);
-  text-transform: uppercase;
-  letter-spacing: 0.25em;
-  margin-top: 56px;
+  font-size: 36px;
+  color: #22C55E;
+  letter-spacing: 0.08em;
+  line-height: 1.8;
+  text-shadow: 0 0 20px rgba(34,197,94,0.8), 0 0 60px rgba(34,197,94,0.3);
+  white-space: pre;
+}
+.cursor { animation: none; }
+.scan-overlay {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 4px;
+  background: rgba(34,197,94,0.15);
+  pointer-events: none; z-index: 11;
 }
 
-/* ── Scene 2: Tech Grid ── */
-#s2 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
+/* ── SCENE 1: KINO ARRIVES ── */
+#s1 { z-index: 6; }
+
+#beam {
+  position: absolute;
+  left: 50%; top: 0;
+  transform: translateX(-50%);
+  width: 6px; height: 0px;
+  background: linear-gradient(to bottom, transparent, #22C55E, #4ADE80, transparent);
+  opacity: 0;
+  box-shadow: 0 0 40px 15px rgba(34,197,94,0.4);
+  border-radius: 3px;
+}
+
+#kino-wrap {
+  position: absolute;
+  left: 50%; top: 60px;
+  transform: translateX(-50%) scale(0);
+  width: 220px;
+  filter: drop-shadow(0 0 30px rgba(34,197,94,0.6));
+  z-index: 8;
+}
+
+#kino-name {
+  position: absolute;
+  left: 50%; top: 430px;
+  transform: translateX(-50%);
+  display: flex; gap: 16px;
+  z-index: 8;
+}
+.k-letter {
+  font-family: 'Archivo Black', 'Arial Black', sans-serif;
+  font-size: 200px;
+  color: #22C55E;
+  letter-spacing: -8px;
+  line-height: 1;
+  opacity: 0;
+  text-shadow: 0 0 60px rgba(34,197,94,0.4);
+}
+
+#kino-tagline {
+  position: absolute;
+  left: 50%; top: 700px;
+  transform: translateX(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 26px;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+#kino-badge {
+  position: absolute;
+  left: 50%; top: 790px;
+  transform: translateX(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: #22C55E;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid rgba(34,197,94,0.4);
+  padding: 8px 28px;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+/* ── SCENE 2: TECH GRID ── */
+#s2 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+
 .s2-label {
   font-family: 'Space Mono', monospace;
-  font-size: 22px;
-  color: rgba(255,255,255,0.3);
+  font-size: 20px;
+  color: #22C55E;
   text-transform: uppercase;
   letter-spacing: 0.3em;
 }
+
 .tech-grid {
   display: grid;
   grid-template-columns: repeat(3, 520px);
-  grid-template-rows: repeat(2, 300px);
+  grid-template-rows: repeat(2, 296px);
   gap: 12px;
 }
 .tech-card {
-  background: #0a0a0a;
-  border: 1px solid #1c1c1c;
-  position: relative;
-  overflow: hidden;
+  background: #050a05;
+  border: 1px solid rgba(34,197,94,0.25);
+  position: relative; overflow: hidden;
+  box-shadow: 0 0 20px rgba(34,197,94,0.05) inset;
 }
 .tech-card canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 .tech-card-label {
   position: absolute;
-  bottom: 16px; left: 20px;
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 28px;
-  color: rgba(255,255,255,0.9);
+  bottom: 14px; left: 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: #22C55E;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.08em;
   z-index: 2;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,5,0,0.85);
   padding: 4px 12px;
 }
-.tech-card-label span { color: #FF4D00; }
+.tech-card-label .verified { color: rgba(34,197,94,0.6); margin-right: 8px; }
+.tech-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34,197,94,0.6), transparent);
+}
 
-/* ── Scene 3: The Engine ── */
-#s3 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 48px; padding: 0 200px; }
-.s3-title {
-  font-family: 'Archivo Black', sans-serif;
-  font-size: 64px;
-  color: #fff;
+/* ── SCENE 3: CAPTURE ENGINE ── */
+#s3 {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 44px; padding: 0 200px;
+}
+.s3-header {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  color: #22C55E;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  letter-spacing: -0.04em;
   text-align: center;
 }
-.s3-title .orange { color: #FF4D00; }
 .engine-row { display: flex; align-items: center; gap: 40px; width: 100%; }
-.engine-stat { text-align: center; }
-.engine-number {
+.frame-count {
   font-family: 'Archivo Black', sans-serif;
   font-size: 130px;
-  color: #FF4D00;
+  color: #22C55E;
   letter-spacing: -0.05em;
   line-height: 1;
+  text-shadow: 0 0 40px rgba(34,197,94,0.4);
 }
-.engine-unit {
+.frame-unit {
   font-family: 'Space Mono', monospace;
-  font-size: 20px;
-  color: rgba(255,255,255,0.35);
+  font-size: 18px;
+  color: rgba(34,197,94,0.5);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   margin-top: 4px;
 }
 .progress-track {
-  flex: 1;
-  height: 8px;
-  background: #1a1a1a;
-  border-radius: 4px;
-  overflow: hidden;
+  flex: 1; height: 8px;
+  background: rgba(34,197,94,0.1);
+  border-radius: 4px; overflow: hidden;
+  border: 1px solid rgba(34,197,94,0.2);
 }
 .progress-bar {
   height: 100%;
-  background: #FF4D00;
+  background: linear-gradient(90deg, #16A34A, #22C55E, #4ADE80);
   width: 0%;
-  box-shadow: 0 0 20px rgba(255,77,0,0.6);
-  transition: none;
+  box-shadow: 0 0 20px rgba(34,197,94,0.6);
 }
-.quality-row {
-  display: flex;
-  gap: 60px;
-  align-items: center;
-}
+.quality-row { display: flex; gap: 40px; align-items: center; }
 .quality-chip {
   font-family: 'Space Mono', monospace;
-  font-size: 22px;
-  color: rgba(255,255,255,0.5);
+  font-size: 18px;
+  color: rgba(34,197,94,0.4);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 10px 24px;
-  border: 1px solid #282828;
+  letter-spacing: 0.08em;
+  padding: 8px 20px;
+  border: 1px solid rgba(34,197,94,0.15);
 }
 .quality-chip.active {
-  color: #fff;
-  border-color: #FF4D00;
-  background: rgba(255,77,0,0.06);
+  color: #22C55E;
+  border-color: rgba(34,197,94,0.5);
+  background: rgba(34,197,94,0.05);
 }
 .done-line {
   font-family: 'Archivo Black', sans-serif;
-  font-size: 48px;
-  color: #FF4D00;
+  font-size: 44px;
+  color: #4ADE80;
   text-transform: uppercase;
   letter-spacing: -0.02em;
+  text-shadow: 0 0 40px rgba(74,222,128,0.5);
 }
 
-/* ── Scene 4: CTA ── */
-#s4 { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px; }
+/* ── SCENE 4: CTA ── */
+#s4 {
+  display: flex;
+  align-items: center; justify-content: center;
+  gap: 80px;
+}
+.s4-left {
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 40px;
+}
 .s4-brand {
   font-family: 'Archivo Black', sans-serif;
-  font-size: 160px;
+  font-size: 180px;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: -0.06em;
   line-height: 1;
 }
-.s4-brand .ff-f { color: #FF4D00; }
+.s4-rule {
+  width: 0px; height: 3px;
+  background: linear-gradient(90deg, #22C55E, transparent);
+}
 .s4-command {
-  background: #0d0d0d;
-  border: 2px solid #FF4D00;
-  padding: 28px 80px;
+  background: rgba(34,197,94,0.05);
+  border: 2px solid rgba(34,197,94,0.4);
+  padding: 24px 72px;
   font-family: 'Space Mono', monospace;
-  font-size: 48px;
+  font-size: 44px;
   color: #fff;
   letter-spacing: -0.01em;
 }
-.s4-command .prompt { color: #FF4D00; }
-.s4-tagline {
+.s4-command .prompt { color: #22C55E; }
+.s4-meta {
   font-family: 'Space Mono', monospace;
-  font-size: 24px;
-  color: rgba(255,255,255,0.3);
+  font-size: 18px;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
 }
-.s4-rule {
-  width: 600px;
-  height: 2px;
-  background: #FF4D00;
+#s4-mascot {
+  width: 260px;
+  filter: drop-shadow(0 0 40px rgba(34,197,94,0.5));
+  opacity: 0;
+  flex-shrink: 0;
 }
 </style>
 </head>
 <body>
 
-<!-- Background: persistent flow field -->
+<!-- Stars: persistent background -->
+<canvas id="stars" width="1920" height="1080"></canvas>
+<!-- Background flow field (orange, runs during tech scenes) -->
 <canvas id="bg" width="1920" height="1080"></canvas>
+<!-- FX: particles -->
+<canvas id="fx" width="1920" height="1080"></canvas>
 
-<!-- ── Scene 1 ── -->
-<div class="scene" id="s1">
-  <div class="s1-word" id="w-gsap">GSAP.</div>
-  <div class="s1-word" id="w-three">THREE.JS.</div>
-  <div class="s1-word" id="w-css">CSS.</div>
-  <div class="s1-word orange" id="w-any">ANYTHING.</div>
-  <div class="s1-sub" id="w-sub">One renderer. Zero lock-in.</div>
+<!-- SCENE 0: Signal -->
+<div class="scene" id="s0">
+  <div class="term-line" id="t1"></div>
+  <div class="term-line" id="t2"></div>
+  <div class="term-line" id="t3"></div>
 </div>
 
-<!-- ── Scene 2 ── -->
+<!-- SCENE 1: Kino Arrives -->
+<div class="scene" id="s1">
+  <div id="beam"></div>
+  <div id="kino-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 560" shape-rendering="crispEdges" width="220" height="280">
+      <defs>
+        <filter id="tip-glow" x="-100%" y="-100%" width="400%" height="400%"><feGaussianBlur stdDeviation="8"/></filter>
+        <filter id="bg-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="30"/></filter>
+      </defs>
+      <circle cx="220" cy="300" r="145" fill="#22C55E" opacity="0.08" filter="url(#bg-glow)"/>
+      <circle cx="132" cy="24" r="16" fill="#A7F3D0" opacity="0.5" filter="url(#tip-glow)"/>
+      <rect x="120" y="20" width="20" height="20" fill="#DCFCE7"/>
+      <rect x="140" y="40" width="20" height="20" fill="#22C55E"/>
+      <rect x="140" y="60" width="20" height="20" fill="#22C55E"/>
+      <circle cx="308" cy="24" r="16" fill="#A7F3D0" opacity="0.5" filter="url(#tip-glow)"/>
+      <rect x="300" y="20" width="20" height="20" fill="#DCFCE7"/>
+      <rect x="280" y="40" width="20" height="20" fill="#22C55E"/>
+      <rect x="280" y="60" width="20" height="20" fill="#22C55E"/>
+      <rect x="180" y="80" width="40" height="20" fill="#4ADE80"/><rect x="220" y="80" width="40" height="20" fill="#22C55E"/>
+      <rect x="140" y="100" width="40" height="20" fill="#4ADE80"/><rect x="180" y="100" width="80" height="20" fill="#22C55E"/><rect x="260" y="100" width="40" height="20" fill="#16A34A"/>
+      <rect x="100" y="120" width="40" height="20" fill="#4ADE80"/><rect x="140" y="120" width="160" height="20" fill="#22C55E"/><rect x="300" y="120" width="40" height="20" fill="#16A34A"/><rect x="140" y="120" width="20" height="20" fill="#16A34A"/><rect x="280" y="120" width="20" height="20" fill="#16A34A"/>
+      <rect x="80" y="140" width="280" height="20" fill="#22C55E"/><rect x="80" y="140" width="60" height="20" fill="#4ADE80"/><rect x="320" y="140" width="40" height="20" fill="#16A34A"/><rect x="120" y="140" width="20" height="20" fill="#16A34A"/><rect x="160" y="140" width="20" height="20" fill="#16A34A"/><rect x="260" y="140" width="20" height="20" fill="#16A34A"/><rect x="300" y="140" width="20" height="20" fill="#16A34A"/>
+      <rect x="80" y="160" width="280" height="20" fill="#22C55E"/><rect x="80" y="160" width="40" height="20" fill="#4ADE80"/><rect x="320" y="160" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="180" width="280" height="20" fill="#22C55E"/><rect x="80" y="180" width="40" height="20" fill="#4ADE80"/><rect x="120" y="180" width="60" height="20" fill="#F0FFF4"/><rect x="160" y="180" width="20" height="20" fill="#FFFFFF"/><rect x="260" y="180" width="60" height="20" fill="#F0FFF4"/><rect x="300" y="180" width="20" height="20" fill="#FFFFFF"/><rect x="320" y="180" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="200" width="280" height="20" fill="#22C55E"/><rect x="80" y="200" width="40" height="20" fill="#4ADE80"/><rect x="120" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="140" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="160" y="200" width="20" height="20" fill="#111111"/><rect x="260" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="280" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="300" y="200" width="20" height="20" fill="#111111"/><rect x="320" y="200" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="220" width="280" height="20" fill="#22C55E"/><rect x="80" y="220" width="40" height="20" fill="#4ADE80"/><rect x="120" y="220" width="20" height="20" fill="#4ADE80"/><rect x="280" y="220" width="20" height="20" fill="#4ADE80"/><rect x="320" y="220" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="240" width="280" height="20" fill="#22C55E"/><rect x="80" y="240" width="40" height="20" fill="#4ADE80"/><rect x="320" y="240" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="260" width="280" height="20" fill="#22C55E"/><rect x="80" y="260" width="40" height="20" fill="#4ADE80"/><rect x="180" y="260" width="80" height="20" fill="#15803D"/><rect x="320" y="260" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="280" width="280" height="20" fill="#22C55E"/><rect x="80" y="280" width="40" height="20" fill="#4ADE80"/><rect x="320" y="280" width="40" height="20" fill="#16A34A"/>
+      <rect x="100" y="300" width="240" height="20" fill="#22C55E"/><rect x="100" y="300" width="40" height="20" fill="#4ADE80"/><rect x="300" y="300" width="40" height="20" fill="#16A34A"/>
+      <rect x="140" y="320" width="160" height="20" fill="#22C55E"/><rect x="140" y="320" width="40" height="20" fill="#16A34A"/><rect x="260" y="320" width="40" height="20" fill="#16A34A"/>
+      <rect x="180" y="340" width="80" height="20" fill="#22C55E"/>
+      <rect x="20" y="360" width="20" height="20" fill="#15803D"/><rect x="40" y="360" width="60" height="20" fill="#22C55E"/><rect x="100" y="360" width="240" height="20" fill="#22C55E"/><rect x="100" y="360" width="40" height="20" fill="#4ADE80"/><rect x="300" y="360" width="40" height="20" fill="#16A34A"/><rect x="340" y="360" width="60" height="20" fill="#22C55E"/><rect x="400" y="360" width="20" height="20" fill="#15803D"/>
+      <rect x="40" y="380" width="20" height="20" fill="#15803D"/><rect x="80" y="380" width="20" height="20" fill="#15803D"/><rect x="100" y="380" width="240" height="20" fill="#22C55E"/><rect x="340" y="380" width="20" height="20" fill="#15803D"/><rect x="380" y="380" width="20" height="20" fill="#15803D"/>
+      <rect x="100" y="400" width="240" height="20" fill="#22C55E"/><rect x="300" y="400" width="40" height="20" fill="#16A34A"/>
+      <rect x="100" y="420" width="240" height="20" fill="#22C55E"/><rect x="280" y="420" width="60" height="20" fill="#16A34A"/>
+      <rect x="140" y="440" width="60" height="20" fill="#22C55E"/><rect x="240" y="440" width="60" height="20" fill="#22C55E"/>
+      <rect x="140" y="460" width="60" height="20" fill="#22C55E"/><rect x="240" y="460" width="60" height="20" fill="#22C55E"/>
+      <rect x="140" y="480" width="60" height="20" fill="#22C55E"/><rect x="240" y="480" width="60" height="20" fill="#22C55E"/>
+      <rect x="120" y="500" width="100" height="20" fill="#16A34A"/><rect x="240" y="500" width="100" height="20" fill="#16A34A"/>
+    </svg>
+  </div>
+  <div id="kino-name">
+    <span class="k-letter" id="k-k">K</span>
+    <span class="k-letter" id="k-i">I</span>
+    <span class="k-letter" id="k-n">N</span>
+    <span class="k-letter" id="k-o">O</span>
+  </div>
+  <div id="kino-tagline">she renders anything a browser can render</div>
+  <div id="kino-badge">THREAT LEVEL: SHIPPED &nbsp;·&nbsp; LANDED: 2026</div>
+</div>
+
+<!-- SCENE 2: Earth Tech -->
 <div class="scene" id="s2">
-  <div class="s2-label">Any technology. One renderer.</div>
+  <div class="s2-label">Compatible Earth Technologies:</div>
   <div class="tech-grid">
-    <div class="tech-card" id="card-gsap">
-      <canvas id="c-gsap" width="520" height="300"></canvas>
-      <div class="tech-card-label"><span>↗</span> GSAP</div>
-    </div>
-    <div class="tech-card" id="card-three">
-      <canvas id="c-three" width="520" height="300"></canvas>
-      <div class="tech-card-label"><span>↗</span> THREE.JS</div>
-    </div>
-    <div class="tech-card" id="card-p5">
-      <canvas id="c-p5" width="520" height="300"></canvas>
-      <div class="tech-card-label"><span>↗</span> P5.JS</div>
-    </div>
-    <div class="tech-card" id="card-canvas">
-      <canvas id="c-canvas" width="520" height="300"></canvas>
-      <div class="tech-card-label"><span>↗</span> CANVAS 2D</div>
-    </div>
-    <div class="tech-card" id="card-svg">
-      <canvas id="c-svg" width="520" height="300"></canvas>
-      <div class="tech-card-label"><span>↗</span> SVG + CSS</div>
-    </div>
-    <div class="tech-card" id="card-flow">
-      <canvas id="c-flow" width="520" height="300"></canvas>
-      <div class="tech-card-label"><span>↗</span> FLOW FIELD</div>
-    </div>
+    <div class="tech-card" id="card-gsap"><canvas id="c-gsap" width="520" height="296"></canvas><div class="tech-card-label"><span class="verified">[ VERIFIED ]</span>GSAP</div></div>
+    <div class="tech-card" id="card-three"><canvas id="c-three" width="520" height="296"></canvas><div class="tech-card-label"><span class="verified">[ VERIFIED ]</span>THREE.JS</div></div>
+    <div class="tech-card" id="card-p5"><canvas id="c-p5" width="520" height="296"></canvas><div class="tech-card-label"><span class="verified">[ VERIFIED ]</span>P5.JS</div></div>
+    <div class="tech-card" id="card-canvas"><canvas id="c-canvas" width="520" height="296"></canvas><div class="tech-card-label"><span class="verified">[ VERIFIED ]</span>CANVAS 2D</div></div>
+    <div class="tech-card" id="card-svg"><canvas id="c-svg" width="520" height="296"></canvas><div class="tech-card-label"><span class="verified">[ VERIFIED ]</span>SVG + CSS</div></div>
+    <div class="tech-card" id="card-flow"><canvas id="c-flow" width="520" height="296"></canvas><div class="tech-card-label"><span class="verified">[ VERIFIED ]</span>FLOW FIELD</div></div>
   </div>
 </div>
 
-<!-- ── Scene 3 ── -->
+<!-- SCENE 3: Capture Engine -->
 <div class="scene" id="s3">
-  <div class="s3-title">Deterministic. <span class="orange">Frame-perfect.</span> Every render.</div>
+  <div class="s3-header" id="s3-header">CAPTURE SEQUENCE INITIATED</div>
   <div class="engine-row">
-    <div class="engine-stat">
-      <div class="engine-number" id="frame-num">0</div>
-      <div class="engine-unit">frames</div>
+    <div style="text-align:center;">
+      <div class="frame-count" id="frame-num">0</div>
+      <div class="frame-unit">FRAMES SECURED</div>
     </div>
     <div style="flex:1; display:flex; flex-direction:column; gap:20px;">
-      <div style="font-family:'Space Mono',monospace; font-size:20px; color:rgba(255,255,255,0.3); letter-spacing:0.08em; text-transform:uppercase;">Rendering 1920×1080 · 30fps · H.264 · Quality: Slow</div>
+      <div style="font-family:'Space Mono',monospace; font-size:18px; color:rgba(34,197,94,0.35); letter-spacing:0.08em; text-transform:uppercase;">Rendering 1920×1080 · 30fps · H.264 · Quality: High</div>
       <div class="progress-track"><div class="progress-bar" id="prog-bar"></div></div>
-      <div style="display:flex; justify-content:space-between; font-family:'Space Mono',monospace; font-size:18px; color:rgba(255,255,255,0.2);">
+      <div style="display:flex; justify-content:space-between; font-family:'Space Mono',monospace; font-size:16px; color:rgba(34,197,94,0.25);">
         <span>0</span><span id="pct-label">0%</span><span>900 frames</span>
       </div>
     </div>
@@ -251,17 +379,60 @@ canvas#bg { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; 
     <div class="quality-chip active">H.264</div>
     <div class="quality-chip active">yuv420p</div>
     <div class="quality-chip active">30fps</div>
-    <div class="quality-chip" id="chip-done">⚡ 23.4s</div>
+    <div class="quality-chip" id="chip-done">⚡ COMPLETE</div>
   </div>
-  <div class="done-line" id="done-msg" style="opacity:0;">✓ Render complete — 900 frames in 23.4 seconds</div>
+  <div class="done-line" id="done-msg" style="opacity:0;">✓ SEQUENCE COMPLETE — 900 FRAMES SECURED</div>
 </div>
 
-<!-- ── Scene 4 ── -->
+<!-- SCENE 4: The Drop -->
 <div class="scene" id="s4">
-  <div class="s4-brand"><span class="ff-f">Frame</span>Forge</div>
-  <div class="s4-rule" id="s4-rule"></div>
-  <div class="s4-command"><span class="prompt">$ </span>npm install @frameforge/core</div>
-  <div class="s4-tagline">Code your video. Frame by frame. · MIT License</div>
+  <div class="s4-left">
+    <div class="s4-brand" id="s4-brand">kino</div>
+    <div class="s4-rule" id="s4-rule"></div>
+    <div class="s4-command" id="s4-cmd"><span class="prompt">$ </span>npm install @kinohq/core</div>
+    <div class="s4-meta" id="s4-meta">she rendered this video · open source · MIT</div>
+  </div>
+  <div id="s4-mascot">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 560" shape-rendering="crispEdges" width="260" height="331">
+      <defs>
+        <filter id="tip-glow2" x="-100%" y="-100%" width="400%" height="400%"><feGaussianBlur stdDeviation="8"/></filter>
+        <filter id="bg-glow2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="30"/></filter>
+      </defs>
+      <circle cx="220" cy="300" r="145" fill="#22C55E" opacity="0.1" filter="url(#bg-glow2)"/>
+      <circle cx="132" cy="24" r="16" fill="#A7F3D0" opacity="0.5" filter="url(#tip-glow2)"/>
+      <rect x="120" y="20" width="20" height="20" fill="#DCFCE7"/>
+      <rect x="140" y="40" width="20" height="20" fill="#22C55E"/>
+      <rect x="140" y="60" width="20" height="20" fill="#22C55E"/>
+      <circle cx="308" cy="24" r="16" fill="#A7F3D0" opacity="0.5" filter="url(#tip-glow2)"/>
+      <rect x="300" y="20" width="20" height="20" fill="#DCFCE7"/>
+      <rect x="280" y="40" width="20" height="20" fill="#22C55E"/>
+      <rect x="280" y="60" width="20" height="20" fill="#22C55E"/>
+      <rect x="180" y="80" width="40" height="20" fill="#4ADE80"/><rect x="220" y="80" width="40" height="20" fill="#22C55E"/>
+      <rect x="140" y="100" width="40" height="20" fill="#4ADE80"/><rect x="180" y="100" width="80" height="20" fill="#22C55E"/><rect x="260" y="100" width="40" height="20" fill="#16A34A"/>
+      <rect x="100" y="120" width="40" height="20" fill="#4ADE80"/><rect x="140" y="120" width="160" height="20" fill="#22C55E"/><rect x="300" y="120" width="40" height="20" fill="#16A34A"/><rect x="140" y="120" width="20" height="20" fill="#16A34A"/><rect x="280" y="120" width="20" height="20" fill="#16A34A"/>
+      <rect x="80" y="140" width="280" height="20" fill="#22C55E"/><rect x="80" y="140" width="60" height="20" fill="#4ADE80"/><rect x="320" y="140" width="40" height="20" fill="#16A34A"/><rect x="120" y="140" width="20" height="20" fill="#16A34A"/><rect x="160" y="140" width="20" height="20" fill="#16A34A"/><rect x="260" y="140" width="20" height="20" fill="#16A34A"/><rect x="300" y="140" width="20" height="20" fill="#16A34A"/>
+      <rect x="80" y="160" width="280" height="20" fill="#22C55E"/><rect x="80" y="160" width="40" height="20" fill="#4ADE80"/><rect x="320" y="160" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="180" width="280" height="20" fill="#22C55E"/><rect x="80" y="180" width="40" height="20" fill="#4ADE80"/><rect x="120" y="180" width="60" height="20" fill="#F0FFF4"/><rect x="160" y="180" width="20" height="20" fill="#FFFFFF"/><rect x="260" y="180" width="60" height="20" fill="#F0FFF4"/><rect x="300" y="180" width="20" height="20" fill="#FFFFFF"/><rect x="320" y="180" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="200" width="280" height="20" fill="#22C55E"/><rect x="80" y="200" width="40" height="20" fill="#4ADE80"/><rect x="120" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="140" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="160" y="200" width="20" height="20" fill="#111111"/><rect x="260" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="280" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="300" y="200" width="20" height="20" fill="#111111"/><rect x="320" y="200" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="220" width="280" height="20" fill="#22C55E"/><rect x="80" y="220" width="40" height="20" fill="#4ADE80"/><rect x="120" y="220" width="20" height="20" fill="#4ADE80"/><rect x="280" y="220" width="20" height="20" fill="#4ADE80"/><rect x="320" y="220" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="240" width="280" height="20" fill="#22C55E"/><rect x="80" y="240" width="40" height="20" fill="#4ADE80"/><rect x="320" y="240" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="260" width="280" height="20" fill="#22C55E"/><rect x="80" y="260" width="40" height="20" fill="#4ADE80"/><rect x="180" y="260" width="80" height="20" fill="#15803D"/><rect x="320" y="260" width="40" height="20" fill="#16A34A"/>
+      <rect x="80" y="280" width="280" height="20" fill="#22C55E"/><rect x="80" y="280" width="40" height="20" fill="#4ADE80"/><rect x="320" y="280" width="40" height="20" fill="#16A34A"/>
+      <rect x="100" y="300" width="240" height="20" fill="#22C55E"/><rect x="100" y="300" width="40" height="20" fill="#4ADE80"/><rect x="300" y="300" width="40" height="20" fill="#16A34A"/>
+      <rect x="140" y="320" width="160" height="20" fill="#22C55E"/><rect x="140" y="320" width="40" height="20" fill="#16A34A"/><rect x="260" y="320" width="40" height="20" fill="#16A34A"/>
+      <rect x="180" y="340" width="80" height="20" fill="#22C55E"/>
+      <rect x="20" y="360" width="20" height="20" fill="#15803D"/><rect x="40" y="360" width="60" height="20" fill="#22C55E"/><rect x="100" y="360" width="240" height="20" fill="#22C55E"/><rect x="100" y="360" width="40" height="20" fill="#4ADE80"/><rect x="300" y="360" width="40" height="20" fill="#16A34A"/><rect x="340" y="360" width="60" height="20" fill="#22C55E"/><rect x="400" y="360" width="20" height="20" fill="#15803D"/>
+      <rect x="40" y="380" width="20" height="20" fill="#15803D"/><rect x="80" y="380" width="20" height="20" fill="#15803D"/><rect x="100" y="380" width="240" height="20" fill="#22C55E"/><rect x="340" y="380" width="20" height="20" fill="#15803D"/><rect x="380" y="380" width="20" height="20" fill="#15803D"/>
+      <rect x="100" y="400" width="240" height="20" fill="#22C55E"/><rect x="300" y="400" width="40" height="20" fill="#16A34A"/>
+      <rect x="100" y="420" width="240" height="20" fill="#22C55E"/><rect x="280" y="420" width="60" height="20" fill="#16A34A"/>
+      <rect x="140" y="440" width="60" height="20" fill="#22C55E"/><rect x="240" y="440" width="60" height="20" fill="#22C55E"/>
+      <rect x="140" y="460" width="60" height="20" fill="#22C55E"/><rect x="240" y="460" width="60" height="20" fill="#22C55E"/>
+      <rect x="140" y="480" width="60" height="20" fill="#22C55E"/><rect x="240" y="480" width="60" height="20" fill="#22C55E"/>
+      <rect x="120" y="500" width="100" height="20" fill="#16A34A"/><rect x="240" y="500" width="100" height="20" fill="#16A34A"/>
+      <rect x="32" y="258" width="10" height="10" fill="#86EFAC" opacity="0.7"/><rect x="22" y="268" width="10" height="10" fill="#86EFAC" opacity="0.7"/><rect x="32" y="268" width="10" height="10" fill="#86EFAC" opacity="0.7"/><rect x="42" y="268" width="10" height="10" fill="#86EFAC" opacity="0.7"/><rect x="32" y="278" width="10" height="10" fill="#86EFAC" opacity="0.7"/>
+      <rect x="406" y="148" width="10" height="10" fill="#86EFAC" opacity="0.6"/><rect x="396" y="158" width="10" height="10" fill="#86EFAC" opacity="0.6"/><rect x="406" y="158" width="10" height="10" fill="#86EFAC" opacity="0.6"/><rect x="416" y="158" width="10" height="10" fill="#86EFAC" opacity="0.6"/><rect x="406" y="168" width="10" height="10" fill="#86EFAC" opacity="0.6"/>
+    </svg>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -269,387 +440,402 @@ canvas#bg { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; 
 (function() {
   'use strict';
 
-  // ── Background flow field (persistent, runs entire video) ──────────────────
-  const bg = document.getElementById('bg');
-  const bgCtx = bg.getContext('2d');
   const W = 1920, H = 1080;
 
-  // Flow field: particles follow angle derived from sin/cos field
-  const PTCOUNT = 800;
-  const pts = Array.from({ length: PTCOUNT }, () => ({
+  // ── Star field ─────────────────────────────────────────────────────────────
+  const starsC = document.getElementById('stars').getContext('2d');
+  const STARS = Array.from({ length: 200 }, () => ({
     x: Math.random() * W,
     y: Math.random() * H,
-    vx: 0, vy: 0,
-    life: Math.random(),
-    speed: 0.8 + Math.random() * 1.4
+    r: Math.random() < 0.05 ? 2.5 : Math.random() < 0.2 ? 1.5 : 0.8,
+    phase: Math.random() * Math.PI * 2,
+    speed: 0.3 + Math.random() * 0.8
+  }));
+
+  function drawStars(opacity) {
+    const t = performance.now() / 1000;
+    starsC.clearRect(0, 0, W, H);
+    STARS.forEach(s => {
+      const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(t * s.speed + s.phase));
+      starsC.globalAlpha = twinkle * opacity;
+      starsC.fillStyle = '#fff';
+      starsC.beginPath();
+      starsC.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      starsC.fill();
+    });
+    starsC.globalAlpha = 1;
+    requestAnimationFrame(() => drawStars(starsOpacity));
+  }
+  let starsOpacity = 0;
+  drawStars(0);
+
+  // ── Background flow field (orange, tech scene) ────────────────────────────
+  const bgC = document.getElementById('bg').getContext('2d');
+  const trail = document.createElement('canvas');
+  trail.width = W; trail.height = H;
+  const trailCtx = trail.getContext('2d');
+  let bgOpacity = 0;
+
+  const pts = Array.from({ length: 600 }, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    vx: 0, vy: 0, life: Math.random(), speed: 0.8 + Math.random() * 1.4
   }));
 
   function fieldAngle(x, y, t) {
     const nx = x / W, ny = y / H;
-    return (
-      Math.sin(nx * 6 + t * 0.4) * Math.cos(ny * 4 - t * 0.3) * Math.PI * 2 +
-      Math.sin(nx * 3 - ny * 5 + t * 0.2) * 0.8
-    );
+    return Math.sin(nx * 6 + t * 0.4) * Math.cos(ny * 4 - t * 0.3) * Math.PI * 2
+         + Math.sin(nx * 3 - ny * 5 + t * 0.2) * 0.8;
   }
 
-  // Persistent trail canvas for motion blur effect
-  const trail = document.createElement('canvas');
-  trail.width = W; trail.height = H;
-  const trailCtx = trail.getContext('2d');
-
   function drawBg() {
-    const t = performance.now() / 1000;
-
-    // Fade trail
-    trailCtx.fillStyle = 'rgba(0, 0, 0, 0.04)';
-    trailCtx.fillRect(0, 0, W, H);
-
-    pts.forEach(p => {
-      p.life += 0.003;
-      if (p.life > 1 || p.x < 0 || p.x > W || p.y < 0 || p.y > H) {
-        p.x = Math.random() * W;
-        p.y = Math.random() * H;
-        p.life = 0;
-      }
-
-      const angle = fieldAngle(p.x, p.y, t);
-      p.vx = p.vx * 0.9 + Math.cos(angle) * p.speed * 0.3;
-      p.vy = p.vy * 0.9 + Math.sin(angle) * p.speed * 0.3;
-
-      const alpha = (1 - p.life) * 0.12;
-      trailCtx.beginPath();
-      trailCtx.moveTo(p.x, p.y);
-      p.x += p.vx;
-      p.y += p.vy;
-      trailCtx.lineTo(p.x, p.y);
-      trailCtx.strokeStyle = `rgba(255, 77, 0, ${alpha})`;
-      trailCtx.lineWidth = 0.8;
-      trailCtx.stroke();
-    });
-
-    bgCtx.clearRect(0, 0, W, H);
-    bgCtx.drawImage(trail, 0, 0);
+    if (bgOpacity > 0) {
+      const t = performance.now() / 1000;
+      trailCtx.fillStyle = 'rgba(0,0,0,0.04)';
+      trailCtx.fillRect(0, 0, W, H);
+      pts.forEach(p => {
+        p.life += 0.003;
+        if (p.life > 1 || p.x < 0 || p.x > W || p.y < 0 || p.y > H) {
+          p.x = Math.random() * W; p.y = Math.random() * H; p.life = 0;
+        }
+        const angle = fieldAngle(p.x, p.y, t);
+        p.vx = p.vx * 0.9 + Math.cos(angle) * p.speed * 0.3;
+        p.vy = p.vy * 0.9 + Math.sin(angle) * p.speed * 0.3;
+        const alpha = (1 - p.life) * 0.10 * bgOpacity;
+        trailCtx.beginPath(); trailCtx.moveTo(p.x, p.y);
+        p.x += p.vx; p.y += p.vy;
+        trailCtx.lineTo(p.x, p.y);
+        trailCtx.strokeStyle = `rgba(255,77,0,${alpha})`;
+        trailCtx.lineWidth = 0.8; trailCtx.stroke();
+      });
+      bgC.clearRect(0, 0, W, H);
+      bgC.drawImage(trail, 0, 0);
+    }
     requestAnimationFrame(drawBg);
   }
   drawBg();
 
+  // ── FX Particles ───────────────────────────────────────────────────────────
+  const fxC = document.getElementById('fx').getContext('2d');
+  const particles = [];
+  function spawnBurst(x, y, color, count) {
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.4;
+      const speed = 200 + Math.random() * 500;
+      particles.push({ x, y,
+        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+        size: 4 + Math.random() * 10, color,
+        life: 1, decay: 0.5 + Math.random() * 0.8
+      });
+    }
+  }
+  function updateParticles(dt) {
+    fxC.clearRect(0, 0, W, H);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.vx *= 0.93; p.vy *= 0.93; p.vy += 80 * dt;
+      p.life -= p.decay * dt;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      fxC.globalAlpha = p.life * 0.7;
+      fxC.fillStyle = p.color;
+      fxC.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    }
+    fxC.globalAlpha = 1;
+  }
 
-  // ── Tech card animations (called when Scene 2 mounts) ─────────────────────
+  let prevT = 0;
+  function particleLoop() {
+    const t = performance.now() / 1000;
+    const dt = Math.min(t - prevT, 0.05);
+    prevT = t;
+    updateParticles(dt);
+    requestAnimationFrame(particleLoop);
+  }
+  particleLoop();
+
+  // ── Terminal typewriter ────────────────────────────────────────────────────
+  const LINES = ['> SIGNAL DETECTED', '> SOURCE: UNKNOWN', '> DECODING...'];
+  let termDone = false;
+
+  function typeTerminal(lineIdx, charIdx, startMs) {
+    if (lineIdx >= LINES.length) { termDone = true; return; }
+    const el = document.getElementById('t' + (lineIdx + 1));
+    const line = LINES[lineIdx];
+    if (charIdx <= line.length) {
+      el.textContent = line.slice(0, charIdx) + (charIdx < line.length ? '_' : '');
+      const delay = charIdx < line.length ? 40 : 600;
+      setTimeout(() => {
+        if (charIdx < line.length) {
+          typeTerminal(lineIdx, charIdx + 1, startMs);
+        } else {
+          el.textContent = line;
+          typeTerminal(lineIdx + 1, 0, startMs);
+        }
+      }, delay);
+    }
+  }
+
+  // Scanline sweep for s0
+  let scanY = 0;
+  function drawScanline() {
+    // Handled by starsC briefly — skip, terminal is pure HTML
+    requestAnimationFrame(drawScanline);
+  }
+
+  // ── Tech cards ─────────────────────────────────────────────────────────────
   function startTechCards() {
-
-    // CARD 1 — GSAP: orange ball with physics springs
+    // CARD 1 — GSAP: orange ball physics
     (function() {
       const c = document.getElementById('c-gsap');
       const ctx = c.getContext('2d');
       const ball = { x: 260, y: 80, r: 32 };
       gsap.to(ball, { y: 220, duration: 0.55, ease: 'bounce.out', repeat: -1, yoyo: true });
       gsap.to(ball, { x: 380, duration: 1.1, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 0.2 });
-      function draw() {
-        ctx.clearRect(0, 0, 520, 300);
-        // Glow
+      (function draw() {
+        ctx.clearRect(0, 0, 520, 296);
         const g = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, ball.r * 3);
-        g.addColorStop(0, 'rgba(255,77,0,0.25)');
-        g.addColorStop(1, 'rgba(255,77,0,0)');
+        g.addColorStop(0, 'rgba(255,77,0,0.25)'); g.addColorStop(1, 'rgba(255,77,0,0)');
         ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r * 3, 0, Math.PI * 2);
         ctx.fillStyle = g; ctx.fill();
-        // Ball
         ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
         ctx.fillStyle = '#FF4D00'; ctx.fill();
-        // Shadow on ground
-        const shadow = ctx.createEllipse ? null : null;
-        const sy = 255;
         const sw = ball.r * (1 + (ball.y - 80) / 200);
-        ctx.beginPath(); ctx.ellipse(ball.x, sy, sw * 0.8, 6, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,77,0,0.15)'; ctx.fill();
+        ctx.beginPath(); ctx.ellipse(ball.x, 255, sw * 0.8, 5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,77,0,0.12)'; ctx.fill();
         requestAnimationFrame(draw);
-      }
-      draw();
+      })();
     })();
 
-    // CARD 2 — THREE.JS: rotating icosahedron wireframe projection
+    // CARD 2 — THREE.JS: icosahedron wireframe
     (function() {
       const c = document.getElementById('c-three');
       const ctx = c.getContext('2d');
-      // Icosahedron vertices
       const phi = (1 + Math.sqrt(5)) / 2;
-      const verts = [
-        [-1,phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],
-        [0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],
-        [phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]
-      ].map(([x,y,z]) => {
-        const l = Math.sqrt(x*x+y*y+z*z);
-        return [x/l, y/l, z/l];
-      });
-      const edges = [
-        [0,1],[0,5],[0,7],[0,10],[0,11],
-        [1,5],[1,7],[1,8],[1,9],
-        [2,3],[2,4],[2,6],[2,10],[2,11],
-        [3,4],[3,6],[3,8],[3,9],
-        [4,5],[4,9],[4,11],
-        [5,9],[5,11],
-        [6,7],[6,8],[6,10],
-        [7,8],[7,10],
-        [8,9],[10,11]
-      ];
-      function project(x, y, z, rx, ry) {
-        // Rotate Y
-        const x1 = x * Math.cos(ry) - z * Math.sin(ry);
-        const z1 = x * Math.sin(ry) + z * Math.cos(ry);
-        // Rotate X
-        const y2 = y * Math.cos(rx) - z1 * Math.sin(rx);
-        const z2 = y * Math.sin(rx) + z1 * Math.cos(rx);
-        const fov = 3.5;
-        const px = x1 / (z2 + fov) * 260 + 260;
-        const py = y2 / (z2 + fov) * 260 + 150;
-        return [px, py, z2];
+      const verts = [[-1,phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],[0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],[phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]]
+        .map(([x,y,z]) => { const l = Math.sqrt(x*x+y*y+z*z); return [x/l,y/l,z/l]; });
+      const edges = [[0,1],[0,5],[0,7],[0,10],[0,11],[1,5],[1,7],[1,8],[1,9],[2,3],[2,4],[2,6],[2,10],[2,11],[3,4],[3,6],[3,8],[3,9],[4,5],[4,9],[4,11],[5,9],[5,11],[6,7],[6,8],[6,10],[7,8],[7,10],[8,9],[10,11]];
+      function project(x,y,z,rx,ry) {
+        const x1=x*Math.cos(ry)-z*Math.sin(ry), z1=x*Math.sin(ry)+z*Math.cos(ry);
+        const y2=y*Math.cos(rx)-z1*Math.sin(rx), z2=y*Math.sin(rx)+z1*Math.cos(rx);
+        const fov=3.5;
+        return [x1/(z2+fov)*260+260, y2/(z2+fov)*260+148, z2];
       }
-      function draw() {
-        const t = performance.now() / 1000;
-        const ry = t * 0.5;
-        const rx = Math.sin(t * 0.3) * 0.4;
-        ctx.clearRect(0, 0, 520, 300);
-        edges.forEach(([a, b]) => {
-          const [ax, ay, az] = project(...verts[a], rx, ry);
-          const [bx, by, bz] = project(...verts[b], rx, ry);
-          const depth = (az + bz) / 2;
-          const alpha = Math.max(0.1, 0.5 + depth * 0.3);
-          ctx.beginPath();
-          ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
-          ctx.strokeStyle = `rgba(255, 77, 0, ${alpha})`;
-          ctx.lineWidth = 1.2;
-          ctx.stroke();
+      (function draw() {
+        const t = performance.now()/1000;
+        const ry=t*0.5, rx=Math.sin(t*0.3)*0.4;
+        ctx.clearRect(0,0,520,296);
+        edges.forEach(([a,b]) => {
+          const [ax,ay,az]=project(...verts[a],rx,ry);
+          const [bx,by,bz]=project(...verts[b],rx,ry);
+          const alpha=Math.max(0.08,0.5+(az+bz)/2*0.3);
+          ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by);
+          ctx.strokeStyle=`rgba(255,77,0,${alpha})`; ctx.lineWidth=1.2; ctx.stroke();
         });
         requestAnimationFrame(draw);
-      }
-      draw();
+      })();
     })();
 
-    // CARD 3 — P5.JS: lissajous orbit trails
+    // CARD 3 — P5.JS: lissajous trails
     (function() {
       const c = document.getElementById('c-p5');
       const ctx = c.getContext('2d');
-      const trail = document.createElement('canvas');
-      trail.width = 520; trail.height = 300;
-      const tCtx = trail.getContext('2d');
-      function draw() {
-        const t = performance.now() / 1000;
-        tCtx.fillStyle = 'rgba(0,0,0,0.025)';
-        tCtx.fillRect(0, 0, 520, 300);
-        for (let i = 0; i < 3; i++) {
-          const phase = i * Math.PI * 2 / 3;
-          const x = 260 + Math.sin(t * 1.1 + phase) * 160;
-          const y = 150 + Math.cos(t * 1.7 + phase) * 100;
-          const r = 8 + i * 4;
-          tCtx.beginPath();
-          tCtx.arc(x, y, r, 0, Math.PI * 2);
-          tCtx.fillStyle = i === 0 ? '#FF4D00' : i === 1 ? 'rgba(255,77,0,0.7)' : 'rgba(255,77,0,0.4)';
+      const tr = document.createElement('canvas'); tr.width=520; tr.height=296;
+      const tCtx = tr.getContext('2d');
+      (function draw() {
+        const t=performance.now()/1000;
+        tCtx.fillStyle='rgba(0,0,0,0.025)'; tCtx.fillRect(0,0,520,296);
+        for (let i=0;i<3;i++) {
+          const phase=i*Math.PI*2/3;
+          const x=260+Math.sin(t*1.1+phase)*160;
+          const y=148+Math.cos(t*1.7+phase)*98;
+          const r=8+i*4;
+          tCtx.beginPath(); tCtx.arc(x,y,r,0,Math.PI*2);
+          tCtx.fillStyle=i===0?'#FF4D00':i===1?'rgba(255,77,0,0.7)':'rgba(255,77,0,0.4)';
           tCtx.fill();
-          // Connecting line
-          if (i < 2) {
-            const x2 = 260 + Math.sin(t * 1.1 + (i+1) * Math.PI * 2 / 3) * 160;
-            const y2 = 150 + Math.cos(t * 1.7 + (i+1) * Math.PI * 2 / 3) * 100;
-            tCtx.beginPath(); tCtx.moveTo(x, y); tCtx.lineTo(x2, y2);
-            tCtx.strokeStyle = 'rgba(255,77,0,0.15)'; tCtx.lineWidth = 1;
-            tCtx.stroke();
+          if (i<2) {
+            const x2=260+Math.sin(t*1.1+(i+1)*Math.PI*2/3)*160;
+            const y2=148+Math.cos(t*1.7+(i+1)*Math.PI*2/3)*98;
+            tCtx.beginPath(); tCtx.moveTo(x,y); tCtx.lineTo(x2,y2);
+            tCtx.strokeStyle='rgba(255,77,0,0.15)'; tCtx.lineWidth=1; tCtx.stroke();
           }
         }
-        ctx.clearRect(0, 0, 520, 300);
-        ctx.drawImage(trail, 0, 0);
+        ctx.clearRect(0,0,520,296); ctx.drawImage(tr,0,0);
         requestAnimationFrame(draw);
-      }
-      draw();
+      })();
     })();
 
-    // CARD 4 — CANVAS 2D: exploding particle field
+    // CARD 4 — CANVAS 2D: particle burst
     (function() {
       const c = document.getElementById('c-canvas');
       const ctx = c.getContext('2d');
-      const particles = Array.from({ length: 120 }, (_, i) => ({
-        angle: (i / 120) * Math.PI * 2 + Math.random() * 0.1,
-        speed: 0.4 + Math.random() * 2,
-        life: Math.random(),
-        size: 1 + Math.random() * 3,
-        radius: Math.random() * 60
-      }));
-      function draw() {
-        const t = performance.now() / 1000;
-        ctx.clearRect(0, 0, 520, 300);
-        particles.forEach(p => {
-          p.life = (p.life + 0.006) % 1;
-          const r = p.life * (80 + p.radius);
-          const x = 260 + Math.cos(p.angle + t * 0.15) * r;
-          const y = 150 + Math.sin(p.angle + t * 0.15) * r;
-          const a = (1 - p.life) * 0.9;
-          ctx.beginPath();
-          ctx.arc(x, y, p.size * (1 - p.life * 0.5), 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, ${Math.floor(77 + p.life * 100)}, 0, ${a})`;
-          ctx.fill();
+      const ps = Array.from({length:120},(_,i)=>({ angle:(i/120)*Math.PI*2+Math.random()*0.1, speed:0.4+Math.random()*2, life:Math.random(), size:1+Math.random()*3, radius:Math.random()*60 }));
+      (function draw() {
+        const t=performance.now()/1000;
+        ctx.clearRect(0,0,520,296);
+        ps.forEach(p => {
+          p.life=(p.life+0.006)%1;
+          const r=p.life*(80+p.radius);
+          const x=260+Math.cos(p.angle+t*0.15)*r;
+          const y=148+Math.sin(p.angle+t*0.15)*r;
+          ctx.beginPath(); ctx.arc(x,y,p.size*(1-p.life*0.5),0,Math.PI*2);
+          ctx.fillStyle=`rgba(255,${Math.floor(77+p.life*100)},0,${(1-p.life)*0.9})`; ctx.fill();
         });
-        // Center orb
-        const g = ctx.createRadialGradient(260, 150, 0, 260, 150, 35);
-        g.addColorStop(0, 'rgba(255,77,0,0.9)');
-        g.addColorStop(0.5, 'rgba(255,77,0,0.3)');
-        g.addColorStop(1, 'rgba(255,77,0,0)');
-        ctx.beginPath(); ctx.arc(260, 150, 35, 0, Math.PI * 2);
-        ctx.fillStyle = g; ctx.fill();
+        const g=ctx.createRadialGradient(260,148,0,260,148,35);
+        g.addColorStop(0,'rgba(255,77,0,0.9)'); g.addColorStop(0.5,'rgba(255,77,0,0.3)'); g.addColorStop(1,'rgba(255,77,0,0)');
+        ctx.beginPath(); ctx.arc(260,148,35,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
         requestAnimationFrame(draw);
-      }
-      draw();
+      })();
     })();
 
-    // CARD 5 — SVG + CSS: sine wave self-drawing
+    // CARD 5 — SVG + CSS: wave oscillation
     (function() {
       const c = document.getElementById('c-svg');
       const ctx = c.getContext('2d');
-      const hist = [];
-      function draw() {
-        const t = performance.now() / 1000;
-        ctx.clearRect(0, 0, 520, 300);
-        // Wave 1 (orange, full)
+      (function draw() {
+        const t=performance.now()/1000;
+        ctx.clearRect(0,0,520,296);
         ctx.beginPath();
-        for (let x = 0; x <= 520; x += 2) {
-          const y = 150 + Math.sin(x * 0.022 - t * 2.0) * 70 + Math.sin(x * 0.044 - t * 3.1) * 25;
-          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        for (let x=0;x<=520;x+=2) {
+          const y=148+Math.sin(x*0.022-t*2.0)*65+Math.sin(x*0.044-t*3.1)*22;
+          x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
         }
-        ctx.strokeStyle = '#FF4D00'; ctx.lineWidth = 2.5;
-        ctx.shadowColor = '#FF4D00'; ctx.shadowBlur = 8;
-        ctx.stroke(); ctx.shadowBlur = 0;
-        // Wave 2 (dim)
+        ctx.strokeStyle='#FF4D00'; ctx.lineWidth=2.5; ctx.shadowColor='#FF4D00'; ctx.shadowBlur=8; ctx.stroke(); ctx.shadowBlur=0;
         ctx.beginPath();
-        for (let x = 0; x <= 520; x += 2) {
-          const y = 150 + Math.sin(x * 0.022 - t * 2.0 + 1.2) * 50 + Math.sin(x * 0.033 + t * 1.5) * 20;
-          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        for (let x=0;x<=520;x+=2) {
+          const y=148+Math.sin(x*0.022-t*2.0+1.2)*48+Math.sin(x*0.033+t*1.5)*18;
+          x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
         }
-        ctx.strokeStyle = 'rgba(255,77,0,0.25)'; ctx.lineWidth = 1.5;
-        ctx.stroke();
-        // Wave 3 (very dim)
-        ctx.beginPath();
-        for (let x = 0; x <= 520; x += 2) {
-          const y = 150 + Math.sin(x * 0.033 + t * 1.8 - 0.8) * 35;
-          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        }
-        ctx.strokeStyle = 'rgba(255,77,0,0.1)'; ctx.lineWidth = 1;
-        ctx.stroke();
+        ctx.strokeStyle='rgba(255,77,0,0.22)'; ctx.lineWidth=1.5; ctx.stroke();
         requestAnimationFrame(draw);
-      }
-      draw();
+      })();
     })();
 
-    // CARD 6 — FLOW FIELD: vector field particles (WebGL-grade visual in Canvas)
+    // CARD 6 — FLOW FIELD
     (function() {
       const c = document.getElementById('c-flow');
       const ctx = c.getContext('2d');
-      const trailC = document.createElement('canvas');
-      trailC.width = 520; trailC.height = 300;
-      const trailCtx = trailC.getContext('2d');
-      const fpts = Array.from({ length: 300 }, () => ({
-        x: Math.random() * 520, y: Math.random() * 300,
-        life: Math.random(), speed: 0.6 + Math.random()
-      }));
-      function angle(x, y, t) {
-        const nx = x / 520, ny = y / 300;
-        return Math.sin(nx * 5 + t * 0.5) * Math.cos(ny * 4 - t * 0.3) * Math.PI * 2 +
-               Math.cos(nx * 3 - ny * 6) * 0.5;
-      }
-      function draw() {
-        const t = performance.now() / 1000;
-        trailCtx.fillStyle = 'rgba(0,0,0,0.035)';
-        trailCtx.fillRect(0, 0, 520, 300);
+      const trC = document.createElement('canvas'); trC.width=520; trC.height=296;
+      const trCtx = trC.getContext('2d');
+      const fpts = Array.from({length:300},()=>({ x:Math.random()*520, y:Math.random()*296, life:Math.random(), speed:0.6+Math.random() }));
+      (function draw() {
+        const t=performance.now()/1000;
+        trCtx.fillStyle='rgba(0,0,0,0.035)'; trCtx.fillRect(0,0,520,296);
         fpts.forEach(p => {
-          p.life += 0.004;
-          if (p.life > 1 || p.x < 0 || p.x > 520 || p.y < 0 || p.y > 300) {
-            p.x = Math.random() * 520; p.y = Math.random() * 300; p.life = 0;
-          }
-          const a = angle(p.x, p.y, t);
-          const vx = Math.cos(a) * p.speed;
-          const vy = Math.sin(a) * p.speed;
-          const alpha = (1 - p.life) * 0.5;
-          trailCtx.beginPath();
-          trailCtx.moveTo(p.x, p.y);
-          p.x += vx; p.y += vy;
-          trailCtx.lineTo(p.x, p.y);
-          trailCtx.strokeStyle = `rgba(255, 77, 0, ${alpha})`;
-          trailCtx.lineWidth = 0.7;
-          trailCtx.stroke();
+          p.life+=0.004;
+          if (p.life>1||p.x<0||p.x>520||p.y<0||p.y>296) { p.x=Math.random()*520; p.y=Math.random()*296; p.life=0; }
+          const a=Math.sin(p.x/520*5+t*0.5)*Math.cos(p.y/296*4-t*0.3)*Math.PI*2+Math.cos(p.x/520*3-p.y/296*6)*0.5;
+          const vx=Math.cos(a)*p.speed, vy=Math.sin(a)*p.speed;
+          trCtx.beginPath(); trCtx.moveTo(p.x,p.y);
+          p.x+=vx; p.y+=vy;
+          trCtx.lineTo(p.x,p.y);
+          trCtx.strokeStyle=`rgba(255,77,0,${(1-p.life)*0.45})`; trCtx.lineWidth=0.7; trCtx.stroke();
         });
-        ctx.clearRect(0, 0, 520, 300);
-        ctx.drawImage(trailC, 0, 0);
+        ctx.clearRect(0,0,520,296); ctx.drawImage(trC,0,0);
         requestAnimationFrame(draw);
-      }
-      draw();
+      })();
     })();
   }
 
-
-  // ── Main GSAP Timeline ────────────────────────────────────────────────────
+  // ── MAIN TIMELINE ──────────────────────────────────────────────────────────
   const tl = gsap.timeline();
 
-  // ── SCENE 1: "ANYTHING." (0s – 7s) ───────────────────────────────────────
-  tl.set('#s1', { opacity: 1 }, 0);
-
-  // Words slam in from different directions, staggered fast
-  tl.from('#w-gsap',  { x: -800, opacity: 0, duration: 0.38, ease: 'power4.out' }, 0.15);
-  tl.from('#w-three', { x: 800,  opacity: 0, duration: 0.38, ease: 'power4.out' }, 0.45);
-  tl.from('#w-css',   { x: -600, opacity: 0, duration: 0.38, ease: 'power4.out' }, 0.75);
-
-  // Pause — then ANYTHING. explodes in with scale
-  tl.from('#w-any', { scale: 2.5, opacity: 0, filter: 'blur(40px)', duration: 0.55, ease: 'power4.out' }, 1.5);
-  tl.from('#w-sub', { opacity: 0, y: 24, duration: 0.5, ease: 'power3.out' }, 2.3);
-
-  // Exit: whole scene snaps out
-  tl.to('#s1', { opacity: 0, duration: 0.3, ease: 'power2.in' }, 6.2);
+  // ── SCENE 0: Signal (0-3s) ────────────────────────────────────────────────
+  tl.set('#s0', { opacity: 1 }, 0);
+  tl.call(() => typeTerminal(0, 0, 0), [], 0.2);
+  tl.to('#s0', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 2.8);
 
 
-  // ── SCENE 2: Tech Grid (6.5s – 16.5s) ────────────────────────────────────
-  tl.set('#s2', { opacity: 1 }, 6.5);
-  tl.call(startTechCards, [], 6.5);
+  // ── SCENE 1: Kino Arrives (2.8-8.5s) ─────────────────────────────────────
+  tl.set('#s1', { opacity: 1 }, 2.8);
+  tl.call(() => { starsOpacity = 0; gsap.to({ v: 0 }, { v: 1, duration: 1.5, onUpdate: function() { starsOpacity = this.targets()[0].v; } }); }, [], 2.8);
 
-  tl.from('#s2 .s2-label', { opacity: 0, y: -20, duration: 0.5, ease: 'power3.out' }, 6.7);
+  // Energy beam shoots down
+  tl.to('#beam', { opacity: 1, height: 360, duration: 0.3, ease: 'power4.out' }, 2.9);
+  tl.to('#beam', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 3.5);
 
-  // Cards enter in 2 rows, stagger 0.12s each
+  // Kino mascot materializes — burst scale + particles
+  tl.to('#kino-wrap', { scale: 1.08, opacity: 1, duration: 0.35, ease: 'power4.out' }, 3.2);
+  tl.to('#kino-wrap', { scale: 1, duration: 0.25, ease: 'power2.inOut' }, 3.55);
+  tl.call(() => {
+    spawnBurst(960, 330, '#22C55E', 30);
+    spawnBurst(960, 330, '#4ADE80', 20);
+    spawnBurst(960, 330, '#86EFAC', 15);
+  }, [], 3.2);
+
+  // K I N O slam in from 4 cardinal directions
+  tl.from('#k-k', { x: -700, opacity: 0, duration: 0.4, ease: 'power4.out' }, 3.6);
+  tl.from('#k-i', { y: -500, opacity: 0, duration: 0.4, ease: 'power4.out' }, 3.7);
+  tl.from('#k-n', { x: 700, opacity: 0, duration: 0.4, ease: 'power4.out' }, 3.65);
+  tl.from('#k-o', { y: 500, opacity: 0, duration: 0.4, ease: 'power4.out' }, 3.75);
+  tl.call(() => { spawnBurst(960, 580, '#22C55E', 20); }, [], 3.9);
+
+  // Tagline + badge
+  tl.from('#kino-tagline', { opacity: 0, y: 20, duration: 0.5, ease: 'power3.out' }, 4.5);
+  tl.set('#kino-tagline', { opacity: 1 }, 4.5);
+  tl.from('#kino-badge', { opacity: 0, y: 10, duration: 0.4, ease: 'power3.out' }, 5.2);
+  tl.set('#kino-badge', { opacity: 1 }, 5.2);
+
+  // Subtle float on mascot
+  tl.to('#kino-wrap', { y: -12, duration: 1.2, ease: 'sine.inOut', repeat: 3, yoyo: true }, 4.0);
+
+  tl.to('#s1', { opacity: 0, duration: 0.5, ease: 'power2.in' }, 8.0);
+
+
+  // ── SCENE 2: Earth Tech (8.5-19.5s) ──────────────────────────────────────
+  tl.set('#s2', { opacity: 1 }, 8.5);
+  tl.call(() => { bgOpacity = 0; gsap.to({ v: 0 }, { v: 1, duration: 2, onUpdate: function() { bgOpacity = this.targets()[0].v; } }); }, [], 8.5);
+
+  tl.from('#s2 .s2-label', { opacity: 0, y: -16, duration: 0.5, ease: 'power3.out' }, 8.7);
+
   ['card-gsap','card-three','card-p5','card-canvas','card-svg','card-flow'].forEach((id, i) => {
-    tl.from(`#${id}`, { scale: 0.75, opacity: 0, duration: 0.45, ease: 'back.out(1.4)' }, 7.0 + i * 0.12);
+    tl.from(`#${id}`, { scale: 0.78, opacity: 0, duration: 0.45, ease: 'back.out(1.4)' }, 9.2 + i * 0.12);
   });
+  tl.call(startTechCards, [], 9.2);
 
-  tl.to('#s2', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 16.0);
+  tl.to('#s2', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 19.2);
+  tl.call(() => { gsap.to({ v: 1 }, { v: 0, duration: 1, onUpdate: function() { bgOpacity = this.targets()[0].v; } }); }, [], 19.2);
 
 
-  // ── SCENE 3: The Engine (16.4s – 23.5s) ──────────────────────────────────
-  tl.set('#s3', { opacity: 1 }, 16.4);
-  tl.from('#s3 .s3-title', { opacity: 0, y: -24, duration: 0.6, ease: 'power3.out' }, 16.6);
-  tl.from('#frame-num',    { opacity: 0, scale: 0.6, duration: 0.5, ease: 'back.out(1.7)' }, 17.1);
-  tl.from('#s3 .progress-track', { scaleX: 0, transformOrigin: 'left center', duration: 0.5, ease: 'power3.out' }, 17.3);
-  tl.from('#s3 .quality-chip', { opacity: 0, y: 16, stagger: 0.1, duration: 0.4, ease: 'power3.out' }, 17.6);
+  // ── SCENE 3: Capture Engine (19.5-27s) ───────────────────────────────────
+  tl.set('#s3', { opacity: 1 }, 19.5);
+  tl.from('#s3-header', { opacity: 0, letterSpacing: '0.6em', duration: 0.7, ease: 'power3.out' }, 19.7);
+  tl.from('#frame-num', { opacity: 0, scale: 0.5, duration: 0.5, ease: 'back.out(1.7)' }, 20.3);
+  tl.from('#s3 .progress-track', { scaleX: 0, transformOrigin: 'left center', duration: 0.5, ease: 'power3.out' }, 20.5);
+  tl.from('#s3 .quality-chip', { opacity: 0, y: 16, stagger: 0.09, duration: 0.35, ease: 'power3.out' }, 20.8);
 
-  // Animate frame counter + progress bar
   const state = { frames: 0 };
   tl.to(state, {
-    frames: 900,
-    duration: 4.2,
-    ease: 'power2.inOut',
+    frames: 900, duration: 4.2, ease: 'power2.inOut',
     onUpdate() {
       const v = Math.round(state.frames);
       document.getElementById('frame-num').textContent = v.toLocaleString();
       document.getElementById('prog-bar').style.width = (v / 900 * 100).toFixed(1) + '%';
       document.getElementById('pct-label').textContent = (v / 900 * 100).toFixed(0) + '%';
     }
-  }, 17.5);
+  }, 20.5);
 
-  // Done flash
-  tl.to('#chip-done', { color: '#FF4D00', borderColor: '#FF4D00', background: 'rgba(255,77,0,0.06)', duration: 0.3 }, 21.9);
-  tl.to('#done-msg',  { opacity: 1, duration: 0.4, ease: 'power2.out' }, 22.1);
-  tl.to('#s3', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 23.2);
+  tl.to('#chip-done', { color: '#4ADE80', borderColor: 'rgba(74,222,128,0.6)', background: 'rgba(34,197,94,0.08)', duration: 0.3 }, 24.9);
+  tl.to('#done-msg', { opacity: 1, duration: 0.5, ease: 'power2.out' }, 25.1);
+  tl.to('#s3', { opacity: 0, duration: 0.4, ease: 'power2.in' }, 26.5);
 
 
-  // ── SCENE 4: CTA (23.6s – 30s) ───────────────────────────────────────────
-  tl.set('#s4', { opacity: 1 }, 23.6);
-  tl.from('#s4 .s4-brand',   { scale: 1.6, opacity: 0, filter: 'blur(20px)', duration: 0.55, ease: 'power4.out' }, 23.8);
-  tl.from('#s4-rule',        { scaleX: 0, transformOrigin: 'left center', duration: 0.5, ease: 'power3.out' }, 24.5);
-  tl.from('#s4 .s4-command', { opacity: 0, y: 32, duration: 0.5, ease: 'power3.out' }, 24.9);
-  tl.from('#s4 .s4-tagline', { opacity: 0, duration: 0.5, ease: 'power2.out' }, 25.5);
+  // ── SCENE 4: The Drop (27-30s) ────────────────────────────────────────────
+  tl.set('#s4', { opacity: 1 }, 27.0);
 
-  // Final pulse on brand
-  tl.to('#s4 .s4-brand', { scale: 1.02, duration: 0.4, ease: 'sine.inOut', repeat: -1, yoyo: true }, 26.0);
+  tl.from('#s4-brand', { scale: 1.5, opacity: 0, filter: 'blur(24px)', duration: 0.55, ease: 'power4.out' }, 27.1);
+  tl.to('#s4-rule', { width: 500, duration: 0.6, ease: 'power3.out' }, 27.8);
+  tl.from('#s4-cmd', { opacity: 0, y: 28, duration: 0.45, ease: 'power3.out' }, 28.3);
+  tl.from('#s4-meta', { opacity: 0, duration: 0.5, ease: 'power2.out' }, 28.9);
+
+  // Mascot slides in from right
+  tl.from('#s4-mascot', { x: 120, opacity: 0, duration: 0.6, ease: 'power3.out' }, 27.4);
+  tl.set('#s4-mascot', { opacity: 1 }, 27.4);
+
+  // Gentle float
+  tl.to('#s4-mascot', { y: -10, duration: 1.0, ease: 'sine.inOut', repeat: 3, yoyo: true }, 27.8);
+
+  // Brand pulse
+  tl.to('#s4-brand', { scale: 1.015, duration: 0.5, ease: 'sine.inOut', repeat: -1, yoyo: true }, 28.5);
 
 })();
 </script>

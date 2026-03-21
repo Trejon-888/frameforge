@@ -1,12 +1,12 @@
 {
-  "name": "@frameforge/core",
-  "version": "0.2.0",
-  "description": "FrameForge rendering engine — deterministic browser-to-video pipeline + AI-powered video editing",
+  "name": "@kinohq/core",
+  "version": "0.3.0",
+  "description": "kino rendering engine — deterministic browser-to-video pipeline + AI-powered video editing",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "frameforge": "dist/cli.js"
+    "kino": "dist/cli.js"
   },
   "files": [
     "dist"

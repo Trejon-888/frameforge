@@ -1,7 +1,7 @@
 # Session Handover
 
-**Project:** FrameForge → kino (rebrand in progress)
-**Current Status:** v0.2.0 published to npm — rebrand to kino decided, @kinohq npm org created, mascot SVG created
+**Project:** kino — an infinitx production
+**Current Status:** v0.3.0 live on npm (@kinohq). GTM pivoted to IX community content flywheel. End card rendering.
 
 ---
 
@@ -11,34 +11,58 @@
 |------|--------|-------|
 | [Video Editing Engine v2](plans/active/video-editing-engine-v2.md) | Complete | Cinema system + edit agent contract shipped |
 | [Video Editing Test](plans/active/video-editing-test.md) | In Progress | agent-latest.mp4 rendered, review quality |
-| [Social Media Launch](plans/active/social-media-launch.md) | On Hold | Hold until rebrand complete |
-| [Demo Content Series](active/demo-content-series.md) | In Progress | 4-video creative series — hold until rebrand complete |
-| Kino Rebrand | NEXT | 5-phase rebrand plan ready to execute |
+| [Social Media Launch](plans/active/social-media-launch.md) | **Executing** | PIVOTED — IX content flywheel, not public dev launch. See plan. |
+| [Demo Content Series](active/demo-content-series.md) | In Progress | 4-video series — all rebranded, showcase-v2 rendered |
+| [IX-Kino Integration](plans/active/ix-kino-integration.md) | **Active** | Community weapon deployment — end card built, templates next |
 
 ---
 
 ## What's Next
 
-**#1: Execute kino rebrand (IMMEDIATE)**
-- Brand: **kino** (lowercase), mascot: **Kino** (green pixel art alien)
-- npm scope: **@kinohq** (org created by user on 2026-03-21)
-- 5-phase plan: identity → npm → codebase → docs → GTM
-- Start next session with `/plan kino rebrand` then `/execute`
+**IMMEDIATE — Post this week:**
+1. `kinetic-white-v4-clip01-v2.mp4` → LinkedIn first IX flagship post (no tool explanation, just quality)
+2. `kino-showcase-v2.mp4` → Twitter/X ("she renders anything a browser can render")
+3. `v5-kino-any-framework.mp4` → Twitter/X (the flash-card format Enrique loves)
 
-**#2: kinetic-white-v4-clip01-v2.mp4 review**
-- 24 overlays, 41 captions, 73.9s, 14MB, zero H.264 corruption
-- This is the best demo asset for launch — use it for social posts
-- Served at http://localhost:9000/kinetic-white-v4-clip01-v2.mp4
+**THIS WEEK — Build:**
+1. IX member onboarding one-pager (Kino access guide)
+2. `ix-authority.json` — first IX overlay template
+3. Review and post cadence: 2 Kino-produced posts/week for 8 weeks
 
-**#3: Post-launch iteration**
-1. Smart cropping strategies (fit/fill/smart)
-2. Template system
-3. Render preview server (hot-reload)
-4. Remote/cloud rendering (Docker image)
+**NEXT MILESTONE:**
+- 10 IX posts published with Kino production
+- First IX member gets Kino access + produces content
+- "AI produced this in 90 seconds" viral post
+
+---
+
+## Strategy — LOCKED (do not drift)
+
+Kino is NOT a public developer tool. Kino is the video production weapon exclusive to INFINITX community.
+- No Show HN. No r/webdev. No npm as primary CTA.
+- The content produced IS the marketing.
+- Success metric = IX community growth + content virality.
+- See `.agents/plans/active/ix-kino-integration.md` for full roadmap.
+- See memory `project_kino_ix_strategy.md` for the 3-year arc.
 
 ---
 
 ## Session Log
+
+### Session 17 — 2026-03-21
+- **Context:** GTM strategy + social media launch execution
+- **Completed:**
+  - npm published: @kinohq/core@0.3.0, @kinohq/sdk@0.3.0, @kinohq/studio@0.3.0 — all live
+  - All social media HTMLs rebranded to kino (all `@frameforge` → `@kinohq`, all `FrameForge` → `kino`)
+  - Rendered new launch video kit: kino-showcase-v2.mp4, v5-kino-any-framework.mp4, v5-kino-intro.mp4, v5-kino-headline.mp4
+  - **Full GTM pivot:** public dev launch → IX community content flywheel
+  - Memory documented: project_kino_ix_strategy.md locked (3-year arc, flywheel model)
+  - Social media plan rewritten: 8-week IX content calendar
+  - New plan created: ix-kino-integration.md (community weapon deployment roadmap)
+  - Built "made with kino · infinitx" end card (rendering now)
+  - kino-showcase-v2: "Transmission from Kino" — alien arrival narrative, Kino mascot integration
+- **Key decision:** Kino = IX exclusive community weapon. No public dev launch. Content IS the marketing.
+- **Next:** Post kinetic-white-v4 as first IX flagship content. Build ix-authority template. IX member onboarding.
 
 ### Session 16 — 2026-03-21
 - **Context:** Branding session — full brand identity pivot from FrameForge to kino

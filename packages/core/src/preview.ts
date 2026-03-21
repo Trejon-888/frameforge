@@ -46,11 +46,11 @@ export async function capturePreview(
     await page.setViewport({ width, height, deviceScaleFactor: 1 });
 
     await page.evaluateOnNewDocument(`
-      window.__FRAMEFORGE_FPS__ = ${fps};
-      window.__FRAMEFORGE_TOTAL_FRAMES__ = ${totalFrames};
-      window.__FRAMEFORGE_DURATION__ = ${duration};
-      window.__FRAMEFORGE_WIDTH__ = ${width};
-      window.__FRAMEFORGE_HEIGHT__ = ${height};
+      window.__KINO_FPS__ = ${fps};
+      window.__KINO_TOTAL_FRAMES__ = ${totalFrames};
+      window.__KINO_DURATION__ = ${duration};
+      window.__KINO_WIDTH__ = ${width};
+      window.__KINO_HEIGHT__ = ${height};
     `);
     await page.evaluateOnNewDocument(TIME_VIRTUALIZATION_SCRIPT);
     await page.evaluateOnNewDocument(PAGE_API_SCRIPT);
@@ -78,7 +78,7 @@ export async function capturePreview(
     const targetFrame = Math.min(frame, totalFrames - 1);
     for (let f = 0; f <= targetFrame; f++) {
       await page.evaluate(() => {
-        (window as any).__frameforge.advanceFrame();
+        (window as any).__kino.advanceFrame();
       });
     }
 

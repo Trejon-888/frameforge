@@ -22,7 +22,7 @@ export const TIME_VIRTUALIZATION_SCRIPT = `
   // Virtual clock state
   let virtualTimeMs = 0;
   let frameNumber = 0;
-  const fps = window.__FRAMEFORGE_FPS__ || 30;
+  const fps = window.__KINO_FPS__ || 30;
   const frameDurationMs = 1000 / fps;
 
   // --- Date.now patch ---
@@ -124,7 +124,7 @@ export const TIME_VIRTUALIZATION_SCRIPT = `
   if (typeof HTMLMediaElement !== 'undefined') {
     var _originalPlay = HTMLMediaElement.prototype.play;
     HTMLMediaElement.prototype.play = function() {
-      // Don't actually play — FrameForge controls media time via seeking
+      // Don't actually play — kino controls media time via seeking
       return Promise.resolve();
     };
   }
@@ -164,7 +164,7 @@ export const TIME_VIRTUALIZATION_SCRIPT = `
           eval(timer.callback);
         }
       } catch (e) {
-        console.error('[FrameForge] Timer callback error:', e);
+        console.error('[kino] Timer callback error:', e);
       }
     }
 
@@ -176,7 +176,7 @@ export const TIME_VIRTUALIZATION_SCRIPT = `
       try {
         callback(virtualTimeMs);
       } catch (e) {
-        console.error('[FrameForge] rAF callback error:', e);
+        console.error('[kino] rAF callback error:', e);
       }
     }
 
@@ -237,11 +237,11 @@ export const TIME_VIRTUALIZATION_SCRIPT = `
     };
   }
 
-  // --- Expose __frameforge global API ---
+  // --- Expose __kino global API ---
   let _frameReady = false;
   let _frameReadyResolver = null;
 
-  window.__frameforge = {
+  window.__kino = {
     get currentFrame() { return frameNumber; },
     get currentTime() { return virtualTimeMs / 1000; },
     get currentTimeMs() { return virtualTimeMs; },
@@ -280,6 +280,6 @@ export const TIME_VIRTUALIZATION_SCRIPT = `
   // Expose original rAF for the renderer to yield to the browser repaint
   window.__originalRAF = _originalRAF;
 
-  console.log('[FrameForge] Time virtualization initialized @ ' + fps + ' fps');
+  console.log('[kino] Time virtualization initialized @ ' + fps + ' fps');
 })();
 `;

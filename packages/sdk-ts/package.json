@@ -1,7 +1,7 @@
 {
-  "name": "@frameforge/sdk",
-  "version": "0.2.0",
-  "description": "FrameForge TypeScript SDK — programmatic scene authoring",
+  "name": "@kinohq/sdk",
+  "version": "0.3.0",
+  "description": "kino TypeScript SDK — programmatic scene authoring",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,7 +17,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@frameforge/core": "^0.2.0"
+    "@kinohq/core": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
@@ -31,7 +31,7 @@
     "scene-builder",
     "programmatic-video",
     "motion-graphics",
-    "frameforge",
+    "kino",
     "typescript-sdk"
   ],
   "license": "MIT",

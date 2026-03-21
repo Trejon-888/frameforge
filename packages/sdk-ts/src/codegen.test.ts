@@ -12,7 +12,7 @@ describe("codegen", () => {
     expect(html).toContain("<!DOCTYPE html>");
     expect(html).toContain("<html");
     expect(html).toContain("</html>");
-    expect(html).toContain("__frameforge");
+    expect(html).toContain("__kino");
   });
 
   it("sets canvas dimensions in styles", () => {

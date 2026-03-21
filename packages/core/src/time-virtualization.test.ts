@@ -13,12 +13,12 @@ function createVirtualizedContext(fps = 30) {
 
   // Mock browser globals
   const context: Record<string, any> = {
-    // FrameForge config (injected by renderer before the script)
-    __FRAMEFORGE_FPS__: fps,
-    __FRAMEFORGE_TOTAL_FRAMES__: 150,
-    __FRAMEFORGE_DURATION__: 5,
-    __FRAMEFORGE_WIDTH__: 1920,
-    __FRAMEFORGE_HEIGHT__: 1080,
+    // kino config (injected by renderer before the script)
+    __KINO_FPS__: fps,
+    __KINO_TOTAL_FRAMES__: 150,
+    __KINO_DURATION__: 5,
+    __KINO_WIDTH__: 1920,
+    __KINO_HEIGHT__: 1080,
 
     // Browser globals
     Date: Date,
@@ -62,13 +62,13 @@ function createVirtualizedContext(fps = 30) {
   // Create a VM context and run the script
   const vmContext = vm.createContext(context);
 
-  // Set __FRAMEFORGE globals on the vm context's window
+  // Set __KINO globals on the vm context's window
   vm.runInContext(
-    `window.__FRAMEFORGE_FPS__ = ${fps};
-     window.__FRAMEFORGE_TOTAL_FRAMES__ = 150;
-     window.__FRAMEFORGE_DURATION__ = 5;
-     window.__FRAMEFORGE_WIDTH__ = 1920;
-     window.__FRAMEFORGE_HEIGHT__ = 1080;`,
+    `window.__KINO_FPS__ = ${fps};
+     window.__KINO_TOTAL_FRAMES__ = 150;
+     window.__KINO_DURATION__ = 5;
+     window.__KINO_WIDTH__ = 1920;
+     window.__KINO_HEIGHT__ = 1080;`,
     vmContext
   );
 
@@ -77,8 +77,8 @@ function createVirtualizedContext(fps = 30) {
 
   return {
     context: vmContext,
-    get frameforge() {
-      return vm.runInContext("window.__frameforge", vmContext);
+    get kino() {
+      return vm.runInContext("window.__kino", vmContext);
     },
     evaluate(code: string) {
       return vm.runInContext(code, vmContext);
@@ -100,43 +100,43 @@ describe("time-virtualization", () => {
     });
   });
 
-  describe("__frameforge API", () => {
+  describe("__kino API", () => {
     let env: ReturnType<typeof createVirtualizedContext>;
 
     beforeEach(() => {
       env = createVirtualizedContext(30);
     });
 
-    it("exposes __frameforge global", () => {
-      expect(env.frameforge).toBeDefined();
+    it("exposes __kino global", () => {
+      expect(env.kino).toBeDefined();
     });
 
     it("starts at frame 0, time 0", () => {
-      expect(env.frameforge.currentFrame).toBe(0);
-      expect(env.frameforge.currentTime).toBe(0);
-      expect(env.frameforge.currentTimeMs).toBe(0);
+      expect(env.kino.currentFrame).toBe(0);
+      expect(env.kino.currentTime).toBe(0);
+      expect(env.kino.currentTimeMs).toBe(0);
     });
 
     it("reports correct fps", () => {
-      expect(env.frameforge.fps).toBe(30);
+      expect(env.kino.fps).toBe(30);
     });
 
     it("advanceFrame increments frame number", () => {
-      env.frameforge.advanceFrame();
-      expect(env.frameforge.currentFrame).toBe(1);
-      env.frameforge.advanceFrame();
-      expect(env.frameforge.currentFrame).toBe(2);
+      env.kino.advanceFrame();
+      expect(env.kino.currentFrame).toBe(1);
+      env.kino.advanceFrame();
+      expect(env.kino.currentFrame).toBe(2);
     });
 
     it("advanceFrame increments time correctly at 30fps", () => {
-      env.frameforge.advanceFrame();
+      env.kino.advanceFrame();
       // 1 frame at 30fps = 1000/30 = ~33.33ms
-      expect(env.frameforge.currentTimeMs).toBeCloseTo(1000 / 30, 5);
-      expect(env.frameforge.currentTime).toBeCloseTo(1 / 30, 5);
+      expect(env.kino.currentTimeMs).toBeCloseTo(1000 / 30, 5);
+      expect(env.kino.currentTime).toBeCloseTo(1 / 30, 5);
     });
 
     it("advanceFrame returns frame info", () => {
-      const result = env.frameforge.advanceFrame();
+      const result = env.kino.advanceFrame();
       expect(result).toEqual({
         frame: 1,
         timeMs: expect.closeTo(1000 / 30, 5),
@@ -146,11 +146,11 @@ describe("time-virtualization", () => {
 
     it("multiple frames accumulate time linearly", () => {
       for (let i = 0; i < 30; i++) {
-        env.frameforge.advanceFrame();
+        env.kino.advanceFrame();
       }
       // 30 frames at 30fps = 1 second
-      expect(env.frameforge.currentTimeMs).toBeCloseTo(1000, 5);
-      expect(env.frameforge.currentTime).toBeCloseTo(1, 5);
+      expect(env.kino.currentTimeMs).toBeCloseTo(1000, 5);
+      expect(env.kino.currentTime).toBeCloseTo(1, 5);
     });
   });
 
@@ -170,7 +170,7 @@ describe("time-virtualization", () => {
 
     it("Date.now() advances with virtual time", () => {
       const t0 = env.evaluate("Date.now()");
-      env.frameforge.advanceFrame();
+      env.kino.advanceFrame();
       const t1 = env.evaluate("Date.now()");
       const diff = t1 - t0;
       expect(diff).toBeCloseTo(1000 / 30, 0);
@@ -190,14 +190,14 @@ describe("time-virtualization", () => {
     });
 
     it("advances by frame duration per frame", () => {
-      env.frameforge.advanceFrame();
+      env.kino.advanceFrame();
       const t = env.evaluate("performance.now()");
       expect(t).toBeCloseTo(1000 / 30, 5);
     });
 
     it("reaches 1000ms after 30 frames at 30fps", () => {
       for (let i = 0; i < 30; i++) {
-        env.frameforge.advanceFrame();
+        env.kino.advanceFrame();
       }
       const t = env.evaluate("performance.now()");
       expect(t).toBeCloseTo(1000, 5);
@@ -223,7 +223,7 @@ describe("time-virtualization", () => {
       const result = env.evaluate(`
         let callbackTime = null;
         window.requestAnimationFrame(function(t) { callbackTime = t; });
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
         callbackTime;
       `);
       expect(result).toBeCloseTo(1000 / 30, 5);
@@ -233,8 +233,8 @@ describe("time-virtualization", () => {
       const result = env.evaluate(`
         let count = 0;
         window.requestAnimationFrame(function() { count++; });
-        window.__frameforge.advanceFrame();
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
+        window.__kino.advanceFrame();
         count;
       `);
       // Should fire once, not twice — rAF is one-shot
@@ -246,7 +246,7 @@ describe("time-virtualization", () => {
         let called = false;
         const id = window.requestAnimationFrame(function() { called = true; });
         window.cancelAnimationFrame(id);
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
         called;
       `);
       expect(result).toBe(false);
@@ -258,7 +258,7 @@ describe("time-virtualization", () => {
         window.requestAnimationFrame(function() { order.push(1); });
         window.requestAnimationFrame(function() { order.push(2); });
         window.requestAnimationFrame(function() { order.push(3); });
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
         order;
       `);
       expect(result).toEqual([1, 2, 3]);
@@ -272,9 +272,9 @@ describe("time-virtualization", () => {
             secondFired = true;
           });
         });
-        window.__frameforge.advanceFrame(); // first fires, registers second
+        window.__kino.advanceFrame(); // first fires, registers second
         const afterFirst = secondFired;
-        window.__frameforge.advanceFrame(); // second fires
+        window.__kino.advanceFrame(); // second fires
         ({ afterFirst, afterSecond: secondFired });
       `);
       expect(result.afterFirst).toBe(false);
@@ -294,11 +294,11 @@ describe("time-virtualization", () => {
       const result = env.evaluate(`
         let fired = false;
         window.setTimeout(function() { fired = true; }, 100);
-        window.__frameforge.advanceFrame(); // 33.33ms
+        window.__kino.advanceFrame(); // 33.33ms
         const at1 = fired;
-        window.__frameforge.advanceFrame(); // 66.67ms
+        window.__kino.advanceFrame(); // 66.67ms
         const at2 = fired;
-        window.__frameforge.advanceFrame(); // 100ms
+        window.__kino.advanceFrame(); // 100ms
         const at3 = fired;
         ({ at1, at2, at3 });
       `);
@@ -312,7 +312,7 @@ describe("time-virtualization", () => {
         let fired = false;
         window.setTimeout(function() { fired = true; }, 0);
         const beforeAdvance = fired;
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
         ({ before: beforeAdvance, after: fired });
       `);
       expect(result.before).toBe(false);
@@ -324,7 +324,7 @@ describe("time-virtualization", () => {
         let fired = false;
         const id = window.setTimeout(function() { fired = true; }, 0);
         window.clearTimeout(id);
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
         fired;
       `);
       expect(result).toBe(false);
@@ -334,7 +334,7 @@ describe("time-virtualization", () => {
       const result = env.evaluate(`
         let receivedArgs = null;
         window.setTimeout(function(a, b) { receivedArgs = [a, b]; }, 0, 'hello', 42);
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
         receivedArgs;
       `);
       expect(result).toEqual(["hello", 42]);
@@ -354,7 +354,7 @@ describe("time-virtualization", () => {
         let count = 0;
         window.setInterval(function() { count++; }, 33);
         for (let i = 0; i < 6; i++) {
-          window.__frameforge.advanceFrame();
+          window.__kino.advanceFrame();
         }
         count;
       `);
@@ -366,11 +366,11 @@ describe("time-virtualization", () => {
       const result = env.evaluate(`
         let count = 0;
         const id = window.setInterval(function() { count++; }, 33);
-        window.__frameforge.advanceFrame();
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
+        window.__kino.advanceFrame();
         window.clearInterval(id);
-        window.__frameforge.advanceFrame();
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
+        window.__kino.advanceFrame();
         count;
       `);
       // Should only count from first 2 frames
@@ -404,7 +404,7 @@ describe("time-virtualization", () => {
       const result = env2.evaluate(`
         const anims = [{ currentTime: 0 }, { currentTime: 0 }];
         document.getAnimations = function() { return anims; };
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
         [anims[0].currentTime, anims[1].currentTime];
       `);
       expect(result[0]).toBeCloseTo(1000 / 30, 5);
@@ -423,8 +423,8 @@ describe("time-virtualization", () => {
       // Simulate: page calls ready(), renderer calls waitForReady()
       const result = env.evaluate(`
         let resolved = false;
-        window.__frameforge.waitForReady().then(function() { resolved = true; });
-        window.__frameforge.ready();
+        window.__kino.waitForReady().then(function() { resolved = true; });
+        window.__kino.ready();
         resolved;
       `);
       // Note: Promise resolution is async, so we check the direct ready state
@@ -433,8 +433,8 @@ describe("time-virtualization", () => {
 
     it("resetReady() clears ready state", () => {
       env.evaluate(`
-        window.__frameforge.ready();
-        window.__frameforge.resetReady();
+        window.__kino.ready();
+        window.__kino.resetReady();
       `);
       // After reset, waitForReady should NOT resolve immediately
       // (it should return a pending promise)
@@ -454,20 +454,20 @@ describe("time-virtualization", () => {
   describe("different FPS values", () => {
     it("60fps frame duration is ~16.67ms", () => {
       const env = createVirtualizedContext(60);
-      env.frameforge.advanceFrame();
-      expect(env.frameforge.currentTimeMs).toBeCloseTo(1000 / 60, 5);
+      env.kino.advanceFrame();
+      expect(env.kino.currentTimeMs).toBeCloseTo(1000 / 60, 5);
     });
 
     it("24fps frame duration is ~41.67ms", () => {
       const env = createVirtualizedContext(24);
-      env.frameforge.advanceFrame();
-      expect(env.frameforge.currentTimeMs).toBeCloseTo(1000 / 24, 5);
+      env.kino.advanceFrame();
+      expect(env.kino.currentTimeMs).toBeCloseTo(1000 / 24, 5);
     });
 
     it("1fps frame duration is 1000ms", () => {
       const env = createVirtualizedContext(1);
-      env.frameforge.advanceFrame();
-      expect(env.frameforge.currentTimeMs).toBe(1000);
+      env.kino.advanceFrame();
+      expect(env.kino.currentTimeMs).toBe(1000);
     });
   });
 
@@ -486,8 +486,8 @@ describe("time-virtualization", () => {
     it("media seek logic handles querySelectorAll gracefully", () => {
       const env = createVirtualizedContext(30);
       // Verify advanceFrame doesn't crash when media elements are queried
-      env.frameforge.advanceFrame();
-      expect(env.frameforge.currentFrame).toBe(1);
+      env.kino.advanceFrame();
+      expect(env.kino.currentFrame).toBe(1);
     });
   });
 
@@ -506,8 +506,8 @@ describe("time-virtualization", () => {
           }];
         };
       `);
-      env.frameforge.advanceFrame();
-      expect(env.frameforge.currentFrame).toBe(1);
+      env.kino.advanceFrame();
+      expect(env.kino.currentFrame).toBe(1);
     });
 
     it("fires animationstart when crossing delay boundary", () => {
@@ -528,7 +528,7 @@ describe("time-virtualization", () => {
             }
           }];
         };
-        window.__frameforge.advanceFrame(); // t=33.33ms, crosses delay=30ms
+        window.__kino.advanceFrame(); // t=33.33ms, crosses delay=30ms
         startFired;
       `);
       expect(result).toBe(true);
@@ -552,7 +552,7 @@ describe("time-virtualization", () => {
             }
           }];
         };
-        window.__frameforge.advanceFrame(); // t=33.33ms, crosses duration=30ms
+        window.__kino.advanceFrame(); // t=33.33ms, crosses duration=30ms
         endFired;
       `);
       expect(result).toBe(true);
@@ -566,7 +566,7 @@ describe("time-virtualization", () => {
         let secondCalled = false;
         window.requestAnimationFrame(function() { throw new Error('boom'); });
         window.requestAnimationFrame(function() { secondCalled = true; });
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
         secondCalled;
       `);
       expect(result).toBe(true);
@@ -578,7 +578,7 @@ describe("time-virtualization", () => {
         let secondCalled = false;
         window.setTimeout(function() { throw new Error('boom'); }, 0);
         window.setTimeout(function() { secondCalled = true; }, 0);
-        window.__frameforge.advanceFrame();
+        window.__kino.advanceFrame();
         secondCalled;
       `);
       expect(result).toBe(true);

@@ -449,7 +449,7 @@ export function generateOverlayHTML(
   }
 
   function update() {
-    var t = window.__frameforge ? window.__frameforge.currentTimeMs : performance.now();
+    var t = window.__kino ? window.__kino.currentTimeMs : performance.now();
     for (var i = 0; i < overlays.length; i++) {
       var ov = overlays[i];
       var el = overlayEls[i];

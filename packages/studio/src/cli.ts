@@ -7,8 +7,8 @@ import { startStudio } from "./server.js";
 const program = new Command();
 
 program
-  .name("frameforge-studio")
-  .description("FrameForge Studio — visual preview with timeline scrubbing")
+  .name("kino-studio")
+  .description("kino Studio — visual preview with timeline scrubbing")
   .argument("<input>", "Path to HTML file or scene manifest JSON")
   .option("-p, --port <number>", "Server port", parseInt, 6639)
   .option("--host <address>", "Server host", "localhost")
@@ -18,7 +18,7 @@ program
   .option("--height <pixels>", "Height in pixels", parseInt)
   .action(async (input: string, opts) => {
     console.log(
-      chalk.bold("\n  FrameForge Studio\n")
+      chalk.bold("\n  kino studio\n")
     );
 
     try {

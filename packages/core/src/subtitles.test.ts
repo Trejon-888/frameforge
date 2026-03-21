@@ -11,7 +11,7 @@ import { tmpdir } from "node:os";
 
 const SAMPLE_SRT = `1
 00:00:01,000 --> 00:00:03,500
-Hello, welcome to FrameForge.
+Hello, welcome to kino.
 
 2
 00:00:04,000 --> 00:00:06,000
@@ -45,7 +45,7 @@ describe("subtitles", () => {
 
     it("extracts correct text", () => {
       const entries = parseSRT(SAMPLE_SRT);
-      expect(entries[0].text).toBe("Hello, welcome to FrameForge.");
+      expect(entries[0].text).toBe("Hello, welcome to kino.");
       expect(entries[1].text).toBe("This is a subtitle test.");
     });
 
@@ -120,7 +120,7 @@ Short format.`;
       const script = generateSubtitleOverlay(entries);
 
       expect(script).toContain("ff-subtitles");
-      expect(script).toContain("__frameforge");
+      expect(script).toContain("__kino");
       expect(script).toContain("requestAnimationFrame");
       expect(script).toContain("currentTimeMs");
     });
@@ -164,7 +164,7 @@ Short format.`;
     let tempDir: string;
 
     beforeEach(async () => {
-      tempDir = join(tmpdir(), `frameforge-sub-test-${Date.now()}`);
+      tempDir = join(tmpdir(), `kino-sub-test-${Date.now()}`);
       await mkdir(tempDir, { recursive: true });
     });
 
@@ -178,7 +178,7 @@ Short format.`;
 
       const entries = await loadSubtitles(filePath);
       expect(entries).toHaveLength(3);
-      expect(entries[0].text).toBe("Hello, welcome to FrameForge.");
+      expect(entries[0].text).toBe("Hello, welcome to kino.");
     });
 
     it("loads and parses VTT file", async () => {

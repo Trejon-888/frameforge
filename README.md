@@ -1,18 +1,18 @@
 <p align="center">
   <b style="font-size: 48px;">
-    <span style="color: #e94560;">F</span><span style="color: #6366f1;">F</span>
+    <span style="color: #e94560;">k</span><span style="color: #6366f1;">i</span><span style="color: #e94560;">n</span><span style="color: #6366f1;">o</span>
   </b>
 </p>
 
-<h1 align="center">FrameForge</h1>
+<h1 align="center">kino</h1>
 
 <p align="center">
-  <strong>If a browser can render it, FrameForge can record it.</strong><br>
+  <strong>If a browser can render it, kino can record it.</strong><br>
   <em>Programmatic video generation + AI-powered video editing. Framework-agnostic, agent-native.</em>
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@frameforge/core"><img src="https://img.shields.io/npm/v/@frameforge/core?style=flat-square&color=e94560&label=npm" alt="npm"></a>
+  <a href="https://www.npmjs.com/package/@kinohq/core"><img src="https://img.shields.io/npm/v/@kinohq/core?style=flat-square&color=e94560&label=npm" alt="npm"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-6366f1?style=flat-square" alt="MIT License"></a>
   <a href="#"><img src="https://img.shields.io/badge/tests-238%20passing-10b981?style=flat-square" alt="Tests"></a>
   <a href="#"><img src="https://img.shields.io/badge/node-%3E%3D20-333?style=flat-square" alt="Node 20+"></a>
@@ -20,16 +20,16 @@
 
 ---
 
-## What is FrameForge?
+## What is kino?
 
-FrameForge is two things in one:
+kino is two things in one:
 
 **1. Programmatic video generation** — render any animated HTML page (GSAP, Three.js, CSS, p5.js, Svelte, React — anything) into a deterministic MP4 via headless Chrome + FFmpeg. No framework lock-in, no DSL.
 
-**2. AI-powered video editing** — take source footage, extract word-level captions via WhisperX, then have an AI agent write overlay decisions in plain JSON. FrameForge renders the overlays as transparent frames and composites them natively via FFmpeg. Any model — Claude, GPT, Gemini, local — can direct the edit.
+**2. AI-powered video editing** — take source footage, extract word-level captions via WhisperX, then have an AI agent write overlay decisions in plain JSON. kino renders the overlays as transparent frames and composites them natively via FFmpeg. Any model — Claude, GPT, Gemini, local — can direct the edit.
 
 ```bash
-npm install @frameforge/core
+npm install @kinohq/core
 ```
 
 ---
@@ -40,16 +40,16 @@ npm install @frameforge/core
 
 ```bash
 # Step 1 — Extract transcript with word-level timing
-frameforge extract-transcript clip.mp4 -o transcript.json
+kino extract-transcript clip.mp4 -o transcript.json
 
 # Step 2 — Give transcript.json to any AI agent with EDIT-AGENT-CONTRACT.md
 #           The agent writes overlay-decisions.json
 
 # Step 3 — Preview overlays (one frame per overlay, ~30s)
-frameforge preview-overlays clip.mp4 --overlays overlay-decisions.json -o preview.html
+kino preview-overlays clip.mp4 --overlays overlay-decisions.json -o preview.html
 
 # Step 4 — Full render
-frameforge render-overlays clip.mp4 \
+kino render-overlays clip.mp4 \
   --overlays overlay-decisions.json \
   --srt captions.srt \
   --quality balanced \
@@ -59,13 +59,13 @@ frameforge render-overlays clip.mp4 \
 ### Option 2: Render any HTML page
 
 ```bash
-npx frameforge render animation.html --duration 10 --fps 30 -o video.mp4
+npx kino render animation.html --duration 10 --fps 30 -o video.mp4
 ```
 
 ### Option 3: TypeScript SDK
 
 ```typescript
-import { Scene, Text, Shape, fadeIn, stagger } from "@frameforge/sdk";
+import { Scene, Text, Shape, fadeIn, stagger } from "@kinohq/sdk";
 
 const scene = new Scene({ duration: 5, background: "#0a0a0a" });
 
@@ -79,7 +79,7 @@ await scene.render("output.mp4");
 ### Option 4: Python SDK
 
 ```python
-from frameforge import Scene, Text
+from kino import Scene, Text
 
 scene = Scene(duration=5, background="#0a0a0a")
 scene.add(Text("Hello World", font_size=72, font_weight="bold", color="#ffffff"))
@@ -88,9 +88,9 @@ scene.render("output.mp4")
 
 ---
 
-## Why FrameForge?
+## Why kino?
 
-| | FrameForge | Remotion | Motion Canvas |
+| | kino | Remotion | Motion Canvas |
 |---|:---:|:---:|:---:|
 | **Any HTML/CSS/JS** | ✅ | ❌ React only | ❌ Custom DSL |
 | **GSAP, Three.js, p5.js** | ✅ Native | ⚠️ Wrappers | ❌ |
@@ -113,7 +113,7 @@ scene.render("output.mp4")
 - **FFmpeg pipeline** — Frames piped directly to FFmpeg stdin — no temp files, any codec, quality-matched encoding
 
 ### ✂️ Video Editing Engine
-- **`frameforge edit`** — Single command: source footage → edited video with word-level captions + auto-generated motion graphics overlays
+- **`kino edit`** — Single command: source footage → edited video with word-level captions + auto-generated motion graphics overlays
 - **Word-level captions** — WhisperX word timing → 2-4 word groups, 5 animation presets (pop-in, karaoke, highlight, minimal, bold-center)
 - **Quality-matched encoding** — ffprobe extracts source bitrate/codec → output is visually identical to input
 - **Transparent overlay compositing** — Overlay frames rendered in browser as transparent PNGs, composited by FFmpeg natively — source video never touches the browser
@@ -122,14 +122,14 @@ scene.render("output.mp4")
 
 ### 🤖 Edit Agent Contract
 - **Model-agnostic** — Any AI (Claude, GPT, Gemini, local) reads `EDIT-AGENT-CONTRACT.md` and writes overlay decisions in plain JSON
-- **`frameforge extract-transcript`** — Extracts enriched transcript with pause detection, energy curve, stat detection, narrative segmentation, and suggested entry points
-- **`frameforge render-overlays`** — Takes agent-written JSON + source video → professionally edited output
-- **`frameforge preview-overlays`** — One frame per overlay, ~30s, catches 90% of issues before committing to 8-minute full render
+- **`kino extract-transcript`** — Extracts enriched transcript with pause detection, energy curve, stat detection, narrative segmentation, and suggested entry points
+- **`kino render-overlays`** — Takes agent-written JSON + source video → professionally edited output
+- **`kino preview-overlays`** — One frame per overlay, ~30s, catches 90% of issues before committing to 8-minute full render
 - **5 Style Kits** — kinetic-orange, minimal-authority, bold-dark-social, clean-professional, cosmic-particles
 - **4 Editorial Templates** — authority-builder, viral-hook, educational-breakdown, social-proof-stack
 
 ### 🎞️ Composition & Subtitles
-- **Multi-scene** — Stitch multiple HTML pages as scenes via `frameforge compose`
+- **Multi-scene** — Stitch multiple HTML pages as scenes via `kino compose`
 - **23 Transitions** — fade, dissolve, wipe, slide, circle, smooth, pixelize, zoom, and more
 - **Subtitles** — SRT/VTT parser with customizable HTML overlay synced to virtual time
 
@@ -147,7 +147,7 @@ scene.render("output.mp4")
 ### 🤖 AI-Native
 - **Agent Skill** — Comprehensive `skill.md` + `EDIT-AGENT-CONTRACT.md` for Claude Code and any coding agent
 - **Agent-friendly errors** — Parseable error messages with actionable hints
-- **Model-agnostic edit pipeline** — Any AI writes overlay decisions; FrameForge renders them
+- **Model-agnostic edit pipeline** — Any AI writes overlay decisions; kino renders them
 
 ---
 
@@ -157,7 +157,7 @@ scene.render("output.mp4")
 # ── Video Editing ──────────────────────────────────────────────────────────
 
 # Full auto-edit pipeline (probe + transcribe + overlay generation + render)
-frameforge edit <video> [options]
+kino edit <video> [options]
   --word-timings <path>     WhisperX JSON with word-level timing
   --style <preset>          neo-brutalist | clean-minimal | corporate | bold-dark
   --caption-style <preset>  pop-in | karaoke | highlight | minimal | bold-center
@@ -167,38 +167,38 @@ frameforge edit <video> [options]
   --output <path>
 
 # Extract enriched transcript (pause detection, stats, energy curve)
-frameforge extract-transcript <video> -o transcript.json
+kino extract-transcript <video> -o transcript.json
 
 # Render agent overlay decisions onto source video
-frameforge render-overlays <video> --overlays decisions.json [--srt captions.srt] -o output.mp4
+kino render-overlays <video> --overlays decisions.json [--srt captions.srt] -o output.mp4
 
 # Preview overlays before full render (~30s vs 8-12min)
-frameforge preview-overlays <video> --overlays decisions.json -o preview.html
+kino preview-overlays <video> --overlays decisions.json -o preview.html
 
 # ── Programmatic Video ─────────────────────────────────────────────────────
 
 # Render any HTML page or scene manifest
-frameforge render <input> -o video.mp4
+kino render <input> -o video.mp4
   -d, --duration <seconds>  Duration (required for HTML files)
   --fps <number>            Frames per second (default: 30)
   --width <pixels>          Width (default: 1920)
   --height <pixels>         Height (default: 1080)
 
 # Preview a single frame as PNG
-frameforge preview <input> --frame 75 -o preview.png
+kino preview <input> --frame 75 -o preview.png
 
 # Compose multiple scenes with transitions
-frameforge compose composition.json -o output.mp4
+kino compose composition.json -o output.mp4
 
 # Launch visual studio
-frameforge-studio scene.json
+kino-studio scene.json
 ```
 
 ---
 
 ## The Edit Agent Contract
 
-FrameForge is a **rendering engine**, not an AI. Any AI agent reads `EDIT-AGENT-CONTRACT.md` and produces overlay decisions as JSON. FrameForge renders them.
+kino is a **rendering engine**, not an AI. Any AI agent reads `EDIT-AGENT-CONTRACT.md` and produces overlay decisions as JSON. kino renders them.
 
 ### What the agent produces
 
@@ -216,9 +216,9 @@ FrameForge is a **rendering engine**, not an AI. Any AI agent reads `EDIT-AGENT-
 ]
 ```
 
-### What FrameForge renders
+### What kino renders
 
-The agent writes CSS, HTML, and GSAP timelines with `__ID__` as a namespace. FrameForge replaces `__ID__` with a unique instance ID, renders each overlay as a transparent PNG frame via headless Chrome, and FFmpeg composites them onto the source video.
+The agent writes CSS, HTML, and GSAP timelines with `__ID__` as a namespace. kino replaces `__ID__` with a unique instance ID, renders each overlay as a transparent PNG frame via headless Chrome, and FFmpeg composites them onto the source video.
 
 **Any model, any overlay. The contract is the only coupling.**
 
@@ -228,7 +228,7 @@ Read `.agents/EDIT-AGENT-CONTRACT.md` for the full 5-phase editing loop: PERCEIV
 
 ## How Time Virtualization Works
 
-FrameForge injects a script that patches all browser time APIs **before** your page loads:
+kino injects a script that patches all browser time APIs **before** your page loads:
 
 | API | What Happens |
 |-----|-------------|
@@ -247,10 +247,10 @@ This means **any animation library** that uses standard browser APIs works autom
 
 | Package | Description |
 |---------|-------------|
-| `@frameforge/core` | Render engine, CLI, time virtualization, FFmpeg pipeline, video editing |
-| `@frameforge/sdk` | TypeScript SDK — Scene, elements, animations, codegen |
-| `@frameforge/studio` | Visual preview UI with timeline and hot-reload |
-| `frameforge` (PyPI) | Python SDK — same API, generates HTML, calls Node renderer |
+| `@kinohq/core` | Render engine, CLI, time virtualization, FFmpeg pipeline, video editing |
+| `@kinohq/sdk` | TypeScript SDK — Scene, elements, animations, codegen |
+| `@kinohq/studio` | Visual preview UI with timeline and hot-reload |
+| `kino` (PyPI) | Python SDK — same API, generates HTML, calls Node renderer |
 
 ---
 

@@ -13,9 +13,9 @@
 | ADR-003 | Frames piped to FFmpeg stdin (no temp PNGs) | 2026-03-15 | Avoids disk I/O bottleneck, no cleanup needed, works on systems with limited storage | — |
 | ADR-004 | Python SDK calls Node renderer via subprocess | 2026-03-15 | Python generates HTML + manifest, rendering stays in Node/Puppeteer where it's native; avoids maintaining two renderers | — |
 | ADR-005 | tsup for building, vitest for testing | 2026-03-15 | Fast, modern, good ESM support; matches the project's Node 20+ target | — |
-| ADR-006 | Edit agent is model-agnostic — FrameForge never calls AI APIs | 2026-03-17 | FrameForge philosophy: framework-agnostic rendering. Embedding Anthropic SDK contradicts this. Agent reads EDIT-AGENT-CONTRACT.md, writes overlay-decisions.json, FrameForge renders it. Any model works. | Supersedes: any design where FrameForge calls an AI API internally |
+| ADR-006 | Edit agent is model-agnostic — kino never calls AI APIs | 2026-03-17 | kino philosophy: framework-agnostic rendering. Embedding Anthropic SDK contradicts this. Agent reads EDIT-AGENT-CONTRACT.md, writes overlay-decisions.json, kino renders it. Any model works. | Supersedes: any design where kino calls an AI API internally |
 | ADR-007 | Always pass `-g fps` to libx264 in compositeVideo | 2026-03-18 | `ultrafast` preset disables scene-change detection, producing long GOP chains that corrupt bitstreams. Explicit keyframe interval every second ensures valid bitstream regardless of preset. Applies to all quality levels including `fast`. | — |
-| ADR-008 | No MCP server — coding agents + CLI replace MCP entirely | 2026-03-20 | MCP exists to give AI structured tool access. A coding agent with skill.md + CLI is strictly better: 7 commands vs 2 tools, full Phase 5 support, composable, agent-friendly errors. MCP is a pre-coding-agent pattern. `@frameforge/mcp-server` removed from monorepo. | Supersedes: @frameforge/mcp-server (Phase 3) |
+| ADR-008 | No MCP server — coding agents + CLI replace MCP entirely | 2026-03-20 | MCP exists to give AI structured tool access. A coding agent with skill.md + CLI is strictly better: 7 commands vs 2 tools, full Phase 5 support, composable, agent-friendly errors. MCP is a pre-coding-agent pattern. `@frameforge/mcp-server (legacy)` removed from monorepo. | Supersedes: @frameforge/mcp-server (legacy) (Phase 3) |
 
 ---
 
@@ -30,7 +30,7 @@
 | Output path resolves to CWD not manifest dir | `resolve(options.output)` uses CWD; CLI always set default `-o` value | Remove CLI default for `-o`; resolve output relative to `dirname(manifestPath)` in renderer | Session 1 |
 | npm install fails with EUNSUPPORTEDPROTOCOL | `workspace:*` in published package.json — pnpm workspace ref doesn't work on npm | Changed to `^0.1.0`, republished all packages at 0.1.1 | Session 7 |
 | Python SDK render fails on Windows | `subprocess.run(["npx"])` — npx not found without `shell=True` on Windows | Added `shell=True` on Windows + `shutil.which("npx")` | Session 7 |
-| `npx frameforge` resolves to wrong package | Unscoped `frameforge` on npm is a different project (needs GEMINI_API_KEY) | Use `@frameforge/core` as scoped name, or local CLI path when available | Session 7 |
+| `npx frameforge` resolves to wrong package | Unscoped `frameforge` on npm is a different project (needs GEMINI_API_KEY) — now resolved by rebrand to `npx kino` | Use `@kinohq/core` as scoped name | Session 7 / Session 17 |
 | Background override breaks light-themed pages | Renderer sets `document.body.style.background` which overrides page CSS | Use `!important` in page CSS, or check if bg is already set before override | Session 6 |
 
 ---
@@ -68,7 +68,7 @@
 ### SDK / Codegen
 
 - **tsx required for TS examples:** The monorepo needs `tsx` as a workspace dev dependency to run TypeScript example files with workspace package resolution.
-- **Scene.render() uses dynamic import:** The SDK dynamically imports `@frameforge/core` to avoid circular deps at build time. This means the core package must be built before SDK render works.
+- **Scene.render() uses dynamic import:** The SDK dynamically imports `@kinohq/core` to avoid circular deps at build time. This means the core package must be built before SDK render works.
 
 ---
 
@@ -77,7 +77,7 @@
 - **npm user:** enriquemarq, **GitHub:** Trejon-888
 - **Working style:** Says "ULTRATHINK take autonomous action" for full auto mode. Values speed, creative branding, GTM strategy.
 - **Launch plan:** 7-day testing period (March 15–22), then public launch ~March 22 if product feels solid.
-- **Branding decision:** FrameForge name, red/indigo colors, and target audience are ALL open for revision. Don't invest heavily in branding until ideal customer is identified through real usage.
+- **Branding decision:** kino name, red/indigo colors, and target audience are ALL open for revision. Don't invest heavily in branding until ideal customer is identified through real usage.
 - **Publish commands:** `cd packages/core && npm publish --access public` (then sdk-ts, studio, mcp-server in order)
 
 ---

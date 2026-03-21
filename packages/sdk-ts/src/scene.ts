@@ -1,4 +1,4 @@
-import type { SceneManifest } from "@frameforge/core";
+import type { SceneManifest } from "@kinohq/core";
 import { generateHTML } from "./codegen.js";
 import { writeFile, mkdir } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
@@ -87,7 +87,7 @@ export class Scene {
     await writeFile(manifestPath, JSON.stringify(manifest, null, 2), "utf-8");
 
     // Dynamic import to avoid circular dependency at build time
-    const { render: coreRender } = await import("@frameforge/core");
+    const { render: coreRender } = await import("@kinohq/core");
     return coreRender({ input: manifestPath, output: outputPath });
   }
 }

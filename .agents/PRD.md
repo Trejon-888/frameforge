@@ -1,4 +1,4 @@
-# FrameForge — Product Requirements
+# kino — Product Requirements
 
 **Version:** 0.1.0-alpha
 **Last Updated:** 2026-03-15
@@ -7,9 +7,9 @@
 
 ## Vision
 
-FrameForge is the missing bridge between "animated webpage" and "rendered video." It's a framework-agnostic rendering pipeline that takes any animated HTML page (React, vanilla, GSAP, Three.js, Svelte, p5.js, whatever), deterministically captures every frame via headless Chrome, and stitches them into a production-quality MP4 via FFmpeg. Ships with Agent Skills so Claude Code (or any coding agent) can generate videos end-to-end.
+kino is the missing bridge between "animated webpage" and "rendered video." It's a framework-agnostic rendering pipeline that takes any animated HTML page (React, vanilla, GSAP, Three.js, Svelte, p5.js, whatever), deterministically captures every frame via headless Chrome, and stitches them into a production-quality MP4 via FFmpeg. Ships with Agent Skills so Claude Code (or any coding agent) can generate videos end-to-end.
 
-**Tagline:** _"If a browser can render it, FrameForge can record it."_
+**Tagline:** _"If a browser can render it, kino can record it."_
 
 ---
 
@@ -18,7 +18,7 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Role | Description | Key Actions |
 |------|-------------|-------------|
 | Developer | Web developers creating programmatic video | Write animations in HTML/CSS/JS, use TS/Python SDK, run CLI |
-| AI Agent | Coding agents (Claude Code, etc.) with FrameForge skill | Generate animations from prompts, render via CLI/SDK |
+| AI Agent | Coding agents (Claude Code, etc.) with kino skill | Generate animations from prompts, render via CLI/SDK |
 | Content Creator | Non-technical users via agent-assisted workflow | Describe desired video, agent handles implementation |
 
 ---
@@ -29,12 +29,12 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 
 | Feature | Description | Priority | Status |
 |---------|-------------|----------|--------|
-| `frameforge render` CLI | Takes HTML file + options → MP4 | P0 | Implemented |
+| `kino render` CLI | Takes HTML file + options → MP4 | P0 | Implemented |
 | Time Virtualization Script | Patches Date.now, rAF, setTimeout, CSS animations | P0 | Implemented |
 | Puppeteer Frame Capture | Headless Chrome screenshot loop with CDP | P0 | Implemented |
 | FFmpeg Pipeline | Frame → pipe → encode → MP4 (no intermediate files) | P0 | Implemented |
 | Scene Manifest Parser | Read & validate scene.json via Zod | P0 | Implemented |
-| `__frameforge` Page API | Global API for signaling frame readiness | P0 | Implemented |
+| `__kino` Page API | Global API for signaling frame readiness | P0 | Implemented |
 | Audio mixing | Overlay audio tracks onto final video | P1 | Scaffolded |
 | Error handling | Timeouts, crash recovery, agent-friendly messages | P1 | Implemented |
 
@@ -42,8 +42,8 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 
 | Feature | Description | Priority | Status |
 |---------|-------------|----------|--------|
-| TypeScript SDK | `@frameforge/sdk` — Define scenes, elements, animations | P0 | Implemented |
-| Python SDK | `frameforge` PyPI — Same API surface in Python | P0 | Implemented |
+| TypeScript SDK | `@kinohq/sdk` — Define scenes, elements, animations | P0 | Implemented |
+| Python SDK | `kino` PyPI — Same API surface in Python | P0 | Implemented |
 | Scene Graph Model | Scene → Layer → Element → Animation → Keyframe | P0 | Implemented |
 | Built-in Elements | Text, Shape, Image (Video, Code Block, Chart planned) | P1 | Partial |
 | Animation Primitives | fadeIn/Out, slideIn/Out, scaleIn/Out, rotateIn/To, stagger | P1 | Implemented |
@@ -53,8 +53,8 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 
 | Feature | Description | Priority | Status |
 |---------|-------------|----------|--------|
-| Claude Code Agent Skill | Skill file teaching Claude how to use FrameForge | P0 | Implemented |
-| MCP Server | Model Context Protocol server for FrameForge | P1 | Removed — coding agents replace MCP |
+| Claude Code Agent Skill | Skill file teaching Claude how to use kino | P0 | Implemented |
+| MCP Server | Model Context Protocol server for kino | P1 | Removed — coding agents replace MCP |
 | Example prompts library | Curated prompts for good video output | P1 | Implemented |
 | Agent-friendly errors | Errors an LLM can parse and fix | P0 | Implemented |
 | Render preview server | Hot-reload preview before final render | P2 | Planned |
@@ -74,7 +74,7 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 
 | Feature | Description | Priority | Status |
 |---------|-------------|----------|--------|
-| `frameforge edit` CLI | Single command: source video → edited video with captions + overlays | P0 | Implemented |
+| `kino edit` CLI | Single command: source video → edited video with captions + overlays | P0 | Implemented |
 | Video probe (ffprobe) | Extract source video metadata for quality-matched encoding | P0 | Implemented |
 | Word-level caption engine | WhisperX word timings → 2-4 word groups with active word highlighting | P0 | Implemented |
 | Caption animation presets | 5 styles: pop-in, karaoke, highlight, minimal, bold-center | P0 | Implemented |
@@ -95,12 +95,12 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Feature | Plan | Date Completed | Notes |
 |---------|------|---------------|-------|
 | Project scaffolding | — | 2026-03-15 | Initial repo setup |
-| `frameforge render` CLI | Phase 1 MVP | 2026-03-15 | Commander.js CLI with progress + error hints |
+| `kino render` CLI | Phase 1 MVP | 2026-03-15 | Commander.js CLI with progress + error hints |
 | Time Virtualization Script | Phase 1 MVP | 2026-03-15 | Patches Date.now, rAF, setTimeout, CSS animations |
 | Puppeteer Frame Capture | Phase 1 MVP | 2026-03-15 | CDP screenshots, error capture, rAF yield |
 | FFmpeg Pipeline | Phase 1 MVP | 2026-03-15 | Piped stdin, audio mixing, backpressure |
 | Scene Manifest Parser | Phase 1 MVP | 2026-03-15 | Zod schemas, defaults, file + object input |
-| `__frameforge` Page API | Phase 1 MVP | 2026-03-15 | Readiness signaling, metadata, progress |
+| `__kino` Page API | Phase 1 MVP | 2026-03-15 | Readiness signaling, metadata, progress |
 | Core test suite | Phase 1 MVP | 2026-03-15 | 106 tests across 5 files |
 | Media time patching | Phase 1 MVP | 2026-03-15 | HTMLMediaElement.play intercepted, seek on advanceFrame |
 | Animation events | Phase 1 MVP | 2026-03-15 | animationstart/animationend at virtual time |
@@ -113,14 +113,14 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 | Python SDK codegen | Phase 2 SDKs | 2026-03-15 | Scene, Text, Shape, Image, Animate, easing — generates HTML |
 | SDK-TS test suite | Phase 2 SDKs | 2026-03-15 | 35 tests (elements, animations, codegen) |
 | Claude Code Agent Skill | Phase 3 Agent | 2026-03-15 | skill.md — comprehensive video generation guide |
-| MCP Server | Phase 3 Agent | 2026-03-15 | @frameforge/mcp-server — render + validate tools |
+| MCP Server | Phase 3 Agent | 2026-03-15 | @frameforge/mcp-server (legacy) — render + validate tools |
 | Example prompts library | Phase 3 Agent | 2026-03-15 | 8 curated prompts with expected outputs |
-| Preview CLI command | Phase 3 Agent | 2026-03-15 | frameforge preview — single frame PNG capture |
-| Multi-scene composition | Phase 4 Advanced | 2026-03-15 | frameforge compose — stitch scenes with transitions |
+| Preview CLI command | Phase 3 Agent | 2026-03-15 | kino preview — single frame PNG capture |
+| Multi-scene composition | Phase 4 Advanced | 2026-03-15 | kino compose — stitch scenes with transitions |
 | Transition library | Phase 4 Advanced | 2026-03-15 | 23 FFmpeg xfade types (fade, dissolve, wipe, slide, etc.) |
 | Subtitle engine | Phase 4 Advanced | 2026-03-15 | SRT/VTT parser + HTML overlay synced to virtual time |
 | GPU acceleration | Phase 4 Advanced | 2026-03-15 | --gpu flag for Chrome hardware acceleration |
-| `frameforge edit` CLI | Phase 5 Video Edit | 2026-03-16 | Full pipeline: probe → transcribe → overlay → composite |
+| `kino edit` CLI | Phase 5 Video Edit | 2026-03-16 | Full pipeline: probe → transcribe → overlay → composite |
 | Video probe (ffprobe) | Phase 5 Video Edit | 2026-03-16 | VideoProbeResult with bitrate, codec, rotation, audio |
 | Word-level captions | Phase 5 Video Edit | 2026-03-16 | WhisperX parser, word grouping, 5 animation presets |
 | Transparent compositing | Phase 5 Video Edit | 2026-03-16 | FFmpeg overlay filter, omitBackground capture |
@@ -138,7 +138,7 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 ## Success Criteria
 
 ### MVP (Phase 1)
-- [ ] `frameforge render page.html` produces a valid MP4
+- [ ] `kino render page.html` produces a valid MP4
 - [ ] Time virtualization handles: rAF, Date.now, setTimeout, CSS animations
 - [ ] Works with vanilla HTML/CSS, GSAP, and Three.js test pages
 - [ ] 1080p @ 30fps render completes without dropped/duplicate frames
@@ -151,7 +151,7 @@ FrameForge is the missing bridge between "animated webpage" and "rendered video.
 - [ ] Audio mixing works (voiceover + background music)
 
 ### Phase 3
-- [ ] Claude Code with FrameForge skill can generate a video from a text prompt
+- [ ] Claude Code with kino skill can generate a video from a text prompt
 - [ ] Agent-generated videos are deterministic
 - [ ] At least 5 example prompts that consistently produce good output
 

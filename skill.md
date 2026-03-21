@@ -1,14 +1,14 @@
-# FrameForge — AI Video Generation Skill
+# kino — AI Video Generation Skill
 
 **Use this skill when the user asks you to create, generate, or render a video, animation, or motion graphic.**
 
 ---
 
-## What is FrameForge?
+## What is kino?
 
-FrameForge renders any animated HTML page into a deterministic MP4 video using headless Chrome + FFmpeg. It patches all browser time APIs so animations are frame-perfect regardless of system performance.
+kino renders any animated HTML page into a deterministic MP4 video using headless Chrome + FFmpeg. It patches all browser time APIs so animations are frame-perfect regardless of system performance.
 
-**Tagline:** "If a browser can render it, FrameForge can record it."
+**Tagline:** "If a browser can render it, kino can record it."
 
 ---
 
@@ -35,7 +35,7 @@ Create an HTML file with animations, then render:
 <body>
   <h1 class="title">Hello World</h1>
   <script>
-    // Use performance.now() — it's virtualized by FrameForge
+    // Use performance.now() — it's virtualized by kino
     function update() {
       const t = performance.now() / 1000; // seconds
       const title = document.querySelector('.title');
@@ -51,7 +51,7 @@ Create an HTML file with animations, then render:
 ```
 
 ```bash
-npx frameforge render animation.html --duration 5 --fps 30 -o output.mp4
+npx kino render animation.html --duration 5 --fps 30 -o output.mp4
 ```
 
 ### Approach 2: Scene Manifest (configurable)
@@ -66,13 +66,13 @@ npx frameforge render animation.html --duration 5 --fps 30 -o output.mp4
 ```
 
 ```bash
-npx frameforge render scene.json
+npx kino render scene.json
 ```
 
 ### Approach 3: TypeScript SDK (programmatic)
 
 ```typescript
-import { Scene, Text, Shape, fadeIn, slideIn, stagger } from "@frameforge/sdk";
+import { Scene, Text, Shape, fadeIn, slideIn, stagger } from "@kinohq/sdk";
 
 const scene = new Scene({ width: 1920, height: 1080, fps: 30, duration: 5, background: "#0a0a0a" });
 
@@ -93,17 +93,17 @@ Use this when the user has source footage (a talking-head clip, testimonial, tut
 
 ```bash
 # Step 1 — Extract enriched transcript (word timing, pauses, stats, energy curve)
-npx frameforge extract-transcript clip.mp4 -o transcript.json
+npx kino extract-transcript clip.mp4 -o transcript.json
 
 # Step 2 — You write overlay decisions as JSON (see Edit Agent Contract below)
 # Read .agents/EDIT-AGENT-CONTRACT.md for the full 5-phase editing loop
 
 # Step 3 — Preview overlays before full render (~30s vs 8-12min)
-npx frameforge preview-overlays clip.mp4 --overlays overlay-decisions.json -o preview.html
+npx kino preview-overlays clip.mp4 --overlays overlay-decisions.json -o preview.html
 # Open preview.html — one card per overlay showing midpoint frame
 
 # Step 4 — Full render
-npx frameforge render-overlays clip.mp4 \
+npx kino render-overlays clip.mp4 \
   --overlays overlay-decisions.json \
   --srt captions.srt \
   --quality balanced \
@@ -112,7 +112,7 @@ npx frameforge render-overlays clip.mp4 \
 
 **Alternatively, use the all-in-one command:**
 ```bash
-npx frameforge edit clip.mp4 \
+npx kino edit clip.mp4 \
   --word-timings whisperx-output.json \
   --style neo-brutalist \
   --caption-style pop-in \
@@ -169,7 +169,7 @@ bar.animate("width", { 0: 0, 1: 0, 2.5: 600 }); // grows from 0 to 600px
 ## Available Animation Primitives (SDK)
 
 ```typescript
-import { fadeIn, fadeOut, slideIn, slideOut, scaleIn, scaleOut, rotateIn, rotateTo, stagger } from "@frameforge/sdk";
+import { fadeIn, fadeOut, slideIn, slideOut, scaleIn, scaleOut, rotateIn, rotateTo, stagger } from "@kinohq/sdk";
 
 // Each returns an AnimationPreset { property, keyframes }
 fadeIn(startSec, endSec)
@@ -207,20 +207,20 @@ new Image("path.jpg", { width, height, x, y, opacity, objectFit, borderRadius })
 # ── Video Editing ────────────────────────────────────────────────────────────
 
 # Extract enriched transcript (word timings, pauses, stats, energy curve, narrative)
-npx frameforge extract-transcript <video> -o transcript.json
+npx kino extract-transcript <video> -o transcript.json
 
 # Render overlay decisions from an AI agent onto source video
-npx frameforge render-overlays <video> --overlays decisions.json [--srt captions.srt] -o output.mp4
+npx kino render-overlays <video> --overlays decisions.json [--srt captions.srt] -o output.mp4
   --quality fast|balanced|slow|lossless   (default: balanced)
   --caption-style pop-in|karaoke|highlight|minimal|bold-center
   --caption-position top|bottom
   --format landscape|vertical|square|source
 
 # Preview overlay decisions before committing to full render (~30s)
-npx frameforge preview-overlays <video> --overlays decisions.json -o preview.html
+npx kino preview-overlays <video> --overlays decisions.json -o preview.html
 
 # All-in-one auto-edit pipeline
-npx frameforge edit <video> [options]
+npx kino edit <video> [options]
   --word-timings <path>     WhisperX JSON with word-level timing
   --style neo-brutalist|clean-minimal|corporate|bold-dark
   --caption-style <preset>
@@ -231,7 +231,7 @@ npx frameforge edit <video> [options]
 # ── Programmatic Video ───────────────────────────────────────────────────────
 
 # Render any HTML page or scene manifest
-npx frameforge render <input> [options]
+npx kino render <input> [options]
   -o, --output <path>       Output file path
   -d, --duration <seconds>  Duration (required for HTML)
   --fps <number>            Frames per second (default: 30)
@@ -239,12 +239,12 @@ npx frameforge render <input> [options]
   --height <pixels>         Height (default: 1080)
 
 # Preview single frame
-npx frameforge preview <input> [options]
+npx kino preview <input> [options]
   -o, --output <path>       Output PNG path (default: ./preview.png)
   -f, --frame <number>      Frame number (default: 0)
 
 # Compose multiple scenes with transitions
-npx frameforge compose composition.json -o output.mp4
+npx kino compose composition.json -o output.mp4
 ```
 
 ---
@@ -255,7 +255,7 @@ When editing source footage, you write overlay decisions as a JSON array. Each o
 
 **The `__ID__` namespace:** Every CSS class, HTML ID, and querySelector must use `__ID__` as a prefix. It's replaced at render time with a unique instance identifier.
 
-**The GSAP contract:** Every `initJs` must set `el._tl` to a paused GSAP timeline. FrameForge calls `el._tl.time(localT / 1000)` every frame.
+**The GSAP contract:** Every `initJs` must set `el._tl` to a paused GSAP timeline. kino calls `el._tl.time(localT / 1000)` every frame.
 
 ```json
 [
@@ -279,7 +279,7 @@ When editing source footage, you write overlay decisions as a JSON array. Each o
 
 ## How Time Virtualization Works
 
-FrameForge injects a script that patches all browser time APIs before page scripts load:
+kino injects a script that patches all browser time APIs before page scripts load:
 
 - `Date.now()` → returns virtual time
 - `performance.now()` → returns virtual time (ms)
@@ -296,7 +296,7 @@ FrameForge injects a script that patches all browser time APIs before page scrip
 
 | Issue | Fix |
 |-------|-----|
-| Canvas dimensions not even | H.264 requires even width/height. FrameForge auto-fixes with scale filter. |
+| Canvas dimensions not even | H.264 requires even width/height. kino auto-fixes with scale filter. |
 | Page uses `fetch()` for data | Works fine — network requests complete normally. Use `networkidle0` (default). |
 | Duration not specified for HTML | Add `--duration <seconds>` flag when rendering raw HTML files. |
 | FFmpeg not installed | Install from https://ffmpeg.org/download.html and ensure it's in PATH. |

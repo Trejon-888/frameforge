@@ -3,7 +3,7 @@
  *
  * Parses SRT subtitle files and generates an HTML overlay script
  * that can be injected into any page during rendering.
- * Subtitles display/hide based on FrameForge's virtual time.
+ * Subtitles display/hide based on kino's virtual time.
  */
 
 import { readFile } from "node:fs/promises";
@@ -157,7 +157,7 @@ export interface SubtitleOverlayOptions {
 
 /**
  * Generate an HTML/JS overlay script for subtitles.
- * This script is injected into the page and uses __frameforge.currentTimeMs
+ * This script is injected into the page and uses __kino.currentTimeMs
  * to show/hide subtitles at the correct times.
  */
 export function generateSubtitleOverlay(
@@ -192,7 +192,7 @@ export function generateSubtitleOverlay(
   var lastText = '';
 
   function updateSubtitles() {
-    var t = window.__frameforge ? window.__frameforge.currentTimeMs : 0;
+    var t = window.__kino ? window.__kino.currentTimeMs : 0;
     var text = '';
     for (var i = 0; i < entries.length; i++) {
       if (t >= entries[i].s && t <= entries[i].e) {

@@ -4,14 +4,14 @@
     "width": 1920,
     "height": 1080,
     "fps": 30,
-    "duration": 30,
+    "duration": 4,
     "background": "#000000"
   },
-  "entry": "./scene.html",
+  "entry": "./kino-endcard-ix.html",
   "render": {
     "codec": "h264",
     "quality": "high",
     "pixelFormat": "yuv420p",
-    "output": "./kino-showcase-v2.mp4"
+    "output": "./output/kino-endcard-ix.mp4"
   }
 }

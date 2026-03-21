@@ -8,8 +8,8 @@
 import puppeteer, { type Browser, type Page } from "puppeteer";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { TIME_VIRTUALIZATION_SCRIPT, PAGE_API_SCRIPT } from "@frameforge/core";
-import type { SceneManifest } from "@frameforge/core";
+import { TIME_VIRTUALIZATION_SCRIPT, PAGE_API_SCRIPT } from "@kinohq/core";
+import type { SceneManifest } from "@kinohq/core";
 
 const MAX_CACHE_SIZE = 120;
 
@@ -90,11 +90,11 @@ export class StudioRenderer {
 
     // Inject time virtualization
     await this.page.evaluateOnNewDocument(`
-      window.__FRAMEFORGE_FPS__ = ${fps};
-      window.__FRAMEFORGE_TOTAL_FRAMES__ = ${this.totalFrames};
-      window.__FRAMEFORGE_DURATION__ = ${duration};
-      window.__FRAMEFORGE_WIDTH__ = ${width};
-      window.__FRAMEFORGE_HEIGHT__ = ${height};
+      window.__KINO_FPS__ = ${fps};
+      window.__KINO_TOTAL_FRAMES__ = ${this.totalFrames};
+      window.__KINO_DURATION__ = ${duration};
+      window.__KINO_WIDTH__ = ${width};
+      window.__KINO_HEIGHT__ = ${height};
     `);
     await this.page.evaluateOnNewDocument(TIME_VIRTUALIZATION_SCRIPT);
     await this.page.evaluateOnNewDocument(PAGE_API_SCRIPT);
@@ -143,7 +143,7 @@ export class StudioRenderer {
     // Advance to target frame
     for (let f = 0; f <= targetFrame; f++) {
       await this.page!.evaluate(() => {
-        (window as any).__frameforge.advanceFrame();
+        (window as any).__kino.advanceFrame();
       });
     }
 

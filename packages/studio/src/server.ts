@@ -1,5 +1,5 @@
 /**
- * FrameForge Studio Server
+ * kino Studio Server
  *
  * Fastify HTTP server for the UI + WebSocket for real-time frame delivery.
  * Watches source files for hot-reload.
@@ -11,8 +11,8 @@ import fastifyStatic from "@fastify/static";
 import { watch } from "chokidar";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseManifest } from "@frameforge/core";
-import type { SceneManifest } from "@frameforge/core";
+import { parseManifest } from "@kinohq/core";
+import type { SceneManifest } from "@kinohq/core";
 import { resolve as resolvePath, dirname as dirnamePath } from "node:path";
 import { StudioRenderer } from "./renderer.js";
 
@@ -214,7 +214,7 @@ async function handleMessage(
 
     case "render": {
       try {
-        const { render } = await import("@frameforge/core");
+        const { render } = await import("@kinohq/core");
         socket.send(
           JSON.stringify({ type: "render:start" })
         );

@@ -121,11 +121,11 @@ export function assembleOverlayPage(
     var el = document.getElementById(${JSON.stringify(inst.instanceId)});
     try {
       ${inst.initJs}
-    } catch(e) { console.error('[FrameForge] Component ${inst.instanceId} init error:', e); }
+    } catch(e) { console.error('[kino] Component ${inst.instanceId} init error:', e); }
     comps.push({ el: el, start: ${inst.startMs}, end: ${inst.endMs}, update: function(el, localT) {
       try {
         ${inst.updateJs}
-      } catch(e) { if (!el._err) { el._err = true; console.error('[FrameForge] Component ${inst.instanceId} error:', e); } }
+      } catch(e) { if (!el._err) { el._err = true; console.error('[kino] Component ${inst.instanceId} error:', e); } }
     }});
   })();`;
     })
@@ -146,7 +146,7 @@ export function assembleOverlayPage(
 ${componentBlocks}
 
   function update() {
-    var t = window.__frameforge ? window.__frameforge.currentTimeMs : performance.now();
+    var t = window.__kino ? window.__kino.currentTimeMs : performance.now();
     for (var i = 0; i < comps.length; i++) {
       var c = comps[i];
       var active = t >= c.start && t <= c.end;
@@ -215,11 +215,11 @@ export function assembleAgentOverlayPage(
     if (!el) return;
     try {
       ${inst.initJs}
-    } catch(e) { console.error('[FrameForge] Agent overlay ${inst.id} init error:', e); }
+    } catch(e) { console.error('[kino] Agent overlay ${inst.id} init error:', e); }
     comps.push({ el: el, start: ${inst.startMs}, end: ${inst.endMs}, update: function(el, localT) {
       try {
         ${updateJs}
-      } catch(e) { if (!el._err) { el._err = true; console.error('[FrameForge] Agent overlay ${inst.id} update error:', e); } }
+      } catch(e) { if (!el._err) { el._err = true; console.error('[kino] Agent overlay ${inst.id} update error:', e); } }
     }});
   })();`
     )
@@ -240,7 +240,7 @@ export function assembleAgentOverlayPage(
 ${componentBlocks}
 
   function update() {
-    var t = window.__frameforge ? window.__frameforge.currentTimeMs : performance.now();
+    var t = window.__kino ? window.__kino.currentTimeMs : performance.now();
     for (var i = 0; i < comps.length; i++) {
       var c = comps[i];
       var active = t >= c.start && t <= c.end;

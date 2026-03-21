@@ -97,8 +97,26 @@
   <div class="sweep" id="sweep"></div>
 
   <div class="cta-wrap" id="cta-wrap">
-    <div class="cta-box">npm i @frameforge/core</div>
-    <div class="cta-sub">Open source · MIT License</div>
+    <div class="cta-mascot" id="cta-mascot" style="opacity:0;position:absolute;bottom:260px;left:50%;transform:translateX(-50%);width:72px;filter:drop-shadow(0 0 12px #22C55E88);">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 560" shape-rendering="crispEdges" width="72" height="91">
+        <rect x="120" y="20" width="20" height="20" fill="#DCFCE7"/><rect x="140" y="40" width="20" height="20" fill="#22C55E"/><rect x="140" y="60" width="20" height="20" fill="#22C55E"/>
+        <rect x="300" y="20" width="20" height="20" fill="#DCFCE7"/><rect x="280" y="40" width="20" height="20" fill="#22C55E"/><rect x="280" y="60" width="20" height="20" fill="#22C55E"/>
+        <rect x="180" y="80" width="40" height="20" fill="#4ADE80"/><rect x="220" y="80" width="40" height="20" fill="#22C55E"/>
+        <rect x="140" y="100" width="40" height="20" fill="#4ADE80"/><rect x="180" y="100" width="80" height="20" fill="#22C55E"/><rect x="260" y="100" width="40" height="20" fill="#16A34A"/>
+        <rect x="100" y="120" width="40" height="20" fill="#4ADE80"/><rect x="140" y="120" width="160" height="20" fill="#22C55E"/><rect x="300" y="120" width="40" height="20" fill="#16A34A"/><rect x="140" y="120" width="20" height="20" fill="#16A34A"/><rect x="280" y="120" width="20" height="20" fill="#16A34A"/>
+        <rect x="80" y="140" width="280" height="20" fill="#22C55E"/><rect x="80" y="140" width="60" height="20" fill="#4ADE80"/><rect x="320" y="140" width="40" height="20" fill="#16A34A"/>
+        <rect x="80" y="160" width="280" height="20" fill="#22C55E"/><rect x="80" y="160" width="40" height="20" fill="#4ADE80"/><rect x="320" y="160" width="40" height="20" fill="#16A34A"/>
+        <rect x="80" y="180" width="280" height="20" fill="#22C55E"/><rect x="80" y="180" width="40" height="20" fill="#4ADE80"/><rect x="120" y="180" width="60" height="20" fill="#F0FFF4"/><rect x="160" y="180" width="20" height="20" fill="#FFFFFF"/><rect x="260" y="180" width="60" height="20" fill="#F0FFF4"/><rect x="300" y="180" width="20" height="20" fill="#FFFFFF"/><rect x="320" y="180" width="40" height="20" fill="#16A34A"/>
+        <rect x="80" y="200" width="280" height="20" fill="#22C55E"/><rect x="80" y="200" width="40" height="20" fill="#4ADE80"/><rect x="120" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="140" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="160" y="200" width="20" height="20" fill="#111111"/><rect x="260" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="280" y="200" width="20" height="20" fill="#F0FFF4"/><rect x="300" y="200" width="20" height="20" fill="#111111"/><rect x="320" y="200" width="40" height="20" fill="#16A34A"/>
+        <rect x="80" y="220" width="280" height="20" fill="#22C55E"/><rect x="80" y="260" width="280" height="20" fill="#22C55E"/><rect x="180" y="260" width="80" height="20" fill="#15803D"/>
+        <rect x="100" y="300" width="240" height="20" fill="#22C55E"/><rect x="140" y="320" width="160" height="20" fill="#22C55E"/><rect x="180" y="340" width="80" height="20" fill="#22C55E"/>
+        <rect x="100" y="360" width="240" height="20" fill="#22C55E"/><rect x="100" y="400" width="240" height="20" fill="#22C55E"/>
+        <rect x="140" y="440" width="60" height="80" fill="#22C55E"/><rect x="240" y="440" width="60" height="80" fill="#22C55E"/>
+        <rect x="120" y="500" width="100" height="20" fill="#16A34A"/><rect x="240" y="500" width="100" height="20" fill="#16A34A"/>
+      </svg>
+    </div>
+    <div class="cta-box">npm i @kinohq/core</div>
+    <div class="cta-sub">open source · she came in peace</div>
   </div>
 
   <script>
@@ -165,7 +183,7 @@
       { text: 'CSS', sub: '@keyframes', badge: 'NATIVE', bg: '#264de4', fg: '#fff', dur: 0.85 },
       { text: 'D3.JS', sub: 'Data Visualization', badge: 'NATIVE', bg: '#f68e45', fg: '#000', dur: 0.85 },
       { text: 'LOTTIE', sub: 'After Effects Export', badge: 'NATIVE', bg: '#00ddb3', fg: '#000', dur: 0.85 },
-      { text: 'ANY.', sub: 'If a browser renders it...', badge: 'FRAMEFORGE', bg: '#171e19', fg: '#ffe17c', dur: 1.5 },
+      { text: 'ANY.', sub: 'she renders it.', badge: 'kino', bg: '#171e19', fg: '#ffe17c', dur: 1.5 },
     ];
 
     var totalDur = 0; var sceneStarts = [];
@@ -270,6 +288,7 @@
       if (t >= ctaStart) {
         var cp = spring(Math.min(1, (t - ctaStart) / 0.5));
         document.getElementById('cta-wrap').style.opacity = cp;
+        document.getElementById('cta-mascot').style.opacity = ease(Math.min(1, (t - ctaStart - 0.3) / 0.5));
       }
 
       updateParticles(dt);
