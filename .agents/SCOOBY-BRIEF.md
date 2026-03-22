@@ -69,10 +69,10 @@ Grow the INFINITX community by distributing content produced with kino — Enriq
 **Best times:** 9:00–11:00am, Monday–Wednesday
 **Hook formula:** Show the impossible. Say almost nothing.
 **Examples:**
-- *"she renders anything a browser can render."*
+- *"browsers dream in code. kino renders the dream."*
 - *"transmission received."*
 - *"this was code 12 seconds ago."*
-- *"she landed. she renders. she shipped."*
+- *"he landed. he renders. he shipped."*
 - *"render time: 14.2s. after effects time: never."*
 
 #### Instagram Reels — P0
@@ -238,7 +238,7 @@ Once Tier 2 begins, Scooby manages the distribution layer for the ENTIRE IX cont
 | Week | Content | Platforms | Note |
 |------|---------|-----------|------|
 | 1 | `kinetic-white-v4-clip01-v2.mp4` | LinkedIn (Tue) | No explanation. Raw quality. |
-| 1 | `v5-kino-any-framework.mp4` | X + Reels + TikTok (Wed) | "she renders anything a browser can render" |
+| 1 | `v5-kino-any-framework.mp4` | X + Reels + TikTok (Wed) | "he renders anything a browser can render" |
 | 1 | Reddit technical post | r/webdev | Time virtualization angle. Genuine. |
 | 2 | `kino-showcase-v2.mp4` (Transmission) | X + LinkedIn | Still no tool name. Alien energy. |
 | 2 | Reels/TikTok from showcase clips | Reels, TikTok, Shorts | 15s cut of best scene |
@@ -323,9 +323,9 @@ render time: 12.3s
 ```
 
 ```
-she landed.
-she renders.
-she shipped.
+he landed.
+he renders.
+he shipped.
 ```
 
 ```

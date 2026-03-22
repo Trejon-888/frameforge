@@ -50,7 +50,7 @@ she has a name.
 
 kino.
 
-she renders anything a browser can render.
+browsers dream in code. kino renders the dream.
 she's been doing it for 10 weeks.
 you've been watching.
 

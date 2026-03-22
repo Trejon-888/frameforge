@@ -30,11 +30,11 @@
 
 | Platform | Copy | Schedule |
 |----------|------|----------|
-| X | "she renders anything a browser can render." | Wednesday 9:30am |
-| Instagram Reels | "she renders anything ✦\n\nhtml · canvas · webgl · three.js · gsap · python\none command. one mp4.\n\n#motiongraphics #aitools #techcreator #aicontentcreation #contentcreator #reels" | Wednesday 11:00am |
-| TikTok | "she renders anything a browser can render. ✦ html · canvas · webgl · three.js · gsap · python" | Wednesday 11:00am |
-| Threads | "she renders anything a browser can render." | Wednesday 12:00pm |
-| Bluesky | "she renders anything a browser can render." | Wednesday 12:00pm |
+| X | "browsers dream in code. kino renders the dream." | Wednesday 9:30am |
+| Instagram Reels | "he renders anything ✦\n\nhtml · canvas · webgl · three.js · gsap · python\none command. one mp4.\n\n#motiongraphics #aitools #techcreator #aicontentcreation #contentcreator #reels" | Wednesday 11:00am |
+| TikTok | "browsers dream in code. kino renders the dream. ✦ html · canvas · webgl · three.js · gsap · python" | Wednesday 11:00am |
+| Threads | "browsers dream in code. kino renders the dream." | Wednesday 12:00pm |
+| Bluesky | "browsers dream in code. kino renders the dream." | Wednesday 12:00pm |
 
 ---
 

@@ -59,7 +59,7 @@ No mention of Kino. Let quality do the talking. CTA: IX community.
 Video: `kino-showcase-v2.mp4`
 Copy:
 ```
-she renders anything a browser can render.
+browsers dream in code. kino renders the dream.
 
 GSAP. Three.js. Canvas. WebGL. Python.
 

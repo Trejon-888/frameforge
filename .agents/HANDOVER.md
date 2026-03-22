@@ -21,7 +21,7 @@
 
 **IMMEDIATE — Post this week:**
 1. `kinetic-white-v4-clip01-v2.mp4` → LinkedIn first IX flagship post (no tool explanation, just quality)
-2. `kino-showcase-v2.mp4` → Twitter/X ("she renders anything a browser can render")
+2. `kino-showcase-v2.mp4` → Twitter/X ("he renders anything a browser can render")
 3. `v5-kino-any-framework.mp4` → Twitter/X (the flash-card format Enrique loves)
 
 **THIS WEEK — Build:**
