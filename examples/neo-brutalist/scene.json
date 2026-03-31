@@ -1,0 +1,29 @@
+{
+  "$schema": "https://frameforge.dev/schema/v1/scene.json",
+  "version": "1.0",
+  "name": "neo-brutalist",
+
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration": 22,
+    "background": "#FFDD00"
+  },
+
+  "entry": "./scene.html",
+  "audio": [],
+
+  "render": {
+    "codec": "h264",
+    "quality": "high",
+    "pixelFormat": "yuv420p",
+    "output": "./output/neo-brutalist.mp4"
+  },
+
+  "metadata": {
+    "title": "kino — Neo-Brutalist",
+    "description": "Hard-shadow cards, yellow/black palette, Space Grotesk 700, IBM Plex Mono. Split-screen reveal, stamp-in cards, marquee strip. CSS-only for all effects — no canvas, minimal GSAP. Demonstrates: box-shadow stamp animation, CSS marquee loop, sharp-cut scene transitions.",
+    "tags": ["example", "neo-brutalist", "css-only", "bold", "vertical", "social"]
+  }
+}

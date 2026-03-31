@@ -1,0 +1,29 @@
+{
+  "$schema": "https://frameforge.dev/schema/v1/scene.json",
+  "version": "1.0",
+  "name": "synthwave-retro",
+
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 60,
+    "duration": 22,
+    "background": "#0D0015"
+  },
+
+  "entry": "./scene.html",
+  "audio": [],
+
+  "render": {
+    "codec": "h264",
+    "quality": "high",
+    "pixelFormat": "yuv420p",
+    "output": "./output/synthwave-retro.mp4"
+  },
+
+  "metadata": {
+    "title": "kino — Synthwave Retro",
+    "description": "Sunset gradient sky, CSS perspective grid with forward-motion scroll, horizon pulse glow, scanlines, CRT vignette, chromatic aberration on Orbitron headline. Neon-bordered feature cards slide up from grid. Demonstrates: CSS perspective transform grid, neon box-shadows, star field, horizon glow animation.",
+    "tags": ["example", "synthwave", "retro", "perspective-grid", "css", "neon", "vertical", "social"]
+  }
+}

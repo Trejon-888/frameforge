@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>kino · neo-brutalist</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=block" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #FFDD00;
+    }
+
+    .scene {
+      position: relative;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+    }
+
+    /* ── Title card (S1) — full yellow, KINO stamp ── */
+    #s1 {
+      position: absolute;
+      inset: 0;
+      background: #FFDD00;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 0 80px;
+    }
+
+    .s1-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #000;
+      margin-bottom: 24px;
+      opacity: 0;
+    }
+    .s1-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 240px;
+      line-height: 0.82;
+      letter-spacing: -0.05em;
+      text-transform: uppercase;
+      color: #000;
+      border: 6px solid #000;
+      padding: 28px 32px;
+      box-shadow: 12px 12px 0px 0px #000;
+      opacity: 0;
+      display: inline-block;
+    }
+    .s1-tagline {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #000;
+      margin-top: 32px;
+      opacity: 0;
+    }
+
+    /* ── Split scene (S2) ── */
+    #s2 {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      opacity: 0;
+    }
+    .s2-left {
+      width: 62%;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 64px;
+      transform: translateX(-60px);
+    }
+    .s2-right {
+      width: 38%;
+      background: #FFDD00;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-left: 4px solid #000;
+      transform: translateX(60px);
+    }
+    .s2-divider {
+      width: 4px;
+      background: #000;
+      position: absolute;
+      left: 62%;
+      top: 0;
+      bottom: 0;
+    }
+    .s2-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 100px;
+      line-height: 0.86;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      color: #FFF;
+      opacity: 0;
+    }
+    .s2-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-top: 32px;
+      opacity: 0;
+    }
+    .s2-badge {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 80px;
+      letter-spacing: -0.03em;
+      color: #000;
+      background: #FFDD00;
+      border: 4px solid #000;
+      box-shadow: 6px 6px 0 0 #000;
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1;
+      opacity: 0;
+    }
+    .s2-badge-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #000;
+      margin-top: 20px;
+      opacity: 0;
+    }
+
+    /* ── Cards (S3) ── */
+    #s3 {
+      position: absolute;
+      inset: 0;
+      background: #FFF;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 72px;
+      gap: 0;
+      opacity: 0;
+    }
+    .s3-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #000;
+      margin-bottom: 48px;
+      opacity: 0;
+    }
+    .card {
+      background: #FFDD00;
+      border: 4px solid #000;
+      box-shadow: 7px 7px 0 0 #000;
+      padding: 40px 48px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      opacity: 0;
+      transform: scale(0.96) translateY(16px);
+    }
+    .card-index {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #000;
+      min-width: 60px;
+      opacity: 0.5;
+    }
+    .card-body-wrap {
+      flex: 1;
+    }
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 52px;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      color: #000;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: rgba(0,0,0,0.5);
+      text-transform: uppercase;
+    }
+    .card-arrow {
+      font-size: 40px;
+      color: #000;
+      font-weight: 700;
+    }
+
+    /* ── Marquee (S4) ── */
+    #s4 {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+      opacity: 0;
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      border-top: 3px solid #FFDD00;
+      border-bottom: 3px solid #FFDD00;
+      padding: 28px 0;
+      background: #000;
+    }
+    .marquee-inner {
+      display: flex;
+      animation: marquee 8s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 48px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #FFDD00;
+      padding-right: 80px;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .s4-end {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 900px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .s4-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 260px;
+      letter-spacing: -0.055em;
+      text-transform: uppercase;
+      color: #FFDD00;
+      line-height: 0.82;
+      opacity: 0;
+    }
+    .s4-rule {
+      width: 700px;
+      height: 3px;
+      background: #FFDD00;
+      margin: 36px 0 28px;
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+    .s4-handle {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(255,221,0,0.6);
+      opacity: 0;
+    }
+  </style>
+</head>
+
+<body>
+<div class="scene">
+
+  <!-- S1: Yellow title card -->
+  <div id="s1">
+    <div class="s1-eyebrow" id="s1-eyebrow">KINO · RENDER ENGINE</div>
+    <div class="s1-title" id="s1-title">KINO</div>
+    <div class="s1-tagline" id="s1-tagline">FRAME-PERFECT VIDEO FROM ANY BROWSER TECH</div>
+  </div>
+
+  <!-- S2: Split — statement + stat -->
+  <div id="s2">
+    <div class="s2-left">
+      <div class="s2-headline" id="s2-headline">THE<br>INTERNET<br>IS YOUR<br>STUDIO.</div>
+      <div class="s2-sub" id="s2-sub">HTML · CANVAS · WEBGL · PYTHON</div>
+    </div>
+    <div class="s2-right">
+      <div class="s2-badge" id="s2-badge">∞</div>
+      <div class="s2-badge-label" id="s2-badge-label">FRAMEWORKS</div>
+    </div>
+  </div>
+
+  <!-- S3: Feature cards -->
+  <div id="s3">
+    <div class="s3-label" id="s3-label">01 / WHAT KINO RENDERS</div>
+    <div class="card" id="card-1">
+      <span class="card-index">01</span>
+      <div class="card-body-wrap">
+        <div class="card-title">HTML + CSS</div>
+        <div class="card-desc">Any web layout, any animation</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </div>
+    <div class="card" id="card-2">
+      <span class="card-index">02</span>
+      <div class="card-body-wrap">
+        <div class="card-title">WEBGL</div>
+        <div class="card-desc">Three.js, shaders, 3D scenes</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </div>
+    <div class="card" id="card-3">
+      <span class="card-index">03</span>
+      <div class="card-body-wrap">
+        <div class="card-title">PYTHON</div>
+        <div class="card-desc">Script → scene in one command</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </div>
+  </div>
+
+  <!-- S4: Marquee + end -->
+  <div id="s4">
+    <div style="position:absolute;top:480px;left:0;right:0;">
+      <div class="marquee-track">
+        <div class="marquee-inner">
+          <span class="marquee-text">• KINO • RENDER ANYTHING •</span>
+          <span class="marquee-text">• KINO • RENDER ANYTHING •</span>
+          <span class="marquee-text">• KINO • RENDER ANYTHING •</span>
+          <span class="marquee-text">• KINO • RENDER ANYTHING •</span>
+        </div>
+      </div>
+    </div>
+    <div class="s4-end">
+      <div class="s4-title" id="s4-title">KINO</div>
+      <div class="s4-rule" id="s4-rule"></div>
+      <div class="s4-handle" id="s4-handle">@KINOHQ</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+  const ease = 'power3.out';
+
+  const tl = gsap.timeline({ defaults: { ease } });
+  tl
+
+  // ── S1: Yellow title stamp (0 – 4s) ──
+  .add('s1', 0)
+  .fromTo('#s1-eyebrow',
+    { opacity: 0, y: -10 },
+    { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' },
+  's1+=0.1')
+  .fromTo('#s1-title',
+    { opacity: 0, scale: 0.93,
+      boxShadow: '2px 2px 0px 0px #000',
+      transformOrigin: 'left center' },
+    { opacity: 1, scale: 1,
+      boxShadow: '12px 12px 0px 0px #000',
+      duration: 0.28, ease: 'power4.out' },
+  's1+=0.15')
+  .fromTo('#s1-tagline',
+    { opacity: 0, y: 10 },
+    { opacity: 1, y: 0, duration: 0.35 },
+  's1+=0.45')
+
+  // ── S2: Split enter (4 – 10s) ──
+  .add('s2', 4.0)
+  .to('#s2', { opacity: 1, duration: 0.05 }, 's2')
+  .to('.s2-left',  { x: 0, duration: 0.38, ease: 'power3.out' }, 's2')
+  .to('.s2-right', { x: 0, duration: 0.38, ease: 'power3.out' }, 's2')
+  .fromTo('#s2-headline',
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 0.55 },
+  's2+=0.35')
+  .fromTo('#s2-sub',
+    { opacity: 0, y: 10 },
+    { opacity: 1, y: 0, duration: 0.4 },
+  's2+=0.8')
+  .fromTo('#s2-badge',
+    { opacity: 0, scale: 0,
+      boxShadow: '2px 2px 0 0 #000' },
+    { opacity: 1, scale: 1,
+      boxShadow: '6px 6px 0 0 #000',
+      duration: 0.3, ease: 'back.out(1.5)' },
+  's2+=0.4')
+  .fromTo('#s2-badge-label',
+    { opacity: 0, y: 8 },
+    { opacity: 1, y: 0, duration: 0.3 },
+  's2+=0.7')
+
+  // ── S3: Cards stamp in (10 – 17s) ──
+  .add('s3', 10.0)
+  .to('#s3', { opacity: 1, duration: 0.05 }, 's3')
+  .fromTo('#s3-label',
+    { opacity: 0, y: -8 },
+    { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' },
+  's3+=0.1')
+  .fromTo('#card-1',
+    { opacity: 0, scale: 0.94, y: 16,
+      boxShadow: '2px 2px 0 0 #000' },
+    { opacity: 1, scale: 1, y: 0,
+      boxShadow: '7px 7px 0 0 #000',
+      duration: 0.25, ease: 'power3.out' },
+  's3+=0.3')
+  .fromTo('#card-2',
+    { opacity: 0, scale: 0.94, y: 16,
+      boxShadow: '2px 2px 0 0 #000' },
+    { opacity: 1, scale: 1, y: 0,
+      boxShadow: '7px 7px 0 0 #000',
+      duration: 0.25, ease: 'power3.out' },
+  's3+=0.55')
+  .fromTo('#card-3',
+    { opacity: 0, scale: 0.94, y: 16,
+      boxShadow: '2px 2px 0 0 #000' },
+    { opacity: 1, scale: 1, y: 0,
+      boxShadow: '7px 7px 0 0 #000',
+      duration: 0.25, ease: 'power3.out' },
+  's3+=0.8')
+
+  // ── S4: Marquee + end (17 – 22s) ──
+  .add('s4', 17.0)
+  .to('#s4', { opacity: 1, duration: 0.05 }, 's4')
+  .fromTo('#s4-title',
+    { opacity: 0, scale: 0.93, transformOrigin: 'center center' },
+    { opacity: 1, scale: 1, duration: 0.28, ease: 'power4.out' },
+  's4+=0.6')
+  .fromTo('#s4-rule',
+    { scaleX: 0 },
+    { scaleX: 1, duration: 0.55, ease: 'power2.inOut' },
+  's4+=1.0')
+  .fromTo('#s4-handle',
+    { opacity: 0, y: 8 },
+    { opacity: 1, y: 0, duration: 0.35 },
+  's4+=1.7');
+</script>
+</body>
+</html>

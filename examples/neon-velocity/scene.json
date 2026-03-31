@@ -1,0 +1,29 @@
+{
+  "$schema": "https://frameforge.dev/schema/v1/scene.json",
+  "version": "1.0",
+  "name": "neon-velocity",
+
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 60,
+    "duration": 22,
+    "background": "#050505"
+  },
+
+  "entry": "./scene.html",
+  "audio": [],
+
+  "render": {
+    "codec": "h264",
+    "quality": "high",
+    "pixelFormat": "yuv420p",
+    "output": "./output/neon-velocity.mp4"
+  },
+
+  "metadata": {
+    "title": "kino — Neon Velocity",
+    "description": "Brutalist glass card with #BFFF00 lime glow, GSAP FPS counter, laser sweep CTA, and lime end card wipe. Plus Jakarta Sans 800 + Geist Mono. Demonstrates: perspective rotateX entrance, tabular-nums counter, CSS backdrop-filter on sharp-cornered card.",
+    "tags": ["example", "neon-velocity", "brutalist", "gsap", "counter", "vertical", "ix-authority"]
+  }
+}
