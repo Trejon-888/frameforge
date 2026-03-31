@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "name": "ARRIVAL — Ultra Showcase",
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 24,
+    "duration": 30,
+    "background": "#050508"
+  },
+  "entry": "./arrival.html",
+  "audio": [],
+  "render": {
+    "codec": "h264",
+    "quality": "high",
+    "pixelFormat": "yuv420p",
+    "output": "./output/arrival.mp4"
+  }
+}

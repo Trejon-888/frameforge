@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>kino</title>
+
+  <!-- Fonts load blocking — kino waits for network idle before rendering -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;800&family=Geist+Mono:wght@400&display=block" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .scene {
+      position: relative;
+      width: 1080px;
+      height: 1920px;
+    }
+
+    /*
+     * ── Word reveal technique ──────────────────────────
+     * Each word is: <span class="wm [size]"><span class="w">TEXT</span></span>
+     *
+     * .wm  overflow:hidden mask that clips the translated word
+     * .w   the word itself, starts at translateY(110%) — below the mask
+     *
+     * GSAP animates .w from yPercent:110 → yPercent:0
+     * The word "rises through" the slot, clean and precise.
+     */
+    .wm {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: bottom;
+      padding-bottom: 0.08em; /* prevent descender clip */
+      margin-right: 0.22em;   /* word spacing, relative to wm font-size */
+    }
+    .wm:last-child { margin-right: 0; }
+
+    .w { display: inline-block; }
+
+    /* ── Phrase blocks ─────────────────────────────────── */
+    .phrase {
+      position: absolute;
+      left: 0;
+      width: 1080px;
+      padding: 0 80px;
+      font-size: 0; /* eliminate HTML whitespace gaps between inline-blocks */
+    }
+
+    /* ── Color ─────────────────────────────────────────── */
+    .lime  { color: #BFFF00; }
+    .white { color: #fff; }
+    .dim   { color: rgba(255, 255, 255, 0.38); }
+
+    /* ── Type scale ────────────────────────────────────── */
+    /* sm: supporting phrases — weight 200, airy */
+    .t-sm {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 54px;
+      font-weight: 200;
+      line-height: 1.18;
+      letter-spacing: -0.01em;
+    }
+    /* md: body phrases — weight 800, punchy */
+    .t-md {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 90px;
+      font-weight: 800;
+      line-height: 0.94;
+      letter-spacing: -0.035em;
+    }
+    /* lg: feature scale — weight 800 */
+    .t-lg {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 138px;
+      font-weight: 800;
+      line-height: 0.88;
+      letter-spacing: -0.045em;
+    }
+    /* xl: hero stamp — weight 800, fills ~65% of canvas width */
+    .t-xl {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 270px;
+      font-weight: 800;
+      line-height: 0.85;
+      letter-spacing: -0.05em;
+    }
+    /* xs: identity tag — mono */
+    .t-xs {
+      font-family: 'Geist Mono', monospace;
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      line-height: 1.6;
+    }
+
+    /* ── Grain canvas ──────────────────────────────────── */
+    #grain {
+      position: fixed;
+      top: 0; left: 0;
+      width: 1080px;
+      height: 1920px;
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.04;
+      mix-blend-mode: overlay;
+    }
+  </style>
+</head>
+
+<body>
+<div class="scene">
+
+  <!-- Film grain overlay — Canvas 2D, updated every 4 frames via GSAP ticker -->
+  <canvas id="grain" width="1080" height="1920"></canvas>
+
+  <!--
+    SCENE 1 — any website. / any framework.
+    ────────────────────────────────────────
+    2 lines of sm text (54px × 1.18 lh ≈ 64px/line)
+    Total height ≈ 132px
+    Vertical center: top = 960 - 66 = 894px
+  -->
+  <div class="phrase" id="p1" style="top: 840px; text-align: left;">
+    <div style="font-size: 0;">
+      <span class="wm t-sm white"><span class="w">any</span></span><span class="wm t-sm white"><span class="w">website.</span></span>
+    </div>
+    <div style="font-size: 0; margin-top: 6px;">
+      <span class="wm t-sm white"><span class="w">any</span></span><span class="wm t-sm lime"><span class="w">framework.</span></span>
+    </div>
+  </div>
+
+  <!--
+    SCENE 2 — kino renders / what browsers render.
+    ────────────────────────────────────────────────
+    Extreme scale contrast: lg (138px) on line 1, sm (54px) on line 2
+    Heights: 138×0.88 ≈ 121px + 4px gap + 54×1.18 ≈ 64px = ~189px
+    Vertical center: top = 960 - 95 = 865px
+  -->
+  <div class="phrase" id="p2" style="top: 785px; text-align: left;">
+    <div style="font-size: 0;">
+      <span class="wm t-lg lime"><span class="w">kino</span></span><span class="wm t-lg white"><span class="w">renders</span></span>
+    </div>
+    <div style="font-size: 0; margin-top: -4px;">
+      <span class="wm t-sm dim"><span class="w">what&#160;browsers&#160;render.</span></span>
+    </div>
+  </div>
+
+  <!--
+    SCENE 3 — if a browser / can render it—
+    ─────────────────────────────────────────
+    2 lines of md text (90px × 0.94 lh ≈ 85px/line)
+    Total height ≈ 174px, vertical center: top = 960 - 87 = 873px
+  -->
+  <div class="phrase" id="p3" style="top: 808px; text-align: center;">
+    <div style="font-size: 0; justify-content: center; display: flex; flex-wrap: wrap; gap: 0 0.28em;">
+      <span class="wm t-md white"><span class="w">if</span></span>
+      <span class="wm t-md white"><span class="w">a</span></span>
+      <span class="wm t-md white"><span class="w">browser</span></span>
+    </div>
+    <div style="font-size: 0; justify-content: center; display: flex; flex-wrap: wrap; gap: 0 0.28em; margin-top: -2px;">
+      <span class="wm t-md white"><span class="w">can</span></span>
+      <span class="wm t-md white"><span class="w">render</span></span>
+      <span class="wm t-md dim"><span class="w">it—</span></span>
+    </div>
+  </div>
+
+  <!--
+    SCENE 4 — KINO (stamp) / can record it.
+    ─────────────────────────────────────────
+    XL stamp: 208px × 0.85 lh ≈ 177px
+    SM subtitle: 54px × 1.18 ≈ 64px
+    Gap: 8px
+    Total: ~249px, vertical center: top = 960 - 125 = 835px
+  -->
+  <div class="phrase" id="p4" style="top: 800px; text-align: left; visibility: hidden;">
+    <!-- KINO: scale stamp animation, no wm mask needed -->
+    <div id="kino-stamp">
+      <span class="t-xl lime">KINO</span>
+    </div>
+    <!-- Subtitle: word-mask reveal -->
+    <div style="font-size: 0; margin-top: 10px;">
+      <span class="wm t-sm dim"><span class="w">can&#160;record&#160;it.</span></span>
+    </div>
+  </div>
+
+  <!--
+    SCENE 5 — Identity
+    ───────────────────
+    Positioned near bottom, ~80px from edge
+  -->
+  <div class="phrase" id="p5" style="top: 1740px; text-align: center; opacity: 0;">
+    <div class="t-xs" style="color: rgba(255, 255, 255, 0.28); font-size: 0; display: block;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 18px; letter-spacing: 0.22em;">
+        kino &middot; an infinitx production
+      </span>
+    </div>
+    <div style="margin-top: 12px; font-size: 0; display: block;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 15px; letter-spacing: 0.3em; color: rgba(191, 255, 0, 0.5);">
+        @kinohq
+      </span>
+    </div>
+  </div>
+
+</div><!-- /scene -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+  // ── Grain ────────────────────────────────────────────
+  // Canvas 2D noise, updated every 4 frames via GSAP ticker.
+  // kino renders each frame independently — grain is always unique, like real film.
+  const grainCtx = document.getElementById('grain').getContext('2d');
+  let grainTick = 0;
+
+  function drawGrain() {
+    // Render at quarter resolution, scale 4× — matches v4-headline.html pattern
+    const img = grainCtx.createImageData(270, 480);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const v = Math.random() * 255 | 0;
+      d[i] = d[i + 1] = d[i + 2] = v;
+      d[i + 3] = 255;
+    }
+    grainCtx.save();
+    grainCtx.scale(4, 4);
+    grainCtx.putImageData(img, 0, 0);
+    grainCtx.restore();
+  }
+
+  // Hook into GSAP's ticker — which uses kino's virtualized requestAnimationFrame
+  gsap.ticker.add(() => {
+    if (++grainTick % 4 === 0) drawGrain();
+  });
+
+  // ── Initial state ─────────────────────────────────────
+  // All .w spans start below their overflow:hidden masks
+  gsap.set('.w', { yPercent: 110 });
+  // KINO stamp: starts oversized — no opacity fade (opacity stays 1 throughout)
+  // p4 starts with visibility:hidden in HTML, GSAP reveals it just before the stamp
+  gsap.set('#kino-stamp', {
+    scale: 1.38,
+    transformOrigin: 'left center'
+  });
+
+  // ── Main timeline ─────────────────────────────────────
+  // GSAP uses requestAnimationFrame internally → automatically time-virtualized by kino.
+  // No special integration needed.
+
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+  // ── S1: any website. / any framework. ─────────────────
+  //    4 words, stagger 0.13s, first beat at t=0.15s
+  tl
+    .add('s1', 0.15)
+    .to('#p1 .w', {
+      yPercent: 0,
+      duration: 0.55,
+      stagger: 0.13
+    }, 's1')
+    // Fade out — 2.8s after scene starts
+    .to('#p1', {
+      opacity: 0,
+      duration: 0.3,
+      ease: 'power2.in'
+    }, 's1+=2.8')
+
+  // ── S2: kino renders / what browsers render. ──────────
+  //    3 spans (kino | renders | what browsers render.)
+  //    Extreme scale contrast: 138px on 54px
+    .add('s2')
+    .to('#p2 .w', {
+      yPercent: 0,
+      duration: 0.6,
+      stagger: 0.2
+    }, 's2+=0.05')
+    .to('#p2', {
+      opacity: 0,
+      duration: 0.38,
+      ease: 'power2.in'
+    }, 's2+=3.2')
+
+  // ── S3: if a browser / can render it— ─────────────────
+  //    6 words, fast stagger 0.10s — builds tension
+  //    Hold 1.5s EXTRA before fade for dramatic pause
+    .add('s3')
+    .to('#p3 .w', {
+      yPercent: 0,
+      duration: 0.58,
+      stagger: 0.10
+    }, 's3+=0.1')
+    .to('#p3', {
+      opacity: 0,
+      duration: 0.18,
+      ease: 'power4.in'
+    }, 's3+=3.6')
+
+  // ── S4: KINO / can record it. ─────────────────────────
+  //    0.4s of black before stamp — the answer to the question
+  //    p4 becomes visible just before stamp; KINO pops at full brightness
+    .add('s4')
+    .set('#p4', { visibility: 'visible' }, 's4+=0.38')
+    // KINO: pure scale snap — full brightness immediately, just snaps to size
+    .to('#kino-stamp', {
+      scale: 1,
+      duration: 0.18,
+      ease: 'power4.out'
+    }, 's4+=0.4')
+    // "can record it." — slides up 0.45s after KINO lands
+    .to('#p4 .wm .w', {
+      yPercent: 0,
+      duration: 0.5,
+      ease: 'power3.out'
+    }, 's4+=0.85')
+    // Hold the payoff for 5s
+    .to('#p4', {
+      opacity: 0,
+      duration: 0.9,
+      ease: 'power2.in'
+    }, 's4+=5.5')
+
+  // ── S5: Identity ──────────────────────────────────────
+    .add('s5')
+    .to('#p5', {
+      opacity: 1,
+      duration: 0.9,
+      ease: 'power2.out'
+    }, 's5+=0.2')
+    .to('#p5', {
+      opacity: 0,
+      duration: 1.1,
+      ease: 'power2.in'
+    }, 's5+=2.6');
+</script>
+
+</body>
+</html>

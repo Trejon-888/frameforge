@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>kino · glassmorphism</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=DM+Mono:wght@400;500&display=block" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      background: #08090F;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── Scene ──────────────────────────────────────── */
+    .scene {
+      position: relative;
+      width: 1080px;
+      height: 1920px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Ambient glow orbs ─────────────────────────── */
+    /*
+     * Three large blurred radial gradients that drift slowly.
+     * They're positioned behind all content via z-index.
+     * CSS @keyframes loops — kino's time virtualization
+     * means these infinite animations render frame-perfectly.
+     */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0; /* start invisible, GSAP fades in */
+    }
+
+    .orb-violet {
+      width: 700px; height: 700px;
+      top: -80px; right: -120px;
+      background: radial-gradient(circle, #7C3AFF 0%, transparent 70%);
+      filter: blur(120px);
+      animation: drift-violet 18s ease-in-out infinite alternate;
+    }
+    .orb-blue {
+      width: 600px; height: 600px;
+      bottom: 80px; left: -100px;
+      background: radial-gradient(circle, #00C6FF 0%, transparent 70%);
+      filter: blur(130px);
+      animation: drift-blue 22s ease-in-out infinite alternate;
+    }
+    .orb-pink {
+      width: 500px; height: 500px;
+      bottom: 400px; right: 60px;
+      background: radial-gradient(circle, #FF3D8A 0%, transparent 70%);
+      filter: blur(140px);
+      animation: drift-pink 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift-violet {
+      0%   { transform: translate(0, 0);       }
+      50%  { transform: translate(-40px, 30px); }
+      100% { transform: translate(25px, -45px); }
+    }
+    @keyframes drift-blue {
+      0%   { transform: translate(0, 0);       }
+      50%  { transform: translate(35px, -25px); }
+      100% { transform: translate(-20px, 40px); }
+    }
+    @keyframes drift-pink {
+      0%   { transform: translate(0, 0);       }
+      50%  { transform: translate(-30px, 20px); }
+      100% { transform: translate(25px, -30px); }
+    }
+
+    /* ── Star field ────────────────────────────────── */
+    .stars {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      opacity: 0;
+    }
+
+    /* ── Main glass panel ──────────────────────────── */
+    .panel {
+      position: relative;
+      z-index: 10;
+      width: 880px;
+      padding: 64px 72px 72px;
+      background: rgba(255, 255, 255, 0.055);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-top: 1px solid rgba(255, 255, 255, 0.22); /* light-catching top rim */
+      border-radius: 28px;
+      box-shadow:
+        0 8px 48px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      opacity: 0; /* GSAP controls entrance */
+    }
+
+    /* ── Panel header ──────────────────────────────── */
+    .panel-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(124, 58, 255, 0.8);
+      margin-bottom: 24px;
+      opacity: 0;
+    }
+
+    .panel-title {
+      font-size: 88px;
+      font-weight: 700;
+      line-height: 0.92;
+      letter-spacing: -0.045em;
+      /* gradient text: violet → cyan */
+      background: linear-gradient(135deg, #A78BFA 0%, #60CDFF 60%, #A5F3FC 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      opacity: 0;
+    }
+
+    .panel-sub {
+      font-size: 26px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      opacity: 0;
+    }
+
+    .panel-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(124,58,255,0.4), rgba(0,198,255,0.4), transparent);
+      margin: 36px 0;
+      opacity: 0;
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+
+    /* ── Feature cards ─────────────────────────────── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      padding: 24px 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      opacity: 0;
+      /* continuous float — starts after entrance, offset per card */
+    }
+    .card:nth-child(1) { animation: float 4.2s ease-in-out infinite alternate; animation-delay: 0s; animation-play-state: paused; }
+    .card:nth-child(2) { animation: float 3.8s ease-in-out infinite alternate; animation-delay: 0.6s; animation-play-state: paused; }
+    .card:nth-child(3) { animation: float 4.6s ease-in-out infinite alternate; animation-delay: 1.2s; animation-play-state: paused; }
+
+    @keyframes float {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .card-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.38);
+      line-height: 1.5;
+    }
+
+    /* ── Identity ──────────────────────────────────── */
+    .identity {
+      position: absolute;
+      bottom: 100px;
+      left: 0;
+      width: 1080px;
+      text-align: center;
+      z-index: 10;
+      opacity: 0;
+    }
+    .identity-main {
+      font-family: 'DM Mono', monospace;
+      font-size: 16px;
+      letter-spacing: 0.25em;
+      color: rgba(255, 255, 255, 0.25);
+    }
+    .identity-handle {
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      letter-spacing: 0.3em;
+      color: rgba(124, 58, 255, 0.5);
+      margin-top: 8px;
+    }
+
+    /* ── Pulse ring (logo emphasis) ─────────────────── */
+    .pulse-ring {
+      position: absolute;
+      top: 64px;
+      right: 72px;
+      width: 48px;
+      height: 48px;
+      z-index: 11;
+      opacity: 0;
+    }
+    .pulse-ring::before,
+    .pulse-ring::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(124, 58, 255, 0.6);
+      animation: pulse-expand 2.4s ease-out infinite;
+    }
+    .pulse-ring::after {
+      animation-delay: 1.2s;
+    }
+    @keyframes pulse-expand {
+      0%   { transform: scale(0.5); opacity: 0.8; }
+      100% { transform: scale(2.4); opacity: 0; }
+    }
+
+    /* ── Grain canvas ──────────────────────────────── */
+    #grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.035;
+    }
+  </style>
+</head>
+
+<body>
+<div class="scene">
+
+  <!-- Grain -->
+  <canvas id="grain" width="1080" height="1920"></canvas>
+
+  <!-- Ambient glow orbs (behind everything) -->
+  <div class="orb orb-violet"></div>
+  <div class="orb orb-blue"></div>
+  <div class="orb orb-pink"></div>
+
+  <!-- Main glass panel -->
+  <div class="panel" id="panel">
+
+    <!-- Pulse ring (top-right) -->
+    <div class="pulse-ring" id="pulse"></div>
+
+    <!-- Header label -->
+    <div class="panel-label" id="label">an infinitx production</div>
+
+    <!-- Title -->
+    <div class="panel-title" id="title">kino</div>
+
+    <!-- Sub headline -->
+    <div class="panel-sub" id="sub">
+      frame-perfect video<br>from any browser technology.
+    </div>
+
+    <!-- Divider -->
+    <div class="panel-divider" id="divider"></div>
+
+    <!-- Feature cards -->
+    <div class="cards">
+      <div class="card" id="card-1">
+        <span class="card-icon">⚡</span>
+        <div class="card-name">GSAP</div>
+        <div class="card-desc">Complex timeline animation, beat-sync precision</div>
+      </div>
+      <div class="card" id="card-2">
+        <span class="card-icon">🧊</span>
+        <div class="card-name">Three.js</div>
+        <div class="card-desc">3D scenes, lighting, camera movement</div>
+      </div>
+      <div class="card" id="card-3">
+        <span class="card-icon">🌐</span>
+        <div class="card-name">Any Browser Tech</div>
+        <div class="card-desc">Canvas, WebGL, SVG, pure CSS — all deterministic</div>
+      </div>
+    </div>
+
+  </div><!-- /panel -->
+
+  <!-- Identity (bottom) -->
+  <div class="identity" id="identity">
+    <div class="identity-main">kino · an infinitx production</div>
+    <div class="identity-handle">@kinohq</div>
+  </div>
+
+</div><!-- /scene -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+  // ── Grain (Canvas 2D, updated every 3 frames) ────
+  const grainCtx = document.getElementById('grain').getContext('2d');
+  let grainTick = 0;
+  function drawGrain() {
+    const img = grainCtx.createImageData(270, 480);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const v = Math.random() * 255 | 0;
+      d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255;
+    }
+    grainCtx.save(); grainCtx.scale(4, 4);
+    grainCtx.putImageData(img, 0, 0); grainCtx.restore();
+  }
+  gsap.ticker.add(() => { if (++grainTick % 3 === 0) drawGrain(); });
+
+  // ── CSS float animations start paused — we resume them
+  //    via GSAP after each card finishes its entrance.
+  //    This prevents the float from fighting the entrance animation.
+  function resumeFloat(el) {
+    el.style.animationPlayState = 'running';
+  }
+
+  // ── Main timeline ────────────────────────────────
+  const ease   = 'power3.out';
+  const easeSm = 'power2.out';
+
+  const tl = gsap.timeline({ defaults: { ease } });
+
+  tl
+
+  // ── 0s: Orbs fade in slowly, establishing atmosphere
+  .add('open', 0)
+  .to('.orb', {
+    opacity: 0.28,
+    duration: 2.0,
+    ease: 'power1.inOut',
+    stagger: 0.4
+  }, 'open')
+
+  // ── 1.2s: Glass panel scales in from 0.90 with spring
+  .fromTo('#panel',
+    { opacity: 0, scale: 0.90 },
+    { opacity: 1, scale: 1, duration: 0.9, ease: 'back.out(1.4)' },
+  'open+=1.2')
+
+  // ── 2.2s: Label slides down from above
+  .fromTo('#label', { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.6, ease: easeSm }, 'open+=2.2')
+
+  // ── 2.7s: kino title sweeps in with gradient
+  .fromTo('#title',
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 0.7 },
+  'open+=2.7')
+
+  // ── 3.3s: Sub-headline
+  .fromTo('#sub',
+    { opacity: 0, y: 14 },
+    { opacity: 1, y: 0, duration: 0.6, ease: easeSm },
+  'open+=3.3')
+
+  // ── 4.0s: Divider draws left → right
+  .fromTo('#divider',
+    { opacity: 1, scaleX: 0 },
+    { scaleX: 1, duration: 0.8, ease: 'power2.inOut' },
+  'open+=4.0')
+
+  // ── 4.6s: Pulse ring fades in
+  .to('#pulse', { opacity: 1, duration: 0.4 }, 'open+=4.6')
+
+  // ── 5.0s: Feature cards enter with stagger
+  .fromTo('#card-1',
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0, duration: 0.55,
+      onComplete: () => resumeFloat(document.getElementById('card-1')) },
+  'open+=5.0')
+  .fromTo('#card-2',
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0, duration: 0.55,
+      onComplete: () => resumeFloat(document.getElementById('card-2')) },
+  'open+=5.4')
+  .fromTo('#card-3',
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0, duration: 0.55,
+      onComplete: () => resumeFloat(document.getElementById('card-3')) },
+  'open+=5.8')
+
+  // ── Hold at peak (6.4s – 13.5s): cards floating, orbs drifting
+
+  // ── 13.5s: Everything fades out
+  .add('close', 13.5)
+  .to(['#panel', '.orb'], {
+    opacity: 0,
+    duration: 1.2,
+    ease: 'power2.in',
+    stagger: 0.1
+  }, 'close')
+
+  // ── 15.0s: Identity fades in
+  .add('id', 15.0)
+  .to('#identity', { opacity: 1, duration: 1.0, ease: easeSm }, 'id')
+  .to('#identity', { opacity: 0, duration: 0.9, ease: 'power2.in' }, 'id+=2.2');
+
+</script>
+</body>
+</html>

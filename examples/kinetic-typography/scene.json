@@ -1,0 +1,29 @@
+{
+  "$schema": "https://frameforge.dev/schema/v1/scene.json",
+  "version": "1.0",
+  "name": "kinetic-typography",
+
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 60,
+    "duration": 21,
+    "background": "#000000"
+  },
+
+  "entry": "./scene.html",
+  "audio": [],
+
+  "render": {
+    "codec": "h264",
+    "quality": "high",
+    "pixelFormat": "yuv420p",
+    "output": "./output/kinetic-typography.mp4"
+  },
+
+  "metadata": {
+    "title": "kino — Kinetic Typography",
+    "description": "kino's value proposition delivered through kinetic word reveals. Each word rises through an overflow:hidden mask in sync with GSAP's time-virtualized timeline — deterministic at 60fps. Demonstrates: word-mask clip reveal, scale stamp, extreme type contrast (138px / 54px), and per-frame Canvas grain.",
+    "tags": ["example", "kinetic-typography", "gsap", "social-media", "vertical", "word-reveal"]
+  }
+}
