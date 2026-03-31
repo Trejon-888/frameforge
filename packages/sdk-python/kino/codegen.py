@@ -116,6 +116,21 @@ def _generate_animation_js(el: dict, index: int) -> str:
     if not animations:
         return ""
 
+    # Merge multiple animations on the same property into one.
+    # Without this, later animation blocks overwrite earlier ones
+    # because each block's initial keyframe value applies for all
+    # time before its first keyframe.
+    merged: dict[str, dict] = {}
+    easing_for_prop: dict[str, str | None] = {}
+    for anim in animations:
+        prop = anim["property"]
+        if prop not in merged:
+            merged[prop] = {}
+            easing_for_prop[prop] = anim.get("easing_name")
+        merged[prop].update(anim["keyframes"])
+        if anim.get("easing_name"):
+            easing_for_prop[prop] = anim["easing_name"]
+
     el_id = f"ff-el-{index}"
     lines = [
         f"  // Element {index}: {el['type']}",
@@ -124,8 +139,13 @@ def _generate_animation_js(el: dict, index: int) -> str:
         f"    if (!el) return;",
     ]
 
-    for anim in animations:
-        lines.append(_generate_keyframe_interpolation(anim))
+    for prop, keyframes in merged.items():
+        merged_anim = {
+            "property": prop,
+            "keyframes": keyframes,
+            "easing_name": easing_for_prop.get(prop),
+        }
+        lines.append(_generate_keyframe_interpolation(merged_anim))
 
     lines.append("  })();")
     return "\n".join(lines)
@@ -145,6 +165,19 @@ _CSS_PROPERTY_MAP = {
 _UNIT_PROPERTIES = {"x", "y", "width", "height", "fontSize", "left", "top"}
 
 
+_EASING_JS = {
+    "linear": "function(t) { return t; }",
+    "ease_in": "function(t) { return t * t; }",
+    "ease_out": "function(t) { return t * (2 - t); }",
+    "ease_in_out": "function(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }",
+    "ease_in_cubic": "function(t) { return t * t * t; }",
+    "ease_out_cubic": "function(t) { var f = t - 1; return f*f*f + 1; }",
+    "ease_in_out_cubic": "function(t) { return t < 0.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1; }",
+    "spring": "function(t) { return 1 - Math.cos(t * 4.5 * Math.PI) * Math.exp(-t * 6); }",
+    "bounce": "function(t) { if(t<1/2.75) return 7.5625*t*t; if(t<2/2.75){t-=1.5/2.75; return 7.5625*t*t+0.75;} if(t<2.5/2.75){t-=2.25/2.75; return 7.5625*t*t+0.9375;} t-=2.625/2.75; return 7.5625*t*t+0.984375; }",
+}
+
+
 def _generate_keyframe_interpolation(anim: dict) -> str:
     """Generate JS code for interpolating keyframe values."""
     keyframes = anim["keyframes"]
@@ -159,11 +192,16 @@ def _generate_keyframe_interpolation(anim: dict) -> str:
 
     pairs = ", ".join(f"[{t}, {json.dumps(v)}]" for t, v in zip(times, values))
 
+    easing_name = anim.get("easing_name")
+    easing_js = _EASING_JS.get(easing_name, "") if easing_name else ""
+    easing_decl = f"\n      const ease = {easing_js};" if easing_js else ""
+    ease_call = "ease(progress)" if easing_js else "progress"
+
     if is_numeric:
         suffix = f" + '{unit}'" if needs_unit else ""
         return f"""
-    // Animate: {prop}
-    {{
+    // Animate: {prop}{f' (easing: {easing_name})' if easing_name else ''}
+    {{{easing_decl}
       const keyframes = [{pairs}];
       let value = keyframes[0][1];
       for (let i = 0; i < keyframes.length - 1; i++) {{
@@ -171,7 +209,7 @@ def _generate_keyframe_interpolation(anim: dict) -> str:
         const [t1, v1] = keyframes[i + 1];
         if (t >= t0 && t <= t1) {{
           const progress = (t - t0) / (t1 - t0);
-          value = v0 + (v1 - v0) * progress;
+          value = v0 + (v1 - v0) * {ease_call};
           break;
         }}
         if (t > t1) value = v1;

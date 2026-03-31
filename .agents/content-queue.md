@@ -8,7 +8,7 @@
 ## Queue
 
 ### 001 — kinetic-white-v4-clip01-v2.mp4
-**Asset:** `examples/social-media/output/kinetic-white-v4-clip01-v2.mp4`
+**Asset:** `examples/video-edit/output/kinetic-white-v4-clip01-v2.mp4`
 **Format:** 16:9 landscape
 **Priority:** P0
 **Status:** READY
@@ -47,10 +47,10 @@
 ---
 
 ### 004 — kino-showcase-v2.mp4
-**Asset:** `examples/frameforge-showcase/output/kino-showcase-v2.mp4`
+**Asset:** `examples/frameforge-showcase/kino-showcase-v2.mp4`
 **Format:** 16:9 landscape
 **Priority:** P0
-**Status:** PENDING RENDER — confirm with kino dev agent before scheduling
+**Status:** READY — render complete (4.3 MB, 2026-03-21)
 
 | Platform | Copy | Schedule |
 |----------|------|----------|
@@ -66,7 +66,7 @@ Items Scooby needs produced:
 
 | # | Request | Platform Need | Priority |
 |---|---------|---------------|----------|
-| R001 | 15s vertical crop of kino-showcase-v2 for Reels/TikTok | 9:16 1080×1920 | P0 (Week 2) |
+| R001 | 12s vertical crop of kino-showcase-v2 for Reels/TikTok | 9:16 1080×1920 | DELIVERED — `examples/frameforge-showcase/kino-showcase-v2-vertical-12s.mp4` |
 | R002 | Pinterest versions of 001 + 002 with optimized thumbnails | Static + short clip | P1 (Week 2) |
 | R003 | Dribbble showcase version of best render — clean, no text overlays | Design-focused | P1 (Week 3) |
 
