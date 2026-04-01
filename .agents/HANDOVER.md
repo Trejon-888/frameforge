@@ -1,7 +1,7 @@
 # Session Handover
 
 **Project:** kino — an infinitx production
-**Current Status:** v0.3.0 live on npm (@kinohq). GTM pivoted to IX community content flywheel. End card rendering.
+**Current Status:** v0.3.0 live on npm (@kinohq). Style library shipped. ix-process-v1.mp4 built (Apr 8 post). Worktree feat/ix-process pending merge.
 
 ---
 
@@ -11,28 +11,28 @@
 |------|--------|-------|
 | [Video Editing Engine v2](plans/active/video-editing-engine-v2.md) | Complete | Cinema system + edit agent contract shipped |
 | [Video Editing Test](plans/active/video-editing-test.md) | In Progress | agent-latest.mp4 rendered, review quality |
-| [Social Media Launch](plans/active/social-media-launch.md) | **Executing** | PIVOTED — IX content flywheel, not public dev launch. See plan. |
-| [Demo Content Series](active/demo-content-series.md) | In Progress | 4-video series — all rebranded, showcase-v2 rendered |
-| [IX-Kino Integration](plans/active/ix-kino-integration.md) | **Active** | Community weapon deployment — end card built, templates next |
+| [Social Media Launch](plans/active/social-media-launch.md) | **Executing** | Apr 1 posts SCHEDULED. ix-process-v1 queued for Apr 8. |
+| [Demo Content Series](active/demo-content-series.md) | In Progress | Style library + glassmorphism/kinetic-typo/ultra-showcase rendered |
+| [IX-Kino Integration](plans/active/ix-kino-integration.md) | **Active** | Community weapon deployment — ix-process-v1 built, comparison suite next |
 
 ---
 
 ## What's Next
 
-**IMMEDIATE — Post this week:**
-1. `kinetic-white-v4-clip01-v2.mp4` → LinkedIn first IX flagship post (no tool explanation, just quality)
-2. `kino-showcase-v2.mp4` → Twitter/X ("he renders anything a browser can render")
-3. `v5-kino-any-framework.mp4` → Twitter/X (the flash-card format Enrique loves)
+**IMMEDIATE:**
+1. Merge `feat/ix-process` → main (`/merge-worktrees`)
+2. Add `ix-process-v1.mp4` to content-queue.md as READY for Apr 8
+3. Apr 1 posts go live tomorrow (SCHEDULED — LinkedIn 8:30am, X 9:30am)
 
 **THIS WEEK — Build:**
-1. IX member onboarding one-pager (Kino access guide)
-2. `ix-authority.json` — first IX overlay template
-3. Review and post cadence: 2 Kino-produced posts/week for 8 weeks
+1. Plan "Dynamic Short-Form Format" — semantic captions + talking head / B-roll split layout
+2. Comparison suite R009 (WebGL shaders) — next content build
+3. IX member onboarding one-pager
 
 **NEXT MILESTONE:**
-- 10 IX posts published with Kino production
-- First IX member gets Kino access + produces content
-- "AI produced this in 90 seconds" viral post
+- ix-process-v1.mp4 live Apr 8
+- Dynamic short-form format proof-of-concept
+- 10 IX posts total published
 
 ---
 
@@ -48,6 +48,21 @@ Kino is NOT a public developer tool. Kino is the video production weapon exclusi
 ---
 
 ## Session Log
+
+### Session 18 — 2026-03-31
+- **Context:** Content production — style library + ix-process-v1 worktree build
+- **Completed:**
+  - Committed style library: 10 design systems (Neon Velocity, Brutalist Editorial, Swiss Minimalist, Glassmorphism Dark, Kinetic Typography, Synthwave Retro, Data Viz Technical, Soft Wellness, Cinematic Dark, Neo-Brutalist)
+  - 3 new examples rendered: glassmorphism-dark, kinetic-typography, ultra-showcase
+  - Worktree `feat/ix-process` created — worker agent built all 3 scenes autonomously
+  - `ix-process-v1.mp4` rendered: 29s, 500KB, 3-scene composite (ONE SYSTEM / 12 SECONDS / EVERY PLATFORM → IX EXCLUSIVE)
+  - Scene 3 layout fixed: full-canvas 3×3 grid centered, orange border draw-on, IX EXCLUSIVE finale
+  - Apr 1 posts already SCHEDULED (LinkedIn + X/Twitter)
+  - Introduced pattern: background agents in worktrees for parallel video production
+  - New format identified: dynamic short-form (talking head + semantic captions + B-roll split) — 70% buildable with current kino
+- **Key decision:** Worktree + background agent pattern validated for content production parallelism
+- **Pending:** Merge `feat/ix-process` → main, add ix-process-v1 to content queue as READY
+- **Next:** Merge worktrees → plan "Dynamic Short-Form Format" (semantic captions + talking head split) → comparison suite R009
 
 ### Session 17 — 2026-03-21
 - **Context:** GTM strategy + social media launch execution
