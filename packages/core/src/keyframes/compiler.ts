@@ -250,18 +250,31 @@ const W = ${canvas.width}, H = ${canvas.height};
 const cv = document.getElementById("c");
 const ctx = cv.getContext("2d");
 
-// Preload images
+// Preload images (with readiness handshake — borrowed from Remotion's delayRender pattern)
 const _images = {};
+let _pendingImages = 0;
+let _imagesReady = false;
 function _preloadImages() {
+  const srcs = new Set();
   for (const scene of COMP.scenes) {
-    for (const el of scene.elements||[]) {
-      if (el.props && el.props.src && !_images[el.props.src]) {
-        const img = new Image();
-        img.src = el.props.src;
-        _images[el.props.src] = img;
+    (function walk(els) {
+      for (const el of els||[]) {
+        if (el.props && el.props.src) srcs.add(el.props.src);
+        if (el.children) walk(el.children);
       }
-    }
+    })(scene.elements);
   }
+  if (srcs.size === 0) { _imagesReady = true; return; }
+  _pendingImages = srcs.size;
+  srcs.forEach(function(src) {
+    const img = new Image();
+    img.onload = img.onerror = function() {
+      _pendingImages--;
+      if (_pendingImages <= 0) _imagesReady = true;
+    };
+    img.src = src;
+    _images[src] = img;
+  });
 }
 _preloadImages();
 
@@ -274,7 +287,15 @@ function _setImageRefs(elements) {
   }
 }
 
+let _firstFrame = true;
 function update() {
+  // Wait for images on first frame (readiness handshake)
+  if (_firstFrame && !_imagesReady && _pendingImages > 0) {
+    requestAnimationFrame(update);
+    return;
+  }
+  _firstFrame = false;
+
   const t = performance.now() / 1000;
   ctx.clearRect(0, 0, W, H);
 
