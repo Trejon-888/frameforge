@@ -37,3 +37,8 @@ export {
   renderElements,
   type ElementRenderer,
 } from "./renderer.js";
+
+export {
+  compileScene,
+  compileSceneManifest,
+} from "./compiler.js";

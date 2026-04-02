@@ -605,6 +605,60 @@ program
   });
 
 program
+  .command("render-scene")
+  .description("Render a v2.0 scene composition JSON to MP4")
+  .argument("<input>", "Path to scene composition JSON")
+  .option("-o, --output <path>", "Output MP4 path", "./scene-output.mp4")
+  .option("--video <path>", "Source video for overlay compositing")
+  .action(async (input: string, opts) => {
+    const spinner = ora();
+    console.log(chalk.bold("\n  kino ") + chalk.dim(`v${getVersion()} — render-scene`) + "\n");
+    try {
+      spinner.start(chalk.dim("Compiling scene..."));
+      const { readFile, writeFile, mkdir, rm } = await import("node:fs/promises");
+      const { join } = await import("node:path");
+      const { tmpdir } = await import("node:os");
+      const { compileSceneManifest, validateComposition } = await import("./keyframes/index.js");
+
+      const compJSON = JSON.parse(await readFile(resolve(input), "utf-8"));
+      const errors = validateComposition(compJSON);
+      if (errors.length > 0) {
+        spinner.fail(chalk.red("Invalid scene composition"));
+        errors.forEach((e) => console.error(chalk.red(`  ${e.path}: ${e.message}`)));
+        process.exit(1);
+      }
+
+      const tmpDir = join(tmpdir(), `kino-scene-${Date.now()}`);
+      await mkdir(tmpDir, { recursive: true });
+      const htmlPath = join(tmpDir, "scene.html");
+      const { html, manifest } = compileSceneManifest(compJSON, htmlPath);
+      manifest.render.output = resolve(opts.output);
+      await writeFile(htmlPath, html, "utf-8");
+
+      spinner.text = chalk.dim("Rendering...");
+      const outputPath = await render({
+        input: htmlPath,
+        output: resolve(opts.output),
+        duration: manifest.canvas.duration,
+        fps: manifest.canvas.fps,
+        width: manifest.canvas.width,
+        height: manifest.canvas.height,
+        onProgress: (current, total) => {
+          spinner.text = chalk.dim(`Rendering frame ${current}/${total} (${Math.round((current/total)*100)}%)`);
+        },
+      });
+
+      try { await rm(tmpDir, { recursive: true, force: true }); } catch {}
+
+      spinner.succeed(chalk.green(`Scene rendered to ${outputPath}`));
+    } catch (err: any) {
+      spinner.fail(chalk.red("Scene render failed"));
+      console.error(chalk.red(`\n  ${err.message}\n`));
+      process.exit(1);
+    }
+  });
+
+program
   .command("preview-live")
   .description("Start a live preview server with hot-reload over source video")
   .argument("<input>", "Path to scene manifest JSON or overlay HTML file")

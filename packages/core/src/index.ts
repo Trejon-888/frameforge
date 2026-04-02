@@ -97,6 +97,8 @@ export {
   type CaptionConfig,
   type ValidationError,
   type ElementRenderer,
+  compileScene,
+  compileSceneManifest,
 } from "./keyframes/index.js";
 export {
   generateOverlayTimeline,

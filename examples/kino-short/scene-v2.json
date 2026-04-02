@@ -1,0 +1,193 @@
+{
+  "version": "2.0",
+  "canvas": { "width": 1080, "height": 1920, "fps": 30, "duration": 6 },
+  "scenes": [
+    {
+      "id": "intro",
+      "start": 0,
+      "end": 6,
+      "mode": "full-frame",
+      "background": "#000000",
+      "elements": [
+        {
+          "id": "grid",
+          "type": "grid",
+          "props": { "spacing": 80, "color": "rgba(255,255,255,0.05)" },
+          "animations": [
+            { "property": "opacity", "keyframes": [
+              { "time": 0, "value": 0 },
+              { "time": 1.5, "value": 1, "easing": "ease-out" }
+            ]}
+          ]
+        },
+        {
+          "id": "ring-1",
+          "type": "circle",
+          "props": { "fill": "transparent", "stroke": "#ffffff" },
+          "animations": [
+            { "property": "cx", "keyframes": [{ "time": 0, "value": 540 }] },
+            { "property": "cy", "keyframes": [{ "time": 0, "value": 960 }] },
+            { "property": "r", "keyframes": [
+              { "time": 0.3, "value": 0 },
+              { "time": 2.0, "value": 350, "easing": "cubic-bezier(0.16,1,0.3,1)" }
+            ]},
+            { "property": "opacity", "keyframes": [
+              { "time": 0.3, "value": 0 },
+              { "time": 0.8, "value": 0.6, "easing": "ease-out" },
+              { "time": 3.5, "value": 0, "easing": "ease-in" }
+            ]},
+            { "property": "lineWidth", "keyframes": [
+              { "time": 0.3, "value": 4 },
+              { "time": 2.0, "value": 1 }
+            ]}
+          ]
+        },
+        {
+          "id": "ring-2",
+          "type": "circle",
+          "props": { "fill": "transparent", "stroke": "#ffffff" },
+          "animations": [
+            { "property": "cx", "keyframes": [{ "time": 0, "value": 540 }] },
+            { "property": "cy", "keyframes": [{ "time": 0, "value": 960 }] },
+            { "property": "r", "keyframes": [
+              { "time": 0.6, "value": 0 },
+              { "time": 2.5, "value": 250, "easing": "cubic-bezier(0.16,1,0.3,1)" }
+            ]},
+            { "property": "opacity", "keyframes": [
+              { "time": 0.6, "value": 0 },
+              { "time": 1.2, "value": 0.4, "easing": "ease-out" },
+              { "time": 4.0, "value": 0, "easing": "ease-in" }
+            ]},
+            { "property": "lineWidth", "keyframes": [{ "time": 0, "value": 2 }] }
+          ]
+        },
+        {
+          "id": "center-dot",
+          "type": "dot",
+          "props": { "color": "#ffffff" },
+          "animations": [
+            { "property": "x", "keyframes": [{ "time": 0, "value": 540 }] },
+            { "property": "y", "keyframes": [{ "time": 0, "value": 960 }] },
+            { "property": "r", "keyframes": [
+              { "time": 0, "value": 0 },
+              { "time": 0.4, "value": 8, "easing": "back.out" }
+            ]},
+            { "property": "opacity", "keyframes": [
+              { "time": 0, "value": 0 },
+              { "time": 0.3, "value": 1 }
+            ]},
+            { "property": "glow", "keyframes": [
+              { "time": 0.3, "value": 0 },
+              { "time": 1.0, "value": 30, "easing": "ease-out" },
+              { "time": 3.0, "value": 0 }
+            ]}
+          ]
+        },
+        {
+          "id": "title",
+          "type": "text",
+          "props": {
+            "content": "KINO",
+            "fontSize": 160,
+            "fontWeight": "900",
+            "fontFamily": "'Inter', system-ui, sans-serif",
+            "color": "#ffffff",
+            "align": "center",
+            "baseline": "middle"
+          },
+          "animations": [
+            { "property": "x", "keyframes": [{ "time": 0, "value": 540 }] },
+            { "property": "y", "keyframes": [
+              { "time": 0.8, "value": 1020 },
+              { "time": 1.6, "value": 960, "easing": "cubic-bezier(0.16,1,0.3,1)" }
+            ]},
+            { "property": "opacity", "keyframes": [
+              { "time": 0.8, "value": 0 },
+              { "time": 1.4, "value": 1, "easing": "ease-out" }
+            ]},
+            { "property": "scale", "keyframes": [
+              { "time": 0.8, "value": 0.7 },
+              { "time": 1.6, "value": 1.0, "easing": "cubic-bezier(0.16,1,0.3,1)" }
+            ]}
+          ]
+        },
+        {
+          "id": "subtitle",
+          "type": "text",
+          "props": {
+            "content": "MOTION PLATFORM",
+            "fontSize": 36,
+            "fontWeight": "400",
+            "fontFamily": "'Inter', system-ui, sans-serif",
+            "color": "rgba(255,255,255,0.5)",
+            "align": "center",
+            "baseline": "middle"
+          },
+          "animations": [
+            { "property": "x", "keyframes": [{ "time": 0, "value": 540 }] },
+            { "property": "y", "keyframes": [
+              { "time": 1.2, "value": 1060 },
+              { "time": 2.0, "value": 1040, "easing": "ease-out" }
+            ]},
+            { "property": "opacity", "keyframes": [
+              { "time": 1.2, "value": 0 },
+              { "time": 1.8, "value": 1, "easing": "ease-out" },
+              { "time": 4.5, "value": 1 },
+              { "time": 5.5, "value": 0 }
+            ]}
+          ]
+        },
+        {
+          "id": "line-left",
+          "type": "line",
+          "props": { "stroke": "rgba(255,255,255,0.3)", "lineCap": "round" },
+          "animations": [
+            { "property": "x1", "keyframes": [{ "time": 0, "value": 340 }] },
+            { "property": "y1", "keyframes": [{ "time": 0, "value": 960 }] },
+            { "property": "x2", "keyframes": [{ "time": 0, "value": 100 }] },
+            { "property": "y2", "keyframes": [{ "time": 0, "value": 960 }] },
+            { "property": "progress", "keyframes": [
+              { "time": 1.5, "value": 0 },
+              { "time": 2.5, "value": 1, "easing": "cubic-bezier(0.16,1,0.3,1)" }
+            ]},
+            { "property": "opacity", "keyframes": [
+              { "time": 1.5, "value": 0 },
+              { "time": 2.0, "value": 1 },
+              { "time": 4.5, "value": 1 },
+              { "time": 5.5, "value": 0 }
+            ]},
+            { "property": "lineWidth", "keyframes": [{ "time": 0, "value": 2 }] }
+          ]
+        },
+        {
+          "id": "line-right",
+          "type": "line",
+          "props": { "stroke": "rgba(255,255,255,0.3)", "lineCap": "round" },
+          "animations": [
+            { "property": "x1", "keyframes": [{ "time": 0, "value": 740 }] },
+            { "property": "y1", "keyframes": [{ "time": 0, "value": 960 }] },
+            { "property": "x2", "keyframes": [{ "time": 0, "value": 980 }] },
+            { "property": "y2", "keyframes": [{ "time": 0, "value": 960 }] },
+            { "property": "progress", "keyframes": [
+              { "time": 1.5, "value": 0 },
+              { "time": 2.5, "value": 1, "easing": "cubic-bezier(0.16,1,0.3,1)" }
+            ]},
+            { "property": "opacity", "keyframes": [
+              { "time": 1.5, "value": 0 },
+              { "time": 2.0, "value": 1 },
+              { "time": 4.5, "value": 1 },
+              { "time": 5.5, "value": 0 }
+            ]},
+            { "property": "lineWidth", "keyframes": [{ "time": 0, "value": 2 }] }
+          ]
+        }
+      ],
+      "sound": [
+        { "type": "whoosh-in", "time": 0.3 },
+        { "type": "kick", "time": 0.8 },
+        { "type": "chime", "time": 1.4 }
+      ]
+    }
+  ],
+  "style": "editorial-studio"
+}
