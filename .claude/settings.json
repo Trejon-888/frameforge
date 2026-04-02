@@ -11,6 +11,18 @@
     "piv": {
       "path": ".claude/skills/piv/SKILL.md",
       "description": "Self-recursive development loop: research, plan, execute, validate, heal, repeat. Auto-invoke when user says 'piv', 'autopilot', 'ship it', 'full validation', 'keep going until done'."
+    },
+    "kino-analyze": {
+      "path": ".claude/skills/kino-analyze/SKILL.md",
+      "description": "Analyze a video script or transcript — extract beats, concepts, emotional arc, and visual metaphor opportunities. Use when the user provides a script, transcript, or video brief."
+    },
+    "kino-spec": {
+      "path": ".claude/skills/kino-spec/SKILL.md",
+      "description": "Write a production spec — the creative contract defining beat map, color arc, visual philosophy, key moments, persistent elements, and audio sync. Use after /kino-analyze, before /kino-build."
+    },
+    "kino-build": {
+      "path": ".claude/skills/kino-build/SKILL.md",
+      "description": "Build and render a kino video from a production spec. Generates SceneComposition v2.0 JSON, renders via kino CLI. Use after /kino-spec."
     }
   },
   "hooks": {
