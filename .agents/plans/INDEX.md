@@ -8,7 +8,7 @@
 
 | Status | Count |
 |--------|-------|
-| Active | 5 |
+| Active | 6 |
 | Pending | 0 |
 | Completed | 13 |
 
@@ -23,6 +23,7 @@
 | [Social Media Launch](active/social-media-launch.md) | 2026-03-21 | Active — Executing | Full pivot: IX content flywheel, not public dev launch. Post kinetic-white v4 first. |
 | [IX-Kino Integration](active/ix-kino-integration.md) | 2026-03-21 | Active | Community weapon deployment — end card, templates, agent pipeline, member access |
 | [Demo Content Series](active/demo-content-series.md) | 2026-03-20 | In Progress | 4-video creative series — showcase rendered, 3 more planned |
+| [kino v2 Motion Platform](active/kino-v2-motion-platform.md) | 2026-04-01 | Active | Keyframe engine, scene format, primitives, preview server, sound, parallel capture |
 ---
 
 ## Completed Plans

@@ -343,8 +343,8 @@ program
   .description("Edit a video with auto-generated captions and motion graphics")
   .argument("<input>", "Path to source video file")
   .option("-o, --output <path>", "Output file path", "./edited.mp4")
-  .option("-s, --style <preset>", "Style preset (neo-brutalist, clean-minimal, corporate, bold-dark, poster-modernist)", "neo-brutalist")
-  .option("--caption-style <style>", "Caption style (pop-in, karaoke, highlight, minimal, bold-center)", "pop-in")
+  .option("-s, --style <preset>", "Style preset (neo-brutalist, clean-minimal, corporate, bold-dark, poster-modernist, editorial-studio)", "neo-brutalist")
+  .option("--caption-style <style>", "Caption style (pop-in, karaoke, highlight, minimal, bold-center, editorial)", "pop-in")
   .option("--format <format>", "Output format (landscape, vertical, square, source)", "source")
   .option("--brand-color <hex>", "Override primary brand color")
   .option("--srt <path>", "Use existing SRT file (skip transcription)")
@@ -354,6 +354,7 @@ program
   .option("--max-words <n>", "Max words per caption group", parseInt, 4)
   .option("--caption-position <pos>", "Caption position (bottom, center, top)", "bottom")
   .option("--captions-only", "Skip overlay generation, only add captions")
+  .option("--native", "Use native ASS+FFmpeg for captions (no Puppeteer, 10-100x faster)")
   .option("--quality <speed>", "Encoding quality (fast, balanced, slow, lossless)", "balanced")
   .action(async (input: string, opts) => {
     const spinner = ora();
@@ -383,6 +384,7 @@ program
         maxWordsPerGroup: opts.maxWords,
         captionPosition: opts.captionPosition,
         captionsOnly: opts.captionsOnly,
+        native: opts.native,
         onProgress: (stage, detail) => {
           spinner.text = chalk.dim(`[${stage}] ${detail}`);
         },
@@ -598,6 +600,30 @@ program
           chalk.yellow("  Hint: Install WhisperX (pip install whisperx) or provide --srt <file>\n")
         );
       }
+      process.exit(1);
+    }
+  });
+
+program
+  .command("preview-live")
+  .description("Start a live preview server with hot-reload over source video")
+  .argument("<input>", "Path to scene manifest JSON or overlay HTML file")
+  .option("--video <path>", "Path to source video file")
+  .option("-p, --port <number>", "Server port", parseInt, 3456)
+  .action(async (input: string, opts) => {
+    console.log(chalk.bold("\n  kino ") + chalk.dim(`v${getVersion()} — preview-live`) + "\n");
+    try {
+      const { createPreviewServer } = await import("./preview-server/index.js");
+      const { start, stop } = createPreviewServer({
+        input, video: opts.video, port: opts.port,
+        onReady: (url) => { console.log(chalk.green(`  Server running at ${url}\n`) + chalk.dim(`  Watching for changes... Ctrl+C to stop.\n`)); },
+        onChange: (file) => { console.log(chalk.dim(`  [reload] `) + chalk.yellow(file)); },
+      });
+      await start();
+      process.on("SIGINT", async () => { await stop(); process.exit(0); });
+      process.on("SIGTERM", async () => { await stop(); process.exit(0); });
+    } catch (err: any) {
+      console.error(chalk.red(`  Preview server failed: ${err.message}\n`));
       process.exit(1);
     }
   });

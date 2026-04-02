@@ -74,6 +74,8 @@ export interface EditOptions {
   captionPosition?: "bottom" | "center" | "top";
   /** Skip overlay generation (captions only) */
   captionsOnly?: boolean;
+  /** Use native ASS+FFmpeg for captions (no Puppeteer, 10-100x faster) */
+  native?: boolean;
   /** Progress callback */
   onProgress?: (stage: string, detail: string) => void;
 }
@@ -159,9 +161,65 @@ export async function editVideo(options: EditOptions): Promise<EditResult> {
     progress("overlays", `Generated ${overlayCount} overlay elements (${overlayDeps.length} deps)`);
   }
 
-  // === Stage 7: Generate caption overlay ===
-  progress("captions", "Generating caption overlay...");
+  // === Stage 7: Caption rendering path ===
   const captionPosition = options.captionPosition || "bottom";
+
+  // Native ASS path: skip Puppeteer entirely, render captions via FFmpeg libass
+  const useNative = options.native ?? (options.captionsOnly ?? false);
+  if (useNative) {
+    progress("captions", "Generating ASS captions (native FFmpeg path)...");
+
+    const { generateASS, buildASSCompositeArgs } = await import("./ass-captions.js");
+    const assContent = generateASS(captionGroups, {
+      width: dims.width,
+      height: dims.height,
+      style,
+      position: captionPosition,
+    });
+
+    const assTmpDir = join(tmpdir(), `kino-ass-${Date.now()}`);
+    await mkdir(assTmpDir, { recursive: true });
+    const assPath = join(assTmpDir, "captions.ass");
+    await writeFile(assPath, assContent, "utf-8");
+
+    progress("render", "FFmpeg native render (no Puppeteer)...");
+
+    const speed = (ENCODING_SPEED_PRESETS as any)[options.encodingSpeed || "balanced"]
+      ? (options.encodingSpeed as keyof typeof ENCODING_SPEED_PRESETS) || "balanced"
+      : "balanced";
+    const speedPreset = ENCODING_SPEED_PRESETS[speed];
+
+    const ffmpegArgs = buildASSCompositeArgs({
+      input: inputPath,
+      assFile: assPath,
+      output: outputPath,
+      crf: 18 + (speedPreset.crfOffset ?? 0),
+      preset: speedPreset.preset,
+    });
+
+    await new Promise<void>((resolve, reject) => {
+      execFileAsync("ffmpeg", ffmpegArgs)
+        .then(() => resolve())
+        .catch((err) => reject(new Error(`FFmpeg ASS render failed: ${err.message}`)));
+    });
+
+    try { await rm(assTmpDir, { recursive: true, force: true }); } catch { /* best-effort */ }
+
+    const durationMs = Date.now() - startTime;
+    progress("done", `Native render completed in ${(durationMs / 1000).toFixed(1)}s`);
+
+    return {
+      outputPath,
+      probe,
+      wordCount: words.length,
+      captionGroupCount: captionGroups.length,
+      overlayCount: 0,
+      durationMs,
+    };
+  }
+
+  // === Puppeteer path (complex overlays) ===
+  progress("captions", "Generating caption overlay...");
   const captionConfig: Partial<CaptionStyleConfig> = {
     preset: options.captionPreset || "pop-in",
     fontSize: scaleFontSize(80, dims.width, dims.height),

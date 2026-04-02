@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { TIME_VIRTUALIZATION_SCRIPT } from "./time-virtualization.js";
 import { PAGE_API_SCRIPT } from "./page-api.js";
+import { splitFrameRange, clampWorkerCount, type FrameRange } from "./frame-capture.js";
 
 /**
  * Frame capture tests verify the integration contract between
@@ -164,6 +165,120 @@ describe("frame-capture", () => {
       const duration = 3.5;
       const totalFrames = Math.ceil(fps * duration);
       expect(totalFrames).toBe(84);
+    });
+  });
+
+  // ── Parallel Frame Capture Tests ─────────────────────────────────
+
+  describe("splitFrameRange", () => {
+    it("splits 100 frames across 3 workers into contiguous ranges", () => {
+      const ranges = splitFrameRange(100, 3);
+      expect(ranges).toHaveLength(3);
+      expect(ranges[0]).toEqual({ start: 0, end: 33 });
+      expect(ranges[1]).toEqual({ start: 33, end: 66 });
+      expect(ranges[2]).toEqual({ start: 66, end: 100 });
+    });
+
+    it("covers every frame exactly once", () => {
+      const ranges = splitFrameRange(100, 3);
+      const allFrames = new Set<number>();
+      for (const range of ranges) {
+        for (let f = range.start; f < range.end; f++) {
+          expect(allFrames.has(f)).toBe(false); // no duplicates
+          allFrames.add(f);
+        }
+      }
+      expect(allFrames.size).toBe(100);
+    });
+
+    it("handles even division (300 frames / 3 workers)", () => {
+      const ranges = splitFrameRange(300, 3);
+      expect(ranges).toHaveLength(3);
+      expect(ranges[0]).toEqual({ start: 0, end: 100 });
+      expect(ranges[1]).toEqual({ start: 100, end: 200 });
+      expect(ranges[2]).toEqual({ start: 200, end: 300 });
+    });
+
+    it("last chunk absorbs remainder for uneven splits", () => {
+      const ranges = splitFrameRange(10, 3);
+      expect(ranges).toHaveLength(3);
+      // chunkSize = floor(10/3) = 3
+      expect(ranges[0]).toEqual({ start: 0, end: 3 });
+      expect(ranges[1]).toEqual({ start: 3, end: 6 });
+      expect(ranges[2]).toEqual({ start: 6, end: 10 }); // absorbs remainder
+    });
+
+    it("handles 1 worker (single range covering all frames)", () => {
+      const ranges = splitFrameRange(500, 1);
+      expect(ranges).toHaveLength(1);
+      expect(ranges[0]).toEqual({ start: 0, end: 500 });
+    });
+
+    it("handles 2 workers", () => {
+      const ranges = splitFrameRange(600, 2);
+      expect(ranges).toHaveLength(2);
+      expect(ranges[0]).toEqual({ start: 0, end: 300 });
+      expect(ranges[1]).toEqual({ start: 300, end: 600 });
+    });
+
+    it("clamps workers to totalFrames when frames < workers", () => {
+      const ranges = splitFrameRange(2, 5);
+      expect(ranges).toHaveLength(2);
+      expect(ranges[0]).toEqual({ start: 0, end: 1 });
+      expect(ranges[1]).toEqual({ start: 1, end: 2 });
+    });
+
+    it("handles single frame", () => {
+      const ranges = splitFrameRange(1, 3);
+      expect(ranges).toHaveLength(1);
+      expect(ranges[0]).toEqual({ start: 0, end: 1 });
+    });
+
+    it("ranges are contiguous (no gaps between chunks)", () => {
+      const ranges = splitFrameRange(997, 3);
+      for (let i = 1; i < ranges.length; i++) {
+        expect(ranges[i].start).toBe(ranges[i - 1].end);
+      }
+      expect(ranges[0].start).toBe(0);
+      expect(ranges[ranges.length - 1].end).toBe(997);
+    });
+  });
+
+  describe("clampWorkerCount", () => {
+    it("defaults to a safe value when no argument provided", () => {
+      const count = clampWorkerCount();
+      expect(count).toBeGreaterThanOrEqual(1);
+      expect(count).toBeLessThanOrEqual(2);
+    });
+
+    it("defaults to a safe value for undefined", () => {
+      const count = clampWorkerCount(undefined);
+      expect(count).toBeGreaterThanOrEqual(1);
+      expect(count).toBeLessThanOrEqual(2);
+    });
+
+    it("clamps to maximum of 3", () => {
+      expect(clampWorkerCount(4)).toBe(3);
+      expect(clampWorkerCount(10)).toBe(3);
+      expect(clampWorkerCount(100)).toBe(3);
+    });
+
+    it("clamps to minimum of 1", () => {
+      expect(clampWorkerCount(0)).toBe(1);
+      expect(clampWorkerCount(-1)).toBe(1);
+      expect(clampWorkerCount(-100)).toBe(1);
+    });
+
+    it("allows valid values 1, 2, and 3", () => {
+      expect(clampWorkerCount(1)).toBe(1);
+      expect(clampWorkerCount(2)).toBe(2);
+      expect(clampWorkerCount(3)).toBe(3);
+    });
+
+    it("floors fractional values", () => {
+      expect(clampWorkerCount(2.7)).toBe(2);
+      expect(clampWorkerCount(1.9)).toBe(1);
+      expect(clampWorkerCount(3.9)).toBe(3);
     });
   });
 });

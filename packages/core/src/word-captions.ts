@@ -30,7 +30,8 @@ export type CaptionPreset =
   | "karaoke"
   | "highlight"
   | "minimal"
-  | "bold-center";
+  | "bold-center"
+  | "editorial";
 
 export interface CaptionStyleConfig {
   preset: CaptionPreset;
@@ -554,6 +555,50 @@ function getPresetCode(cfg: CaptionStyleConfig): {
             var ws = parseInt(wordEls[j].getAttribute('data-start'));
             var we = parseInt(wordEls[j].getAttribute('data-end'));
             wordEls[j].style.animationDelay = (j * 0.08) + 's';
+            if (t >= ws && t <= we) {
+              wordEls[j].classList.add('speaking');
+            } else {
+              wordEls[j].classList.remove('speaking');
+            }
+          }
+        `,
+      };
+
+    case "editorial":
+      return {
+        styles: `
+          .ff-caption-group {
+            ${glassBg}
+            ${glassPad}
+            overflow: hidden;
+          }
+          .ff-word {
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            text-shadow: ${strokeShadow};
+            display: inline-block;
+            transform: translateY(110%);
+            opacity: 0;
+          }
+          .ff-caption-group.active .ff-word {
+            animation: ff-editorial-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          }
+          .ff-word.speaking {
+            font-weight: 900;
+            transform: scale(1.08) translateY(0) !important;
+            opacity: 1 !important;
+          }
+          @keyframes ff-editorial-up {
+            0% { transform: translateY(110%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+          }
+        `,
+        animationLogic: `
+          var wordEls = container.querySelectorAll('.ff-word');
+          for (var j = 0; j < wordEls.length; j++) {
+            var ws = parseInt(wordEls[j].getAttribute('data-start'));
+            var we = parseInt(wordEls[j].getAttribute('data-end'));
+            wordEls[j].style.animationDelay = (j * 0.06) + 's';
             if (t >= ws && t <= we) {
               wordEls[j].classList.add('speaking');
             } else {

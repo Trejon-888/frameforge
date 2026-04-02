@@ -1,7 +1,7 @@
 # Session Handover
 
 **Project:** kino — an infinitx production
-**Current Status:** v0.3.0 live on npm (@kinohq). Style library shipped. ix-process-v1.mp4 built (Apr 8 post). Worktree feat/ix-process pending merge.
+**Current Status:** v0.3.0 live on npm (@kinohq). Full style library (10 styles) rendered. Jensen comparison 9:16 + 16:9 both delivered. All wave 2 assets in Scooby's inbox.
 
 ---
 
@@ -22,7 +22,7 @@
 **IMMEDIATE:**
 1. Merge `feat/ix-process` → main (`/merge-worktrees`)
 2. Add `ix-process-v1.mp4` to content-queue.md as READY for Apr 8
-3. Apr 1 posts go live tomorrow (SCHEDULED — LinkedIn 8:30am, X 9:30am)
+3. Apr 1 posts go live today (SCHEDULED — LinkedIn 8:30am, X 9:30am)
 
 **THIS WEEK — Build:**
 1. Plan "Dynamic Short-Form Format" — semantic captions + talking head / B-roll split layout
@@ -48,6 +48,35 @@ Kino is NOT a public developer tool. Kino is the video production weapon exclusi
 ---
 
 ## Session Log
+
+### Session 20 — 2026-04-01
+- **Context:** kino v2 agentic motion platform — full architecture build
+- **Completed:**
+  - ASS caption engine (22 tests) — FFmpeg-native subtitle rendering, 100x faster than Puppeteer
+  - `kino edit --native` — bypasses Puppeteer for captions
+  - Keyframe animation engine (14 tests) — property interpolation, easing, fluent builder
+  - Easing library (15 tests) — 25+ presets + cubic-bezier + step
+  - Scene composition v2.0 format (11 tests) — JSON contract for AI agents
+  - Canvas 2D renderer — open element registry, 8 built-in types
+  - Sound mixer (35 tests) — FFmpeg audio mixing, 17-sound library
+  - Live preview server (17 tests) — `kino preview-live` hot-reload
+  - Parallel frame capture (16 new tests) — 2-3 Puppeteer workers
+  - Editorial-studio + social-pop style presets
+  - PRD: `.agents/plans/active/kino-v2-motion-platform.md`
+  - 3 worktree agents built in parallel, all merged
+- **Key decisions:** Captions → FFmpeg/ASS (not browser). Keyframe engine replaces GSAP lock-in. Open element system replaces rigid components. Scene v2.0 is the agent contract.
+- **Tests:** 368 passing (+108 from session start)
+
+### Session 19 — 2026-03-31
+- **Context:** Style library wave 2 + Jensen comparison renders
+- **Completed:**
+  - Fixed soft-wellness: removed CSS `@keyframes blob-morph-a/b/c` (conflicted with kino CSS timeline virtualization). Replaced with single-pass GSAP drift (`gsap.to(blob, { x, y, duration: 22, ease: 'sine.inOut' })` — no `repeat: -1`)
+  - Rendered all 5 wave 2 style library examples: Swiss Minimalist (479KB), Cinematic Dark (870KB), Brutalist Editorial (3.8MB), Data Viz Technical (844KB), Soft Wellness (1.5MB)
+  - Rendered Jensen comparison 9:16 (5.3MB, 40s) and 16:9 (4.2MB, 40s)
+  - Dropped full delivery manifest in Scooby inbox — all 7 files confirmed READY
+  - Jensen 16:9 slotted for Apr 7 LinkedIn 10am PT
+- **Key decision:** CSS infinite animations (`animation: ... infinite`) are incompatible with kino's CSS timeline virtualization — always use GSAP for any looping/long animations
+- **Pending:** Merge `feat/ix-process` → main, add ix-process-v1 to content queue as READY for Apr 8
 
 ### Session 18 — 2026-03-31
 - **Context:** Content production — style library + ix-process-v1 worktree build

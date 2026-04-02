@@ -7,7 +7,15 @@ export {
   type RenderConfig,
 } from "./manifest.js";
 export { TIME_VIRTUALIZATION_SCRIPT } from "./time-virtualization.js";
-export { captureFrames, type FrameCaptureOptions } from "./frame-capture.js";
+export {
+  captureFrames,
+  captureFramesParallel,
+  splitFrameRange,
+  clampWorkerCount,
+  type FrameCaptureOptions,
+  type ParallelCaptureOptions,
+  type FrameRange,
+} from "./frame-capture.js";
 export { encodeVideo, compositeVideo, FFmpegPipeline, type FFmpegOptions, type CompositeOptions } from "./ffmpeg.js";
 export { PAGE_API_SCRIPT } from "./page-api.js";
 export { capturePreview, type PreviewOptions } from "./preview.js";
@@ -50,6 +58,46 @@ export {
   type CaptionPreset,
   type CaptionStyleConfig,
 } from "./word-captions.js";
+export {
+  generateASS,
+  generateASSFromWords,
+  hexToASS,
+  formatASSTime,
+  assFilterString,
+  buildASSCompositeArgs,
+  type ASSCaptionConfig,
+} from "./ass-captions.js";
+
+// Keyframe animation engine — the foundation of motion graphics
+export {
+  interpolateProperty,
+  resolveAtTime,
+  resolveTree,
+  element,
+  ElementBuilder,
+  stagger,
+  createEasing,
+  listEasings,
+  validateComposition,
+  getActiveScenesAtTime,
+  getAllSoundCues,
+  getElementsAtTime,
+  registerRenderer,
+  getRenderer,
+  listRenderers,
+  renderElement,
+  renderElements,
+  type Keyframe,
+  type PropertyTimeline,
+  type AnimatedElement,
+  type ResolvedProps,
+  type EasingFn,
+  type SceneComposition,
+  type Scene,
+  type CaptionConfig,
+  type ValidationError,
+  type ElementRenderer,
+} from "./keyframes/index.js";
 export {
   generateOverlayTimeline,
   generateOverlayHTML,
@@ -94,6 +142,23 @@ export {
   type ZoneRecommendation,
   type TranscriptIntelligence,
 } from "./transcript-intelligence.js";
+
+// Live preview server
+export { createPreviewServer, type PreviewServerOptions } from "./preview-server/index.js";
+
+// Sound design system
+export {
+  buildAudioMixArgs,
+  buildSimpleAudioMixArgs,
+  SOUND_LIBRARY,
+  listSounds,
+  resolveSoundPath,
+  hasSound,
+  type SoundCue,
+  type AudioMixOptions,
+  type SoundEntry,
+  type SoundCategory,
+} from "./sound/index.js";
 
 // Component system
 export {

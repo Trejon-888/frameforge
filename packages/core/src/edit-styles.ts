@@ -222,6 +222,45 @@ export const STYLE_PRESETS: Record<string, EditStyle> = {
       defaultDuration: 0.3,
     },
   },
+
+  /**
+   * Editorial Studio — Typography-first B&W creative studio aesthetic.
+   * Pure black/white palette, Inter with extreme weight contrast, tight tracking.
+   * All motion uses the premium cubic-bezier(0.16, 1, 0.3, 1) easing.
+   * Strict discipline: no color except from photography/video content.
+   */
+  "editorial-studio": {
+    name: "Editorial Studio",
+    theme: "dark",
+    colors: {
+      primary: "#FFFFFF",
+      secondary: "#A0A0A0",
+      background: "#0A0A0A",
+      text: "#FFFFFF",
+      textAlt: "#A0A0A0",
+      surface: "rgba(255,255,255,0.06)",
+      border: "rgba(255,255,255,0.10)",
+      muted: "#737373",
+    },
+    typography: {
+      heading: "'Inter', system-ui",
+      body: "'Inter', system-ui",
+      captionFont: "'Inter', system-ui",
+      googleFontsUrl:
+        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
+    },
+    elements: {
+      borderWidth: 1,
+      borderRadius: 0,
+      shadowStyle: "none",
+      cornerStyle: "sharp",
+    },
+    animations: {
+      enterCurve: "cubic-bezier(0.16, 1, 0.3, 1)",
+      exitCurve: "cubic-bezier(0.16, 1, 0.3, 1)",
+      defaultDuration: 0.8,
+    },
+  },
 };
 
 /**
